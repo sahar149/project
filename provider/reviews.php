@@ -35,79 +35,224 @@ $stats = $stmt->fetch();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Reviews - Provider</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            cream: '#F9F5F1',
+                            terracotta: '#CB6D51',
+                            rose: '#C18B8B',
+                            dark: '#333333',
+                            gray: '#666666',
+                            lightGray: '#F3F4F6',
+                            border: '#E5E7EB',
+                        }
+                    },
+                    borderRadius: {
+                        '8xl': '1rem',
+                    }
+                }
+            }
+        }
+    </script>
+    <style data-purpose="custom-styles">
+        body {
+            background-color: #F9F5F1;
+            color: #333333;
+        }
+        
+        input:focus, textarea:focus {
+            --tw-ring-color: #CB6D51 !important;
+            border-color: #CB6D51 !important;
+        }
+    </style>
 </head>
-<body>
-    <nav class="navbar navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="dashboard.php">
-                <i class="bi bi-tools"></i> Provider Dashboard
-            </a>
-            <div>
-                <span class="text-white me-3"><?php echo htmlspecialchars(getUserName()); ?></span>
-                <a href="/local-services-platform/public/logout.php" class="btn btn-danger btn-sm">Logout</a>
+<body class="flex flex-col min-h-screen font-sans">
+    <!-- BEGIN: Top Navbar -->
+    <header class="bg-white border-b border-brand-border h-16 flex items-center justify-between px-6 sticky top-0 z-50">
+        <div class="flex items-center gap-2 text-brand-terracotta font-bold text-xl">
+            <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            <span>LocalEase</span>
+        </div>
+        <div class="flex items-center gap-6">
+            <button class="relative text-brand-gray hover:text-brand-terracotta transition-colors">
+                <svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            <div class="flex items-center gap-3 border-l border-brand-border pl-6 cursor-pointer">
+                <img alt="User Avatar" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvSqqz3bX9MUSyzN9ZvlObT5lr64d4hG-DEbje2rguJiGtPhYq9x7GAfcpgz-k9gDXMXIDVtS96q4n4peZzyfGJW_aJCDhJgAB0ZyLsHWyC_cBkxe3GOfn_h1cIu7BktAtmSYU0K397nJZpYEafNjyUfF0uNgi8B35dfDmWZAafNEdkFIO40PKzotsLzlfouP0PpBC9upD-lNaSoVt1qZNdR3Mck87NEQjIsSicoThk7FjiuiACE1MTQ">
+                <span class="font-medium text-sm text-brand-dark"><?php echo htmlspecialchars(getUserName()); ?></span>
+                <svg class="text-brand-gray" fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
             </div>
         </div>
-    </nav>
+    </header>
+    <!-- END: Top Navbar -->
 
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-md-12">
-                <h2><i class="bi bi-star"></i> My Reviews</h2>
-                <p class="text-muted">What customers say about your services</p>
-                
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <div class="card bg-warning text-white">
-                            <div class="card-body text-center">
-                                <h3><?php echo number_format($stats['avg_rating'], 1); ?> ⭐</h3>
-                                <p>Average Rating</p>
-                            </div>
+    <div class="flex flex-1 overflow-hidden">
+        <!-- BEGIN: Side Sidebar -->
+        <aside class="w-64 bg-white border-r border-brand-border flex flex-col hidden md:flex">
+            <nav class="flex-1 py-6 px-4 space-y-2">
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-brand-gray hover:bg-brand-cream hover:text-brand-terracotta transition-colors" href="dashboard.php">
+                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><rect height="9" width="7" x="3" y="3"></rect><rect height="5" width="7" x="14" y="3"></rect><rect height="9" width="7" x="14" y="12"></rect><rect height="5" width="7" x="3" y="16"></rect></svg>
+                    <span class="font-medium text-sm">Dashboard</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-brand-gray hover:bg-brand-cream hover:text-brand-terracotta transition-colors" href="#">
+                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><rect height="14" rx="2" ry="2" width="20" x="2" y="7"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                    <span class="font-medium text-sm">My Services</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-brand-gray hover:bg-brand-cream hover:text-brand-terracotta transition-colors" href="#">
+                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><rect height="18" rx="2" ry="2" width="18" x="3" y="4"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
+                    <span class="font-medium text-sm">Bookings</span>
+                </a>
+                <!-- Active Tab -->
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-brand-cream text-brand-terracotta border-l-4 border-brand-terracotta transition-colors" href="#">
+                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    <span class="font-medium text-sm">Reviews</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-brand-gray hover:bg-brand-cream hover:text-brand-terracotta transition-colors" href="#">
+                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><line x1="12" x2="12" y1="1" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    <span class="font-medium text-sm">Earnings</span>
+                </a>
+            </nav>
+            <div class="p-4 border-t border-brand-border space-y-2">
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-brand-gray hover:bg-brand-cream hover:text-brand-terracotta transition-colors" href="#">
+                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <span class="font-medium text-sm">Settings</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-brand-gray hover:bg-brand-cream hover:text-brand-terracotta transition-colors" href="/local-services-platform/public/logout.php">
+                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg>
+                    <span class="font-medium text-sm">Logout</span>
+                </a>
+            </div>
+        </aside>
+        <!-- END: Side Sidebar -->
+
+        <!-- BEGIN: Main Content Area -->
+        <main class="flex-1 overflow-y-auto p-8">
+            <!-- Page Header -->
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h1 class="text-2xl font-bold text-brand-dark flex items-center gap-2">
+                        <svg class="text-brand-terracotta" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                        My Reviews
+                    </h1>
+                    <p class="text-brand-gray text-sm mt-1">What customers say about your services</p>
+                </div>
+                <a class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white border border-brand-border rounded-lg text-sm font-medium text-brand-dark hover:bg-brand-lightGray transition-colors" href="dashboard.php">
+                    <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><line x1="19" x2="5" y1="12" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    Back to Dashboard
+                </a>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Average Rating Card -->
+                <div class="bg-white rounded-[1rem] shadow-sm border border-brand-border p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-brand-gray text-sm font-medium">Average Rating</p>
+                            <h3 class="text-3xl font-bold text-brand-terracotta mt-2">
+                                <?php echo number_format($stats['avg_rating'], 1); ?> 
+                                <span class="text-xl">⭐</span>
+                            </h3>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card bg-info text-white">
-                            <div class="card-body text-center">
-                                <h3><?php echo $stats['total']; ?></h3>
-                                <p>Total Reviews</p>
-                            </div>
+                        <div class="w-12 h-12 bg-brand-cream rounded-lg flex items-center justify-center">
+                            <svg fill="currentColor" height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg" class="text-brand-terracotta">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <a href="dashboard.php" class="btn btn-secondary w-100 h-100 d-flex align-items-center justify-content-center">
-                            <i class="bi bi-arrow-left"></i> Back to Dashboard
-                        </a>
                     </div>
                 </div>
 
-                <?php if (count($reviews) > 0): ?>
+                <!-- Total Reviews Card -->
+                <div class="bg-white rounded-[1rem] shadow-sm border border-brand-border p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-brand-gray text-sm font-medium">Total Reviews</p>
+                            <h3 class="text-3xl font-bold text-brand-dark mt-2"><?php echo $stats['total']; ?></h3>
+                        </div>
+                        <div class="w-12 h-12 bg-brand-cream rounded-lg flex items-center justify-center">
+                            <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg" class="text-brand-terracotta">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div class="bg-white rounded-[1rem] shadow-sm border border-brand-border p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-brand-gray text-sm font-medium">Status</p>
+                            <p class="text-lg font-semibold text-brand-dark mt-2">
+                                <?php echo $stats['total'] > 0 ? 'Active' : 'No Reviews Yet'; ?>
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-brand-cream rounded-lg flex items-center justify-center">
+                            <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg" class="text-brand-terracotta">
+                                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M12 6v6l4 2"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews List -->
+            <?php if (count($reviews) > 0): ?>
+                <div class="space-y-4">
                     <?php foreach ($reviews as $review): ?>
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <strong><?php echo htmlspecialchars($review['customer_name']); ?></strong>
-                                        <span class="text-muted">on <?php echo htmlspecialchars($review['service_title']); ?></span>
-                                    </div>
-                                    <span class="text-warning">
-                                        <?php echo str_repeat('⭐', $review['rating']); ?>
-                                    </span>
+                        <div class="bg-white rounded-[1rem] shadow-sm border border-brand-border p-6 hover:shadow-md transition-shadow">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-brand-dark">
+                                        <?php echo htmlspecialchars($review['customer_name']); ?>
+                                    </h4>
+                                    <p class="text-sm text-brand-gray">
+                                        on <span class="font-medium"><?php echo htmlspecialchars($review['service_title']); ?></span>
+                                    </p>
                                 </div>
-                                <p class="mt-2"><?php echo htmlspecialchars($review['comment']); ?></p>
-                                <small class="text-muted">
-                                    <?php echo date('F d, Y h:i A', strtotime($review['created_at'])); ?>
-                                </small>
+                                <div class="flex items-center gap-1">
+                                    <?php for ($i = 0; $i < $review['rating']; $i++): ?>
+                                        <span class="text-lg">⭐</span>
+                                    <?php endfor; ?>
+                                    <span class="ml-2 text-sm font-medium text-brand-dark"><?php echo $review['rating']; ?>/5</span>
+                                </div>
                             </div>
+                            <p class="text-brand-dark mb-4"><?php echo htmlspecialchars($review['comment']); ?></p>
+                            <p class="text-xs text-brand-gray">
+                                <?php echo date('F d, Y h:i A', strtotime($review['created_at'])); ?>
+                            </p>
                         </div>
                     <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> No reviews yet. Keep providing great service!
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
+                </div>
+            <?php else: ?>
+                <div class="bg-white rounded-[1rem] shadow-sm border border-brand-border p-12 text-center">
+                    <svg class="w-16 h-16 text-brand-gray mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                    <h3 class="text-lg font-semibold text-brand-dark mb-2">No Reviews Yet</h3>
+                    <p class="text-brand-gray">Keep providing great service! Your customers' reviews will appear here.</p>
+                </div>
+            <?php endif; ?>
+        </main>
+        <!-- END: Main Content Area -->
     </div>
 </body>
 </html>
