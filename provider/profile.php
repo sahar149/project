@@ -43,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Edit Profile - Provider</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -73,6 +74,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-color: #F9F5F1;
             color: #333333;
         }
+
+        .text-terracotta {
+            color: #CB6D51;
+        }
+
+        .border-terracotta {
+            border-color: #CB6D51;
+        }
         
         input:focus, textarea:focus {
             --tw-ring-color: #CB6D51 !important;
@@ -81,6 +90,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body class="flex flex-col min-h-screen font-sans">
+    <?php include __DIR__ . '/header.php'; ?>
+    <?php if (false): ?>
     <!-- BEGIN: Top Navbar -->
     <header class="bg-white border-b border-brand-border h-16 flex items-center justify-between px-6 sticky top-0 z-50">
         <div class="flex items-center gap-2 text-brand-terracotta font-bold text-xl">
@@ -88,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
             </svg>
-            <span>LocalEase</span>
+            <span>Dabberha</span>
         </div>
         <div class="flex items-center gap-6">
             <button class="relative text-brand-gray hover:text-brand-terracotta transition-colors">
@@ -107,50 +118,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
     </header>
+    <?php endif; ?>
     <!-- END: Top Navbar -->
 
-    <div class="flex flex-1 overflow-hidden">
-        <!-- BEGIN: Side Sidebar -->
-        <aside class="w-64 bg-white border-r border-brand-border flex flex-col hidden md:flex">
-            <nav class="flex-1 py-6 px-4 space-y-2">
-                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-brand-gray hover:bg-brand-cream hover:text-brand-terracotta transition-colors" href="dashboard.php">
-                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><rect height="9" width="7" x="3" y="3"></rect><rect height="5" width="7" x="14" y="3"></rect><rect height="9" width="7" x="14" y="12"></rect><rect height="5" width="7" x="3" y="16"></rect></svg>
-                    <span class="font-medium text-sm">Dashboard</span>
+    <div class="flex-grow flex max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 gap-8">
+        <!-- BEGIN: Sidebar Navigation -->
+        <?php if (false): ?>
+        <aside class="w-64 bg-white border-r border-brand-border flex flex-col hidden md:flex z-20">
+            <!-- Logo Area -->
+            <div class="h-16 flex items-center px-6 border-b border-brand-border">
+                <a class="flex items-center gap-2 text-brand-terracotta font-bold text-xl" href="dashboard.php">
+                    <svg fill="currentColor" height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path></svg>
+                    Dabberha
                 </a>
-                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-brand-gray hover:bg-brand-cream hover:text-brand-terracotta transition-colors" href="#">
-                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><rect height="14" rx="2" ry="2" width="20" x="2" y="7"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-                    <span class="font-medium text-sm">My Services</span>
-                </a>
-                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-brand-gray hover:bg-brand-cream hover:text-brand-terracotta transition-colors" href="#">
-                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><rect height="18" rx="2" ry="2" width="18" x="3" y="4"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
-                    <span class="font-medium text-sm">Bookings</span>
-                </a>
-                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-brand-gray hover:bg-brand-cream hover:text-brand-terracotta transition-colors" href="#">
-                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                    <span class="font-medium text-sm">Reviews</span>
-                </a>
-                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-brand-gray hover:bg-brand-cream hover:text-brand-terracotta transition-colors" href="#">
-                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><line x1="12" x2="12" y1="1" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                    <span class="font-medium text-sm">Earnings</span>
-                </a>
-                <!-- Active Tab -->
-                <a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-brand-cream text-brand-terracotta border-l-4 border-brand-terracotta transition-colors" href="#">
-                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                    <span class="font-medium text-sm">Profile</span>
-                </a>
+            </div>
+            <!-- Provider Profile Summary -->
+            <div class="p-6 border-b border-brand-border flex items-center gap-3">
+                <img alt="Provider Profile Picture" class="w-10 h-10 rounded-full object-cover border border-brand-border" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRCNnYshlZBIKzFfON145cRr3-9aq6Uyo6e9voA7TaYwd6ZPi3YBoEafn_ea5AdX25hgGti2B28CG9IPwOwFx6_zkKwfYgmcHcyRXKbLceACaxqVyrJIATzhZAjhSenlF-R1o1Gtn1VYeqk3tnPqGEYIyIJEe3ZlBbQ3e_xEvYQjMEDUkVGvlRezVBQFBP2IDX-JqRVFDH6k6-GHY_q0_yyVgDzWc2kwXf_aKu11-tGw35C-v36bsP-w">
+                <div>
+                    <p class="font-semibold text-sm text-brand-dark"><?php echo htmlspecialchars(getUserName()); ?></p>
+                    <p class="text-xs text-brand-gray">Local Expert</p>
+                </div>
+            </div>
+            <!-- Nav Links -->
+            <nav class="flex-1 overflow-y-auto py-4">
+                <ul class="space-y-1 px-3">
+                    <li>
+                        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-brand-gray hover:bg-brand-cream hover:text-brand-terracotta transition-colors font-medium text-sm" href="dashboard.php">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-brand-gray hover:bg-brand-cream hover:text-brand-terracotta transition-colors font-medium text-sm" href="my-services.php">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m0 0l-8-4m8 4v10l-8-4m8 4l8-4m0 0V7m0 0l-8-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                            My Services
+                        </a>
+                    </li>
+                    <li>
+                        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-brand-gray hover:bg-brand-cream hover:text-brand-terracotta transition-colors font-medium text-sm" href="bookings.php">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                            Bookings
+                        </a>
+                    </li>
+                    <li>
+                        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-brand-cream text-brand-terracotta border-l-4 border-brand-terracotta transition-colors font-medium text-sm" href="reviews.php">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-5.82 3.37 1.18-6.88-5-4.87 6.91-1.01L12 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                            Reviews
+                        </a>
+                    </li>
+                    <li>
+                        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-brand-gray hover:bg-brand-cream hover:text-brand-terracotta transition-colors font-medium text-sm" href="#">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                            Earnings
+                        </a>
+                    </li>
+                    <li>
+                        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-brand-gray hover:bg-brand-cream hover:text-brand-terracotta transition-colors font-medium text-sm" href="profile.php">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle></svg>
+                            Profile
+                        </a>
+                    </li>
+                </ul>
             </nav>
+            <!-- Bottom Actions -->
             <div class="p-4 border-t border-brand-border space-y-2">
-                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-brand-gray hover:bg-brand-cream hover:text-brand-terracotta transition-colors" href="#">
-                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                    <span class="font-medium text-sm">Settings</span>
+                <a class="flex items-center justify-center w-full py-2 px-4 bg-brand-terracotta text-white rounded-lg font-medium text-sm hover:bg-[#b05d43] transition-colors" href="add-service.php">
+                    New Listing
                 </a>
-                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-brand-gray hover:bg-brand-cream hover:text-brand-terracotta transition-colors" href="/local-services-platform/public/logout.php">
-                    <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg>
-                    <span class="font-medium text-sm">Logout</span>
+                <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-brand-gray hover:bg-brand-cream hover:text-brand-terracotta transition-colors font-medium text-sm mt-4" href="#">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                    Settings
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-brand-gray hover:bg-brand-cream hover:text-brand-terracotta transition-colors font-medium text-sm" href="/local-services-platform/public/logout.php">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                    Logout
                 </a>
             </div>
         </aside>
-        <!-- END: Side Sidebar -->
+        <?php endif; include __DIR__ . '/sidebar.php'; ?>
+        <!-- END: Sidebar Navigation -->
 
         <!-- BEGIN: Main Content Area -->
         <main class="flex-1 overflow-y-auto p-8">
@@ -165,10 +212,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </h1>
                     <p class="text-brand-gray text-sm mt-1">Update your personal information and contact details.</p>
                 </div>
-                <a class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white border border-brand-border rounded-lg text-sm font-medium text-brand-dark hover:bg-brand-lightGray transition-colors" href="dashboard.php">
-                    <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><line x1="19" x2="5" y1="12" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                    Back to Dashboard
-                </a>
             </div>
 
             <!-- Edit Profile Form Card -->

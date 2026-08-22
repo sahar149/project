@@ -62,6 +62,14 @@ $services = $stmt->fetchAll();
             font-weight: 600;
         }
 
+        .text-terracotta {
+            color: #CB6D51;
+        }
+
+        .border-terracotta {
+            border-color: #CB6D51;
+        }
+
         .category-badge {
             display: inline-block;
             padding: 0.375rem 0.75rem;
@@ -72,13 +80,15 @@ $services = $stmt->fetchAll();
     </style>
 </head>
 <body class="flex flex-col min-h-screen font-sans antialiased">
+    <?php include __DIR__ . '/header.php'; ?>
+    <?php if (false): ?>
     <!-- BEGIN: TopNavBar -->
     <header class="bg-brand-card shadow-sm w-full sticky top-0 z-50">
         <div class="flex justify-between items-center w-full px-6 h-16 max-w-[1400px] mx-auto border-b border-brand-border">
             <!-- Logo -->
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-house text-brand-primary text-xl"></i>
-                <span class="font-bold text-xl text-brand-primary">LocalEase</span>
+                <span class="font-bold text-xl text-brand-primary">Dabberha</span>
             </div>
             <!-- Center Links -->
             <nav class="hidden md:flex gap-6">
@@ -107,10 +117,12 @@ $services = $stmt->fetchAll();
             </div>
         </div>
     </header>
+    <?php endif; ?>
     <!-- END: TopNavBar -->
 
-    <div class="flex flex-1 max-w-[1400px] mx-auto w-full">
+    <div class="flex-grow flex max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 gap-8">
         <!-- BEGIN: SideNavBar -->
+        <?php if (false): ?>
         <aside class="w-64 flex-shrink-0 bg-brand-card border-r border-brand-border h-[calc(100vh-4rem)] sticky top-16 hidden lg:flex flex-col justify-between py-6">
             <div class="px-6 mb-8 flex items-center gap-3">
                 <img alt="Provider Profile Picture" class="w-12 h-12 rounded-full object-cover border border-brand-border" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIFNLAIZnAlDX-xeChBmikwa_Cocj7iNOSYU-t-WiawIbKSjRw1EnD5oe9R6T28HSfUmTMxJjPPXL0V-QIC4R1YJMNUGidPjMs8GRwY1uI7MJ5bgxpCzBA1vWm3z61VmdjInHFWkfLFadOe4triOYNRWWHmgUIXVvXW1sflKsymA_k85gT0Kaz9kjkLw-r80rscZVM_PhzWqt9iZEU6SRcW7lJGNLvh49OhQ_CQI7iE7mNNudvjZbHxp_AjTDwfijaH_U">
@@ -148,6 +160,7 @@ $services = $stmt->fetchAll();
                 </a>
             </div>
         </aside>
+        <?php endif; include __DIR__ . '/sidebar.php'; ?>
         <!-- END: SideNavBar -->
 
         <!-- BEGIN: Main Content Area -->
@@ -215,12 +228,6 @@ $services = $stmt->fetchAll();
                 </div>
             <?php endif; ?>
 
-            <!-- Navigation Actions -->
-            <div>
-                <a class="inline-flex items-center gap-2 text-brand-muted hover:text-brand-text font-medium text-sm transition-colors bg-brand-card border border-brand-border px-4 py-2.5 rounded-lg shadow-sm" href="dashboard.php">
-                    <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
-                </a>
-            </div>
         </main>
         <!-- END: Main Content Area -->
     </div>

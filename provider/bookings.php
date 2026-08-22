@@ -27,6 +27,7 @@ $bookings = $stmt->fetchAll();
     <title>My Bookings - Provider Dashboard</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script data-purpose="tailwind-config">
         tailwind.config = {
             theme: {
@@ -52,6 +53,14 @@ $bookings = $stmt->fetchAll();
         }
     </script>
     <style data-purpose="custom-utilities">
+        .text-terracotta {
+            color: #CB6D51;
+        }
+
+        .border-terracotta {
+            border-color: #CB6D51;
+        }
+
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -68,14 +77,17 @@ $bookings = $stmt->fetchAll();
         }
     </style>
 </head>
-<body class="font-sans bg-brand-surface text-brand-dark antialiased h-screen flex overflow-hidden">
+<body class="font-sans bg-brand-surface text-brand-dark antialiased min-h-screen flex flex-col">
+    <?php include __DIR__ . '/header.php'; ?>
+    <div class="flex-grow flex max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 gap-8">
     <!-- BEGIN: Sidebar Navigation -->
+    <?php if (false): ?>
     <aside class="w-64 bg-white border-r border-brand-border flex flex-col hidden md:flex z-20">
         <!-- Logo Area -->
         <div class="h-16 flex items-center px-6 border-b border-brand-border">
             <a class="flex items-center gap-2 text-brand-primary font-bold text-xl" href="dashboard.php">
                 <svg class="w-6 h-6" fill="currentColor" viewbox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path></svg>
-                LocalEase
+                Dabberha
             </a>
         </div>
         <!-- Provider Profile Summary -->
@@ -130,10 +142,12 @@ $bookings = $stmt->fetchAll();
             </a>
         </div>
     </aside>
+    <?php endif; include __DIR__ . '/sidebar.php'; ?>
     <!-- END: Sidebar Navigation -->
 
     <!-- BEGIN: Main Layout -->
-    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+    <div class="flex-1 flex flex-col h-full overflow-hidden">
+        <?php if (false): ?>
         <!-- BEGIN: Top Navigation -->
         <header class="h-16 bg-white border-b border-brand-border flex items-center justify-between px-8 z-10 shrink-0">
             <div class="flex gap-6 text-sm font-medium text-brand-muted">
@@ -155,6 +169,7 @@ $bookings = $stmt->fetchAll();
             </div>
         </header>
         <!-- END: Top Navigation -->
+        <?php endif; ?>
 
         <!-- BEGIN: Main Content Area -->
         <main class="flex-1 overflow-y-auto p-8">
@@ -168,10 +183,6 @@ $bookings = $stmt->fetchAll();
                         </h1>
                         <p class="text-brand-muted mt-1">All booking requests for your services</p>
                     </div>
-                    <a class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-brand-border rounded-lg text-sm font-medium hover:bg-brand-surface hover:border-brand-primary transition-colors text-brand-dark" href="dashboard.php">
-                        <svg class="w-4 h-4 text-brand-muted" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-                        Back to Dashboard
-                    </a>
                 </div>
 
                 <!-- Bookings Table Card -->
@@ -248,5 +259,6 @@ $bookings = $stmt->fetchAll();
         <!-- END: Main Content Area -->
     </div>
     <!-- END: Main Layout -->
+    </div>
 </body>
 </html>

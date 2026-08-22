@@ -117,7 +117,7 @@ $recent_reviews = $stmt->fetchAll();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Provider Dashboard - LocalEase</title>
+    <title>Provider Dashboard - Dabberha</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -191,6 +191,8 @@ $recent_reviews = $stmt->fetchAll();
 
 <body class="bg-[#F9F5F1] min-h-screen flex flex-col">
 
+<?php include __DIR__ . '/header.php'; ?>
+<?php if (false): ?>
 <!-- ============================================================
      TOP NAVBAR
 ============================================================ -->
@@ -209,7 +211,7 @@ $recent_reviews = $stmt->fetchAll();
                     href="/local-services-platform/index.php"
                 >
                     <i class="fa-solid fa-house-chimney"></i>
-                    LocalEase
+                    Dabberha
                 </a>
 
             </div>
@@ -264,6 +266,7 @@ $recent_reviews = $stmt->fetchAll();
     </div>
 
 </header>
+<?php endif; ?>
 
 
 <!-- ============================================================
@@ -277,6 +280,7 @@ $recent_reviews = $stmt->fetchAll();
          SIDEBAR
     ========================================================= -->
 
+    <?php if (false): ?>
     <aside class="w-64 flex-shrink-0 hidden md:block">
 
         <nav class="space-y-1">
@@ -351,6 +355,7 @@ $recent_reviews = $stmt->fetchAll();
         </nav>
 
     </aside>
+    <?php endif; include __DIR__ . '/sidebar.php'; ?>
 
 
     <!-- ========================================================
@@ -1242,7 +1247,7 @@ $recent_reviews = $stmt->fetchAll();
                 <p
                     class="text-center text-sm text-gray-500"
                 >
-                    © 2024 LocalEase Inc. All rights reserved.
+                    © 2024 Dabberha Inc. All rights reserved.
                 </p>
 
             </div>
