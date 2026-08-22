@@ -13,8 +13,8 @@ $active_link = 'bg-white text-terracotta border-l-4 border-terracotta group flex
             <i class="fa-solid fa-toolbox mr-3 text-lg<?php echo $current_page === 'my-services.php' ? '' : ' text-gray-400 group-hover:text-gray-500'; ?>"></i>
             My Services
         </a>
-        <a class="<?php echo $current_page === 'bookings.php' && (!isset($_GET['status']) || $_GET['status'] !== 'completed') ? $active_link : $nav_link; ?>" href="bookings.php">
-            <i class="fa-regular fa-calendar-check mr-3 text-lg<?php echo $current_page === 'bookings.php' ? '' : ' text-gray-400 group-hover:text-gray-500'; ?>"></i>
+        <a class="<?php echo in_array($current_page, ['bookings.php', 'booking-detail.php'], true) && (!isset($_GET['status']) || $_GET['status'] !== 'completed') ? $active_link : $nav_link; ?>" href="bookings.php">
+            <i class="fa-regular fa-calendar-check mr-3 text-lg<?php echo in_array($current_page, ['bookings.php', 'booking-detail.php'], true) ? '' : ' text-gray-400 group-hover:text-gray-500'; ?>"></i>
             Bookings
         </a>
         <a class="<?php echo $current_page === 'reviews.php' ? $active_link : $nav_link; ?>" href="reviews.php">
