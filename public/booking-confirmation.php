@@ -1,6 +1,8 @@
 <?php
+
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/translations.php';
 
 requireLogin();
 
@@ -11,29 +13,64 @@ if ($booking_id == 0) {
     exit;
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| Get Booking
+|--------------------------------------------------------------------------
+*/
+
 $stmt = $pdo->prepare("
-    SELECT b.*, s.title as service_title, u.name as provider_name 
+    SELECT 
+        b.*, 
+        s.title as service_title, 
+        u.name as provider_name 
     FROM bookings b
     JOIN services s ON b.service_id = s.id
     JOIN users u ON b.provider_id = u.id
-    WHERE b.id = ? AND b.customer_id = ?
+    WHERE b.id = ? 
+      AND b.customer_id = ?
 ");
-$stmt->execute([$booking_id, getUserId()]);
+
+$stmt->execute([
+    $booking_id,
+    getUserId()
+]);
+
 $booking = $stmt->fetch();
+
 
 if (!$booking) {
     header('Location: browse-services.php');
     exit;
 }
 
-// التحقق إذا كان هناك تقييم مسبق
-$stmt = $pdo->prepare("SELECT id FROM reviews WHERE booking_id = ?");
+
+/*
+|--------------------------------------------------------------------------
+| Check Existing Review
+|--------------------------------------------------------------------------
+*/
+
+$stmt = $pdo->prepare("
+    SELECT id 
+    FROM reviews 
+    WHERE booking_id = ?
+");
+
 $stmt->execute([$booking_id]);
+
 $has_review = $stmt->fetch() ? true : false;
+
 ?>
 
 <!DOCTYPE html>
-<html class="light" lang="en">
+
+<html
+    class="light"
+    lang="ar"
+    dir="rtl"
+>
 
 <head>
 
@@ -44,23 +81,30 @@ $has_review = $stmt->fetch() ? true : false;
         name="viewport"
     >
 
-    <title>Booking Confirmed - Local Services</title>
+    <title>
+        <?php echo __('Booking Confirmed'); ?> - دبرها    </title>
 
 
+    <!-- ===================================================== -->
     <!-- Tailwind CSS -->
+    <!-- ===================================================== -->
 
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
 
-    <!-- Plus Jakarta Sans -->
+    <!-- ===================================================== -->
+    <!-- Tajawal Arabic Font -->
+    <!-- ===================================================== -->
 
     <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap"
         rel="stylesheet"
     >
 
 
+    <!-- ===================================================== -->
     <!-- Material Symbols -->
+    <!-- ===================================================== -->
 
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap"
@@ -68,7 +112,9 @@ $has_review = $stmt->fetch() ? true : false;
     >
 
 
+    <!-- ===================================================== -->
     <!-- Tailwind Configuration -->
+    <!-- ===================================================== -->
 
     <script>
 
@@ -131,6 +177,7 @@ $has_review = $stmt->fetch() ? true : false;
                         "outline": "#88726c"
                     },
 
+
                     borderRadius: {
 
                         "DEFAULT": "0.25rem",
@@ -139,6 +186,7 @@ $has_review = $stmt->fetch() ? true : false;
                         "full": "9999px"
 
                     },
+
 
                     spacing: {
 
@@ -151,16 +199,18 @@ $has_review = $stmt->fetch() ? true : false;
 
                     },
 
+
                     fontFamily: {
 
-                        "body-md": ["Plus Jakarta Sans"],
-                        "label-sm": ["Plus Jakarta Sans"],
-                        "label-lg": ["Plus Jakarta Sans"],
-                        "headline-md": ["Plus Jakarta Sans"],
-                        "headline-lg": ["Plus Jakarta Sans"],
-                        "display-lg": ["Plus Jakarta Sans"]
+                        "body-md": ["Tajawal"],
+                        "label-sm": ["Tajawal"],
+                        "label-lg": ["Tajawal"],
+                        "headline-md": ["Tajawal"],
+                        "headline-lg": ["Tajawal"],
+                        "display-lg": ["Tajawal"]
 
                     },
+
 
                     fontSize: {
 
@@ -169,6 +219,14 @@ $has_review = $stmt->fetch() ? true : false;
                             {
                                 "lineHeight": "24px",
                                 "fontWeight": "400"
+                            }
+                        ],
+                         "display-lg": [
+                            "24px",
+                            {
+                                lineHeight: "56px",
+                                letterSpacing: "-0.02em",
+                                fontWeight: "700"
                             }
                         ],
 
@@ -217,6 +275,10 @@ $has_review = $stmt->fetch() ? true : false;
     </script>
 
 
+    <!-- ===================================================== -->
+    <!-- Custom CSS -->
+    <!-- ===================================================== -->
+
     <style>
 
         .shadow-ambient {
@@ -226,6 +288,7 @@ $has_review = $stmt->fetch() ? true : false;
 
         }
 
+
         .shadow-ambient-hover:hover {
 
             box-shadow:
@@ -233,15 +296,45 @@ $has_review = $stmt->fetch() ? true : false;
 
         }
 
+
+        body {
+
+            font-family: 'Tajawal', sans-serif;
+
+        }
+
+
+        
+
         .material-symbols-outlined {
 
-            font-variation-settings:
-                'FILL' 0,
-                'wght' 400,
-                'GRAD' 0,
-                'opsz' 24;
+            font-family: 'Material Symbols Outlined' !important;
 
-            vertical-align: middle;
+            font-weight: normal;
+
+            font-style: normal;
+
+            font-size: 24px;
+
+            line-height: 1;
+
+            letter-spacing: normal;
+
+            text-transform: none;
+
+            display: inline-block;
+
+            white-space: nowrap;
+
+            word-wrap: normal;
+
+            direction: ltr;
+
+            -webkit-font-feature-settings: 'liga';
+
+            -webkit-font-smoothing: antialiased;
+
+            font-feature-settings: 'liga';
 
         }
 
@@ -258,78 +351,134 @@ $has_review = $stmt->fetch() ? true : false;
 <!-- ========================================================= -->
 <!-- HEADER -->
 <!-- ========================================================= -->
+<!-- ========================================================= -->
+<!-- UNIFIED NAVBAR -->
+<!-- ========================================================= -->
 
-<header
-    class="w-full top-0 sticky bg-surface shadow-sm z-50"
->
+<header class="bg-background w-full top-0 z-50">
 
     <div
-        class="flex justify-between items-center px-6 md:px-margin-desktop py-4 max-w-7xl mx-auto w-full"
+        class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max mx-auto"
     >
 
+        <!-- ================================================= -->
+        <!-- LOGO -->
+        <!-- ================================================= -->
 
-        <!-- Logo -->
-
-        <a
-            href="/local-services-platform/index.php"
-            class="font-headline-md font-bold text-primary"
-        >
-            Dabberha
-        </a>
-
-
-        <!-- Navigation -->
-
-        <nav
-            class="hidden md:flex gap-8 items-center"
-        >
+        <div class="flex items-center gap-4">
 
             <a
-                href="browse-services.php"
-                class="text-on-surface-variant hover:text-primary transition-colors duration-200 font-body-md"
+                href="/local-services-platform/index.php"
+                class="text-2xl font-bold text-primary"
             >
-                Browse Services
+                <?php echo __('Dabberha'); ?>
+            </a>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- NAVIGATION -->
+        <!-- ================================================= -->
+
+        <nav class="hidden md:flex gap-8 items-center">
+
+            <!-- Browse Services -->
+
+            <a
+                href="/local-services-platform/public/browse-services.php"
+                class="text-on-surface-variant font-label-lg text-label-lg hover:text-primary transition-colors duration-200"
+            >
+                <?php echo __('Browse Services'); ?>
             </a>
 
 
-            <a
-                href="my-bookings.php"
-                class="text-primary font-semibold border-b-2 border-primary pb-1"
-            >
-                My Bookings
-            </a>
+            <!-- My Bookings -->
+
+            <?php if (
+                isLoggedIn() &&
+                getUserRole() === 'customer'
+            ): ?>
+
+                <a
+                    href="/local-services-platform/public/my-bookings.php"
+                    class="text-on-surface-variant font-label-lg text-label-lg hover:text-primary transition-colors duration-200"
+                >
+                    <?php echo __('My Bookings'); ?>
+                </a>
+
+            <?php endif; ?>
 
 
-            <a
-                href="#"
-                class="text-on-surface-variant hover:text-primary transition-colors duration-200"
-            >
-                Support
-            </a>
+            <!-- Provider Dashboard -->
+
+            <?php if (
+                isLoggedIn() &&
+                getUserRole() === 'provider'
+            ): ?>
+
+                <a
+                    href="/local-services-platform/provider/dashboard.php"
+                    class="text-on-surface-variant font-label-lg text-label-lg hover:text-primary transition-colors duration-200"
+                >
+                    <?php echo __('Provider Dashboard'); ?>
+                </a>
+
+            <?php endif; ?>
 
         </nav>
 
 
-        <!-- User -->
+        <!-- ================================================= -->
+        <!-- USER AREA -->
+        <!-- ================================================= -->
 
-        <div
-            class="flex items-center gap-4"
-        >
+        <div class="flex items-center gap-4">
 
-            <span
-                class="text-on-surface-variant font-label-lg hidden sm:block"
-            >
-                Welcome,
-                <?php echo htmlspecialchars(getUserName()); ?>
-            </span>
+            <?php if (isLoggedIn()): ?>
+
+                <!-- USER NAME -->
+
+                <div
+                    class="hidden sm:flex items-center gap-2 text-on-surface-variant"
+                >
+
+                    <span class="material-symbols-outlined">
+                        account_circle
+                    </span>
+
+                    <span class="font-label-lg">
+                        <?php
+                        echo htmlspecialchars(
+                            getUserName()
+                        );
+                        ?>
+                    </span>
+
+                </div>
 
 
-            <a
-                href="/local-services-platform/public/logout.php"
-                class="text-primary hover:text-primary-container transition-colors duration-200 font-label-lg border border-outline-variant px-4 py-2 rounded-full"
-            >
-                Logout
-            </a>
+                <!-- LOGOUT -->
+
+                <a
+                    href="/local-services-platform/public/logout.php"
+                    class="bg-primary text-on-primary px-6 py-2 rounded-full font-label-lg text-label-lg hover:bg-surface-tint transition-colors"
+                >
+                    <?php echo __('Logout'); ?>
+                </a>
+
+            <?php else: ?>
+
+                <!-- SIGN IN -->
+
+                <a
+                    href="/local-services-platform/public/login.php"
+                    class="bg-primary text-on-primary px-6 py-2 rounded-full font-label-lg text-label-lg hover:bg-surface-tint transition-colors"
+                >
+                    <?php echo __('Sign In'); ?>
+                </a>
+
+            <?php endif; ?>
 
         </div>
 
@@ -380,7 +529,8 @@ $has_review = $stmt->fetch() ? true : false;
             class="font-headline-lg text-on-surface mb-2 flex items-center gap-2 justify-center"
         >
 
-            Booking Confirmed!
+            <?php echo __('Booking Confirmed!'); ?>
+
 
             <span
                 class="material-symbols-outlined text-[#1e8e3e]"
@@ -395,7 +545,9 @@ $has_review = $stmt->fetch() ? true : false;
         <p
             class="font-body-md text-on-surface-variant mb-12"
         >
-            Your service has been booked successfully.
+
+            <?php echo __('Your service has been booked successfully.'); ?>
+
         </p>
 
 
@@ -409,7 +561,7 @@ $has_review = $stmt->fetch() ? true : false;
         <!-- ================================================= -->
 
         <div
-            class="w-full text-left space-y-2 mb-8"
+            class="w-full text-right space-y-2 mb-8"
         >
 
 
@@ -420,19 +572,26 @@ $has_review = $stmt->fetch() ? true : false;
             >
 
                 <span
-                    class="font-label-lg text-on-surface w-32 shrink-0 mb-1 sm:mb-0"
+                    class="font-label-lg text-on-surface w-32 shrink-0 mb-1 sm:mb-0 text-right"
                 >
-                    Service:
+
+                    <?php echo __('Service:'); ?>
+
                 </span>
+
 
                 <span
                     class="font-body-md text-on-surface-variant"
                 >
+
                     <?php
+
                     echo htmlspecialchars(
                         $booking['service_title']
                     );
+
                     ?>
+
                 </span>
 
             </div>
@@ -445,19 +604,26 @@ $has_review = $stmt->fetch() ? true : false;
             >
 
                 <span
-                    class="font-label-lg text-on-surface w-32 shrink-0 mb-1 sm:mb-0"
+                    class="font-label-lg text-on-surface w-32 shrink-0 mb-1 sm:mb-0 text-right"
                 >
-                    Provider:
+
+                    <?php echo __('Provider:'); ?>
+
                 </span>
+
 
                 <span
                     class="font-body-md text-on-surface-variant"
                 >
+
                     <?php
+
                     echo htmlspecialchars(
                         $booking['provider_name']
                     );
+
                     ?>
+
                 </span>
 
             </div>
@@ -470,22 +636,30 @@ $has_review = $stmt->fetch() ? true : false;
             >
 
                 <span
-                    class="font-label-lg text-on-surface w-32 shrink-0 mb-1 sm:mb-0"
+                    class="font-label-lg text-on-surface w-32 shrink-0 mb-1 sm:mb-0 text-right"
                 >
-                    Date:
+
+                    <?php echo __('Date:'); ?>
+
                 </span>
+
 
                 <span
                     class="font-body-md text-on-surface-variant"
+                    dir="ltr"
                 >
+
                     <?php
+
                     echo date(
                         'F d, Y',
                         strtotime(
                             $booking['booking_date']
                         )
                     );
+
                     ?>
+
                 </span>
 
             </div>
@@ -498,22 +672,30 @@ $has_review = $stmt->fetch() ? true : false;
             >
 
                 <span
-                    class="font-label-lg text-on-surface w-32 shrink-0 mb-1 sm:mb-0"
+                    class="font-label-lg text-on-surface w-32 shrink-0 mb-1 sm:mb-0 text-right"
                 >
-                    Time:
+
+                    <?php echo __('Time:'); ?>
+
                 </span>
+
 
                 <span
                     class="font-body-md text-on-surface-variant"
+                    dir="ltr"
                 >
+
                     <?php
+
                     echo date(
                         'h:i A',
                         strtotime(
                             $booking['booking_time']
                         )
                     );
+
                     ?>
+
                 </span>
 
             </div>
@@ -526,20 +708,30 @@ $has_review = $stmt->fetch() ? true : false;
             >
 
                 <span
-                    class="font-label-lg text-on-surface w-32 shrink-0 mb-1 sm:mb-0"
+                    class="font-label-lg text-on-surface w-32 shrink-0 mb-1 sm:mb-0 text-right"
                 >
-                    Total Price:
+
+                    <?php echo __('Total Price:'); ?>
+
                 </span>
+
 
                 <span
                     class="font-body-md text-on-surface-variant font-semibold"
+                    dir="rtl"
                 >
-                    $<?php
+
+                    <?php
+
                     echo number_format(
                         $booking['total_price'],
                         2
                     );
+
                     ?>
+
+                    &nbsp;دل
+
                 </span>
 
             </div>
@@ -552,13 +744,21 @@ $has_review = $stmt->fetch() ? true : false;
             >
 
                 <span
-                    class="font-label-lg text-on-surface w-32 shrink-0 mb-2 sm:mb-0"
+                    class="font-label-lg text-on-surface w-32 shrink-0 mb-2 sm:mb-0 text-right"
                 >
-                    Status:
+
+                    <?php echo __('Status:'); ?>
+
                 </span>
 
 
                 <?php
+
+                /*
+                |--------------------------------------------------------------------------
+                | Status Styles + Material Icons
+                |--------------------------------------------------------------------------
+                */
 
                 $status_styles = [
 
@@ -588,6 +788,7 @@ $has_review = $stmt->fetch() ? true : false;
 
                 ];
 
+
                 $current_status =
                     $status_styles[$booking['status']]
                     ?? [
@@ -598,6 +799,7 @@ $has_review = $stmt->fetch() ? true : false;
 
                 ?>
 
+
                 <span
                     class="inline-flex items-center gap-1.5 w-fit px-3 py-1 rounded-full font-label-sm <?php echo $current_status[0]; ?> <?php echo $current_status[1]; ?>"
                 >
@@ -606,13 +808,20 @@ $has_review = $stmt->fetch() ? true : false;
                         class="material-symbols-outlined text-[16px]"
                         style="font-variation-settings: 'FILL' 1;"
                     >
+
                         <?php echo $current_status[2]; ?>
+
                     </span>
 
+
                     <?php
-                    echo ucfirst(
-                        $booking['status']
+
+                    echo __(
+                        ucfirst(
+                            $booking['status']
+                        )
                     );
+
                     ?>
 
                 </span>
@@ -637,7 +846,7 @@ $has_review = $stmt->fetch() ? true : false;
             <!-- Completed - Can Review -->
 
             <div
-                class="w-full bg-[#fff8e1] border border-[#ffe082] rounded-lg p-4 flex items-start gap-4 mb-8 text-left"
+                class="w-full bg-[#fff8e1] border border-[#ffe082] rounded-lg p-4 flex items-start gap-4 mb-8 text-right"
             >
 
                 <span
@@ -647,18 +856,24 @@ $has_review = $stmt->fetch() ? true : false;
                     star
                 </span>
 
+
                 <div>
 
                     <p
                         class="font-label-lg text-[#f57f17] mb-1"
                     >
-                        Service Completed
+
+                        <?php echo __('Service Completed'); ?>
+
                     </p>
+
 
                     <p
                         class="font-body-md text-[#795548]"
                     >
-                        Your service has been completed. You can now rate your experience.
+
+                        <?php echo __('Your service has been completed. You can now rate your experience.'); ?>
+
                     </p>
 
                 </div>
@@ -680,7 +895,8 @@ $has_review = $stmt->fetch() ? true : false;
                     star
                 </span>
 
-                Rate This Service
+
+                <?php echo __('Rate This Service'); ?>
 
             </a>
 
@@ -691,7 +907,7 @@ $has_review = $stmt->fetch() ? true : false;
             <!-- Already Rated -->
 
             <div
-                class="w-full bg-[#e6f4ea] border border-[#b7dfc1] rounded-lg p-4 flex items-start gap-4 mb-8 text-left"
+                class="w-full bg-[#e6f4ea] border border-[#b7dfc1] rounded-lg p-4 flex items-start gap-4 mb-8 text-right"
             >
 
                 <span
@@ -701,10 +917,13 @@ $has_review = $stmt->fetch() ? true : false;
                     star
                 </span>
 
+
                 <p
                     class="font-body-md text-[#1e8e3e]"
                 >
-                    You have already rated this service.
+
+                    <?php echo __('You have already rated this service.'); ?>
+
                 </p>
 
             </div>
@@ -716,7 +935,7 @@ $has_review = $stmt->fetch() ? true : false;
             <!-- Pending -->
 
             <div
-                class="w-full bg-[#e0f7fa] border border-[#b2ebf2] rounded-lg p-4 flex items-start gap-4 mb-8 text-left"
+                class="w-full bg-[#e0f7fa] border border-[#b2ebf2] rounded-lg p-4 flex items-start gap-4 mb-8 text-right"
             >
 
                 <span
@@ -725,15 +944,16 @@ $has_review = $stmt->fetch() ? true : false;
                     schedule
                 </span>
 
+
                 <p
                     class="font-body-md text-[#006064]"
                 >
 
-                    Your booking is pending provider confirmation.
+                    <?php echo __('Your booking is pending provider confirmation.'); ?>
 
                     <br>
 
-                    You can rate the service after it's completed.
+                    <?php echo __('You can rate the service after it\'s completed.'); ?>
 
                 </p>
 
@@ -746,7 +966,7 @@ $has_review = $stmt->fetch() ? true : false;
             <!-- Confirmed -->
 
             <div
-                class="w-full bg-[#e3f2fd] border border-[#bbdefb] rounded-lg p-4 flex items-start gap-4 mb-8 text-left"
+                class="w-full bg-[#e3f2fd] border border-[#bbdefb] rounded-lg p-4 flex items-start gap-4 mb-8 text-right"
             >
 
                 <span
@@ -756,15 +976,16 @@ $has_review = $stmt->fetch() ? true : false;
                     check_circle
                 </span>
 
+
                 <p
                     class="font-body-md text-[#1976d2]"
                 >
 
-                    Your booking has been confirmed!
+                    <?php echo __('Your booking has been confirmed!'); ?>
 
                     <br>
 
-                    You can rate the service after it's completed.
+                    <?php echo __('You can rate the service after it\'s completed.'); ?>
 
                 </p>
 
@@ -777,7 +998,7 @@ $has_review = $stmt->fetch() ? true : false;
             <!-- Cancelled -->
 
             <div
-                class="w-full bg-[#ffebee] border border-[#ffcdd2] rounded-lg p-4 flex items-start gap-4 mb-8 text-left"
+                class="w-full bg-[#ffebee] border border-[#ffcdd2] rounded-lg p-4 flex items-start gap-4 mb-8 text-right"
             >
 
                 <span
@@ -786,10 +1007,13 @@ $has_review = $stmt->fetch() ? true : false;
                     cancel
                 </span>
 
+
                 <p
                     class="font-body-md text-[#c62828]"
                 >
-                    This booking was cancelled.
+
+                    <?php echo __('This booking was cancelled.'); ?>
+
                 </p>
 
             </div>
@@ -820,7 +1044,8 @@ $has_review = $stmt->fetch() ? true : false;
                     search
                 </span>
 
-                Browse More Services
+
+                <?php echo __('Browse More Services'); ?>
 
             </a>
 
@@ -839,7 +1064,8 @@ $has_review = $stmt->fetch() ? true : false;
                     home
                 </span>
 
-                Home
+
+                <?php echo __('Home'); ?>
 
             </a>
 
@@ -857,7 +1083,8 @@ $has_review = $stmt->fetch() ? true : false;
                     format_list_bulleted
                 </span>
 
-                My Bookings
+
+                <?php echo __('My Bookings'); ?>
 
             </a>
 
@@ -873,106 +1100,83 @@ $has_review = $stmt->fetch() ? true : false;
 <!-- ========================================================= -->
 
 <footer
-    class="w-full py-12 border-t border-outline-variant bg-surface-container mt-auto"
+    class="bg-stone-100 w-full py-12 px-6 mt-16 border-t border-stone-200"
 >
 
     <div
-        class="grid grid-cols-1 md:grid-cols-4 gap-8 px-6 md:px-margin-desktop max-w-7xl mx-auto"
+        class="flex flex-col md:flex-row justify-between items-center gap-6 max-w-7xl mx-auto"
     >
 
-
-        <!-- Logo -->
-
-        <div
-            class="col-span-1 md:col-span-4 mb-2"
-        >
-
-            <div
-                class="font-headline-md font-bold text-primary"
-            >
-                Dabberha
-            </div>
-
-        </div>
-
-
-        <!-- Column 1 -->
+        <!-- الشعار -->
 
         <div
-            class="flex flex-col gap-2"
+            class="flex flex-col gap-2 text-center md:text-right"
         >
 
-            <a
-                href="#"
-                class="font-label-lg text-on-surface-variant hover:underline hover:text-primary transition-all duration-200"
+            <span
+                class="font-bold text-[#95442b] text-xl"
             >
-                About Us
-            </a>
 
-            <a
-                href="#"
-                class="font-label-lg text-on-surface-variant hover:underline hover:text-primary transition-all duration-200"
-            >
-                Terms of Service
-            </a>
+                <?php echo __('Dabberha'); ?>
 
-        </div>
+            </span>
 
-
-        <!-- Column 2 -->
-
-        <div
-            class="flex flex-col gap-2"
-        >
-
-            <a
-                href="#"
-                class="font-label-lg text-on-surface-variant hover:underline hover:text-primary transition-all duration-200"
-            >
-                Privacy Policy
-            </a>
-
-            <a
-                href="#"
-                class="font-label-lg text-on-surface-variant hover:underline hover:text-primary transition-all duration-200"
-            >
-                Contact Support
-            </a>
-
-        </div>
-
-
-        <!-- Column 3 -->
-
-        <div
-            class="flex flex-col gap-2"
-        >
-
-            <a
-                href="#"
-                class="font-label-lg text-on-surface-variant hover:underline hover:text-primary transition-all duration-200"
-            >
-                Become a Provider
-            </a>
-
-        </div>
-
-
-        <!-- Copyright -->
-
-        <div
-            class="col-span-1 md:col-span-4 mt-4 pt-4 border-t border-outline-variant/30"
-        >
 
             <p
-                class="font-label-lg text-on-surface-variant text-center"
+                class="text-sm text-stone-600"
             >
 
-                © <?php echo date('Y'); ?>
-                Dabberha Marketplace.
-                All rights reserved.
+                <?php echo __('© 2026 Dabberha Services. Built for the community.'); ?>
 
             </p>
+
+        </div>
+
+
+        <!-- روابط التذييل -->
+
+        <div
+            class="flex flex-wrap justify-center gap-6"
+        >
+
+            <a
+                href="#"
+                class="text-sm text-stone-500 hover:text-[#95442b] transition-colors"
+            >
+
+                <?php echo __('Privacy Policy'); ?>
+
+            </a>
+
+
+            <a
+                href="#"
+                class="text-sm text-stone-500 hover:text-[#95442b] transition-colors"
+            >
+
+                <?php echo __('Terms of Service'); ?>
+
+            </a>
+
+
+            <a
+                href="#"
+                class="text-sm text-stone-500 hover:text-[#95442b] transition-colors"
+            >
+
+                <?php echo __('Help Center'); ?>
+
+            </a>
+
+
+            <a
+                href="#"
+                class="text-sm text-stone-500 hover:text-[#95442b] transition-colors"
+            >
+
+                <?php echo __('Contact Us'); ?>
+
+            </a>
 
         </div>
 
@@ -982,4 +1186,5 @@ $has_review = $stmt->fetch() ? true : false;
 
 
 </body>
+
 </html>

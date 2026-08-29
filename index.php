@@ -1,24 +1,25 @@
 <?php
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/translations.php';
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 
 <head>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Dabberha | Your Trusted Local Service Marketplace</title>
+    <title><?php echo __('Dabberha | Your Trusted Local Service Marketplace'); ?></title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts - دعم العربية -->
     <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800&display=swap"
         rel="stylesheet"
     >
 
@@ -35,7 +36,7 @@ require_once __DIR__ . '/includes/auth.php';
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Tajawal', 'Plus Jakarta Sans', sans-serif;
             background-color: #fff8f6;
         }
 
@@ -45,6 +46,11 @@ require_once __DIR__ . '/includes/auth.php';
                 'wght' 400,
                 'GRAD' 0,
                 'opsz' 24;
+        }
+
+        /* تحسينات للغة العربية */
+        .arabic-text {
+            font-family: 'Tajawal', sans-serif;
         }
 
     </style>
@@ -85,10 +91,7 @@ require_once __DIR__ . '/includes/auth.php';
 
                     fontFamily: {
 
-                        jakarta: [
-                            "Plus Jakarta Sans",
-                            "sans-serif"
-                        ]
+                        arabic: ['Tajawal', 'sans-serif']
 
                     }
 
@@ -103,11 +106,11 @@ require_once __DIR__ . '/includes/auth.php';
 </head>
 
 
-<body class="bg-[#fff8f6] text-[#231916] antialiased">
+<body class="bg-[#fff8f6] text-[#231916] antialiased arabic-text">
 
 
 <!-- =====================================================
-     NAVBAR
+     شريط التنقل (NAVBAR)
 ===================================================== -->
 
 <header
@@ -118,17 +121,17 @@ require_once __DIR__ . '/includes/auth.php';
         class="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto"
     >
 
-        <!-- Logo -->
+        <!-- الشعار -->
 
         <a
             href="/local-services-platform/index.php"
             class="text-2xl font-bold tracking-tight text-[#95442b]"
         >
-            Dabberha
+            <?php echo __('Dabberha'); ?>
         </a>
 
 
-        <!-- Desktop Navigation -->
+        <!-- القائمة الرئيسية -->
 
         <nav class="hidden md:flex items-center gap-8">
 
@@ -136,33 +139,33 @@ require_once __DIR__ . '/includes/auth.php';
                 href="/local-services-platform/public/browse-services.php"
                 class="text-[#95442b] border-b-2 border-[#95442b] pb-1 font-medium hover:text-[#b45b40] transition-colors"
             >
-                Find Services
+                <?php echo __('Find Services'); ?>
             </a>
 
             <a
                 href="#how-it-works"
                 class="text-stone-600 font-medium hover:text-[#95442b] transition-colors"
             >
-                How it Works
+                <?php echo __('How it Works'); ?>
             </a>
 
             <a
                 href="#categories"
                 class="text-stone-600 font-medium hover:text-[#95442b] transition-colors"
             >
-                Categories
+                <?php echo __('Categories'); ?>
             </a>
 
         </nav>
 
 
-        <!-- Right Side -->
+        <!-- الجانب الأيمن -->
 
         <div class="flex items-center gap-3">
 
             <?php if (isLoggedIn()): ?>
 
-                <!-- User Name -->
+                <!-- اسم المستخدم -->
 
                 <span
                     class="hidden sm:flex items-center gap-2 text-sm font-semibold text-stone-700"
@@ -177,7 +180,7 @@ require_once __DIR__ . '/includes/auth.php';
                 </span>
 
 
-                <!-- Customer -->
+                <!-- عميل -->
 
                 <?php if (getUserRole() === 'customer'): ?>
 
@@ -190,14 +193,14 @@ require_once __DIR__ . '/includes/auth.php';
                             event_note
                         </span>
 
-                        My Bookings
+                        <?php echo __('My Bookings'); ?>
 
                     </a>
 
                 <?php endif; ?>
 
 
-                <!-- Provider -->
+                <!-- مزود خدمة -->
 
                 <?php if (getUserRole() === 'provider'): ?>
 
@@ -210,14 +213,14 @@ require_once __DIR__ . '/includes/auth.php';
                             dashboard
                         </span>
 
-                        Dashboard
+                        <?php echo __('Dashboard'); ?>
 
                     </a>
 
                 <?php endif; ?>
 
 
-                <!-- Admin -->
+                <!-- مدير -->
 
                 <?php if (getUserRole() === 'admin'): ?>
 
@@ -230,32 +233,32 @@ require_once __DIR__ . '/includes/auth.php';
                             admin_panel_settings
                         </span>
 
-                        Admin Panel
+                        <?php echo __('Admin Panel'); ?>
 
                     </a>
 
                 <?php endif; ?>
 
 
-                <!-- Logout -->
+                <!-- تسجيل خروج -->
 
                 <a
                     href="/local-services-platform/public/logout.php"
                     class="bg-[#95442b] text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-[#b45b40] active:scale-95 transition-all"
                 >
-                    Logout
+                    <?php echo __('Logout'); ?>
                 </a>
 
 
             <?php else: ?>
 
-                <!-- Login -->
+                <!-- تسجيل دخول -->
 
                 <a
                     href="/local-services-platform/public/login.php"
                     class="bg-[#95442b] text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-[#b45b40] active:scale-95 transition-all"
                 >
-                    Sign In
+                    <?php echo __('Sign In'); ?>
                 </a>
 
             <?php endif; ?>
@@ -272,7 +275,7 @@ require_once __DIR__ . '/includes/auth.php';
 
 
 <!-- =====================================================
-     HERO
+     القسم الرئيسي (HERO)
 ===================================================== -->
 
 <section
@@ -283,7 +286,7 @@ require_once __DIR__ . '/includes/auth.php';
         class="max-w-7xl mx-auto flex flex-col items-center text-center"
     >
 
-        <!-- Badge -->
+        <!-- علامة -->
 
         <div
             class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#fdeae4] text-[#95442b] text-sm font-semibold mb-6"
@@ -293,84 +296,38 @@ require_once __DIR__ . '/includes/auth.php';
                 verified
             </span>
 
-            Trusted Local Services
+            <?php echo __('Trusted Local Services'); ?>
 
         </div>
 
 
-        <!-- Main Heading -->
+        <!-- العنوان الرئيسي -->
 
         <h1
             class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#231916] mb-6 max-w-4xl leading-tight"
         >
 
-            Expert local help,
+            <?php echo __('Expert local help,'); ?>
 
             <span class="text-[#95442b]">
-                just a click away.
+                <?php echo __('just a click away.'); ?>
             </span>
 
         </h1>
 
 
-        <!-- Description -->
+        <!-- الوصف -->
 
         <p
             class="text-lg md:text-xl text-[#55433d] mb-10 max-w-2xl leading-relaxed"
         >
-            Connect with trusted professionals in your neighborhood
-            for any home project or service.
+            <?php echo __('Connect with trusted professionals in your neighborhood for any home project or service.'); ?>
         </p>
-
-
-        <!-- =================================================
-             SEARCH
-        ================================================== -->
-
-        <form
-            action="/local-services-platform/public/browse-services.php"
-            method="GET"
-            class="w-full max-w-3xl bg-white p-2 rounded-xl shadow-[0_4px_20px_rgba(58,47,43,0.08)] flex flex-col md:flex-row gap-2 border border-[#dbc1ba]/30"
-        >
-
-            <!-- Service Search -->
-
-            <div
-                class="flex-1 flex items-center px-4 py-3 gap-3"
-            >
-
-                <span class="material-symbols-outlined text-[#88726c]">
-                    search
-                </span>
-
-                <input
-                    type="text"
-                    name="search"
-                    placeholder="What service?"
-                    autocomplete="off"
-                    class="w-full bg-transparent border-none focus:ring-0 text-[#231916] placeholder:text-[#88726c] outline-none"
-                >
-
-            </div>
-
-
-            <!-- Search Button -->
-
-            <button
-                type="submit"
-                class="bg-[#95442b] text-white px-10 py-3 rounded-lg font-semibold hover:bg-[#b45b40] hover:shadow-lg active:scale-[0.98] transition-all"
-            >
-
-                Search
-
-            </button>
-
-        </form>
 
     </div>
 
 
-    <!-- Decorative Background -->
+    <!-- خلفية زخرفية -->
 
     <div
         class="absolute -top-24 -right-24 w-96 h-96 bg-[#b45b40]/10 rounded-full blur-[100px] -z-10"
@@ -385,7 +342,7 @@ require_once __DIR__ . '/includes/auth.php';
 
 
 <!-- =====================================================
-     LOGGED USER STATUS
+     حالة المستخدم المسجل
 ===================================================== -->
 
 <?php if (isLoggedIn()): ?>
@@ -414,17 +371,24 @@ require_once __DIR__ . '/includes/auth.php';
 
                     <p class="font-semibold text-[#231916]">
 
-                        Welcome back,
-                        <?php echo htmlspecialchars(getUserName()); ?>!
+                        <?php echo _e('Welcome back, :name!', ['name' => htmlspecialchars(getUserName())]); ?>
 
                     </p>
 
                     <p class="text-sm text-[#55433d]">
 
-                        You are logged in as
+                        <?php echo __('You are logged in as'); ?>
 
                         <strong>
-                            <?php echo htmlspecialchars(getUserRole()); ?>
+                            <?php 
+                            $role = getUserRole();
+                            $role_names = [
+                                'customer' => 'عميل',
+                                'provider' => 'مزود خدمة',
+                                'admin' => 'مدير'
+                            ];
+                            echo htmlspecialchars($role_names[$role] ?? $role);
+                            ?>
                         </strong>
 
                     </p>
@@ -434,7 +398,7 @@ require_once __DIR__ . '/includes/auth.php';
             </div>
 
 
-            <!-- Role Actions -->
+            <!-- إجراءات حسب الدور -->
 
             <div class="flex flex-wrap gap-3">
 
@@ -444,14 +408,14 @@ require_once __DIR__ . '/includes/auth.php';
                         href="/local-services-platform/public/browse-services.php"
                         class="bg-[#95442b] text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-[#b45b40] transition"
                     >
-                        Browse Services
+                        <?php echo __('Browse Services'); ?>
                     </a>
 
                     <a
                         href="/local-services-platform/public/my-bookings.php"
                         class="border border-[#95442b] text-[#95442b] px-5 py-2.5 rounded-lg font-semibold hover:bg-white transition"
                     >
-                        My Bookings
+                        <?php echo __('My Bookings'); ?>
                     </a>
 
                 <?php elseif (getUserRole() === 'provider'): ?>
@@ -460,7 +424,7 @@ require_once __DIR__ . '/includes/auth.php';
                         href="/local-services-platform/provider/dashboard.php"
                         class="bg-[#95442b] text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-[#b45b40] transition"
                     >
-                        Go to Dashboard
+                        <?php echo __('Go to Dashboard'); ?>
                     </a>
 
                 <?php elseif (getUserRole() === 'admin'): ?>
@@ -469,7 +433,7 @@ require_once __DIR__ . '/includes/auth.php';
                         href="/local-services-platform/admin/dashboard.php"
                         class="bg-[#95442b] text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-[#b45b40] transition"
                     >
-                        Go to Admin Panel
+                        <?php echo __('Go to Admin Panel'); ?>
                     </a>
 
                 <?php endif; ?>
@@ -487,7 +451,7 @@ require_once __DIR__ . '/includes/auth.php';
 
 
 <!-- =====================================================
-     CATEGORIES
+     التصنيفات
 ===================================================== -->
 
 <section
@@ -502,11 +466,11 @@ require_once __DIR__ . '/includes/auth.php';
             <h2
                 class="text-3xl font-semibold text-[#231916] mb-2"
             >
-                Explore Categories
+                <?php echo __('Explore Categories'); ?>
             </h2>
 
             <p class="text-[#55433d] text-center">
-                Find the right professional for your needs.
+                <?php echo __('Find the right professional for your needs.'); ?>
             </p>
 
             <div
@@ -521,7 +485,7 @@ require_once __DIR__ . '/includes/auth.php';
         >
 
 
-            <!-- Plumbing -->
+            <!-- سباكة -->
 
             <a
                 href="/local-services-platform/public/browse-services.php?category=plumbing"
@@ -541,14 +505,14 @@ require_once __DIR__ . '/includes/auth.php';
                 </div>
 
                 <span class="font-semibold text-[#231916]">
-                    Plumbing
+                    <?php echo __('Plumbing'); ?>
                 </span>
 
             </a>
 
 
 
-            <!-- Electrical -->
+            <!-- كهرباء -->
 
             <a
                 href="/local-services-platform/public/browse-services.php?category=electrical"
@@ -568,14 +532,14 @@ require_once __DIR__ . '/includes/auth.php';
                 </div>
 
                 <span class="font-semibold text-[#231916]">
-                    Electrical
+                    <?php echo __('Electrical'); ?>
                 </span>
 
             </a>
 
 
 
-            <!-- Cleaning -->
+            <!-- تنظيف -->
 
             <a
                 href="/local-services-platform/public/browse-services.php?category=cleaning"
@@ -595,14 +559,14 @@ require_once __DIR__ . '/includes/auth.php';
                 </div>
 
                 <span class="font-semibold text-[#231916]">
-                    Cleaning
+                    <?php echo __('Cleaning'); ?>
                 </span>
 
             </a>
 
 
 
-            <!-- Gardening -->
+            <!-- بستنة -->
 
             <a
                 href="/local-services-platform/public/browse-services.php?category=gardening"
@@ -622,14 +586,14 @@ require_once __DIR__ . '/includes/auth.php';
                 </div>
 
                 <span class="font-semibold text-[#231916]">
-                    Gardening
+                    <?php echo __('Gardening'); ?>
                 </span>
 
             </a>
 
 
 
-            <!-- Moving -->
+            <!-- نقل -->
 
             <a
                 href="/local-services-platform/public/browse-services.php?category=moving"
@@ -649,14 +613,14 @@ require_once __DIR__ . '/includes/auth.php';
                 </div>
 
                 <span class="font-semibold text-[#231916]">
-                    Moving
+                    <?php echo __('Moving'); ?>
                 </span>
 
             </a>
 
 
 
-            <!-- Painting -->
+            <!-- دهان -->
 
             <a
                 href="/local-services-platform/public/browse-services.php?category=painting"
@@ -676,7 +640,7 @@ require_once __DIR__ . '/includes/auth.php';
                 </div>
 
                 <span class="font-semibold text-[#231916]">
-                    Painting
+                    <?php echo __('Painting'); ?>
                 </span>
 
             </a>
@@ -690,7 +654,7 @@ require_once __DIR__ . '/includes/auth.php';
 
 
 <!-- =====================================================
-     HOW IT WORKS
+     كيف يعمل دابرهة
 ===================================================== -->
 
 <section
@@ -705,11 +669,11 @@ require_once __DIR__ . '/includes/auth.php';
             <h2
                 class="text-3xl font-semibold text-[#231916] mb-3"
             >
-                How Dabberha Works
+                <?php echo __('How Dabberha Works'); ?>
             </h2>
 
             <p class="text-[#55433d]">
-                Getting the help you need is simple.
+                <?php echo __('Getting the help you need is simple.'); ?>
             </p>
 
         </div>
@@ -720,7 +684,7 @@ require_once __DIR__ . '/includes/auth.php';
         >
 
 
-            <!-- Step 1 -->
+            <!-- الخطوة 1 -->
 
             <div
                 class="text-center p-8 rounded-xl bg-white border border-[#dbc1ba]/20 shadow-sm"
@@ -741,25 +705,24 @@ require_once __DIR__ . '/includes/auth.php';
                 <div
                     class="text-sm font-bold text-[#95442b] mb-2"
                 >
-                    STEP 01
+                    <?php echo __('STEP 01'); ?>
                 </div>
 
                 <h3
                     class="text-xl font-semibold mb-3"
                 >
-                    Find a Service
+                    <?php echo __('Find a Service'); ?>
                 </h3>
 
                 <p class="text-[#55433d] leading-relaxed">
-                    Search for the service you need and discover
-                    professionals available in your area.
+                    <?php echo __('Search for the service you need and discover professionals available in your area.'); ?>
                 </p>
 
             </div>
 
 
 
-            <!-- Step 2 -->
+            <!-- الخطوة 2 -->
 
             <div
                 class="text-center p-8 rounded-xl bg-white border border-[#dbc1ba]/20 shadow-sm"
@@ -780,25 +743,24 @@ require_once __DIR__ . '/includes/auth.php';
                 <div
                     class="text-sm font-bold text-[#95442b] mb-2"
                 >
-                    STEP 02
+                    <?php echo __('STEP 02'); ?>
                 </div>
 
                 <h3
                     class="text-xl font-semibold mb-3"
                 >
-                    Choose a Professional
+                    <?php echo __('Choose a Professional'); ?>
                 </h3>
 
                 <p class="text-[#55433d] leading-relaxed">
-                    Compare service providers and choose the
-                    professional that best fits your needs.
+                    <?php echo __('Compare service providers and choose the professional that best fits your needs.'); ?>
                 </p>
 
             </div>
 
 
 
-            <!-- Step 3 -->
+            <!-- الخطوة 3 -->
 
             <div
                 class="text-center p-8 rounded-xl bg-white border border-[#dbc1ba]/20 shadow-sm"
@@ -819,18 +781,17 @@ require_once __DIR__ . '/includes/auth.php';
                 <div
                     class="text-sm font-bold text-[#95442b] mb-2"
                 >
-                    STEP 03
+                    <?php echo __('STEP 03'); ?>
                 </div>
 
                 <h3
                     class="text-xl font-semibold mb-3"
                 >
-                    Book Your Service
+                    <?php echo __('Book Your Service'); ?>
                 </h3>
 
                 <p class="text-[#55433d] leading-relaxed">
-                    Book the service you need online quickly
-                    and conveniently.
+                    <?php echo __('Book the service you need online quickly and conveniently.'); ?>
                 </p>
 
             </div>
@@ -844,7 +805,7 @@ require_once __DIR__ . '/includes/auth.php';
 
 
 <!-- =====================================================
-     SERVICE PROVIDER CTA
+     دعوة مقدمي الخدمات
 ===================================================== -->
 
 <section class="py-12 px-6">
@@ -854,7 +815,7 @@ require_once __DIR__ . '/includes/auth.php';
     >
 
 
-        <!-- Join as Pro -->
+        <!-- انضم كمحترف -->
 
         <div
             class="md:col-span-2 bg-[#392e2a] rounded-xl p-10 md:p-12 relative overflow-hidden flex flex-col justify-center"
@@ -863,21 +824,20 @@ require_once __DIR__ . '/includes/auth.php';
             <h2
                 class="text-3xl md:text-4xl font-bold text-[#ffede7] mb-4"
             >
-                Are you a service professional?
+                <?php echo __('Are you a service professional?'); ?>
             </h2>
 
             <p
                 class="text-lg text-[#f7e4de] mb-8 max-w-md leading-relaxed"
             >
-                Grow your business with Dabberha.
-                Reach local customers searching for your expertise.
+                <?php echo __('Grow your business with Dabberha. Reach local customers searching for your expertise.'); ?>
             </p>
 
             <a
                 href="/local-services-platform/public/register.php"
                 class="bg-[#ffdbd1] text-[#3a0a00] px-8 py-3 rounded-lg font-semibold w-fit hover:bg-[#ffb59f] transition-colors"
             >
-                Join as a Pro
+                <?php echo __('Join as a Pro'); ?>
             </a>
 
 
@@ -889,7 +849,7 @@ require_once __DIR__ . '/includes/auth.php';
 
 
 
-        <!-- Safety -->
+        <!-- الأمان أولاً -->
 
         <div
             class="bg-[#ffc3c2] rounded-xl p-10 md:p-12 flex flex-col items-center text-center justify-center border border-[#dbc1ba]/30"
@@ -904,21 +864,20 @@ require_once __DIR__ . '/includes/auth.php';
             <h3
                 class="text-2xl font-semibold text-[#7b4d4e] mb-2"
             >
-                Safety First
+                <?php echo __('Safety First'); ?>
             </h3>
 
             <p
                 class="text-[#7b4d4e]/80 mb-6"
             >
-                We want every customer to feel confident
-                when choosing a local service provider.
+                <?php echo __('We want every customer to feel confident when choosing a local service provider.'); ?>
             </p>
 
             <a
                 href="#"
                 class="font-semibold text-[#7b4d4e] underline"
             >
-                Learn about safety
+                <?php echo __('Learn about safety'); ?>
             </a>
 
         </div>
@@ -930,7 +889,7 @@ require_once __DIR__ . '/includes/auth.php';
 
 
 <!-- =====================================================
-     FEATURES
+     المميزات
 ===================================================== -->
 
 <section class="py-16 px-6">
@@ -942,7 +901,7 @@ require_once __DIR__ . '/includes/auth.php';
         >
 
 
-            <!-- Find Services -->
+            <!-- البحث عن خدمات -->
 
             <div
                 class="bg-white rounded-xl p-8 border border-[#dbc1ba]/20 shadow-sm hover:shadow-md transition"
@@ -963,19 +922,18 @@ require_once __DIR__ . '/includes/auth.php';
                 <h3
                     class="text-xl font-semibold mb-3"
                 >
-                    Find Services
+                    <?php echo __('Find Services'); ?>
                 </h3>
 
                 <p class="text-[#55433d] leading-relaxed">
-                    Search for plumbers, electricians, cleaners,
-                    tutors and many other local professionals.
+                    <?php echo __('Search for plumbers, electricians, cleaners, tutors and many other local professionals.'); ?>
                 </p>
 
             </div>
 
 
 
-            <!-- Reviews -->
+            <!-- قراءة التقييمات -->
 
             <div
                 class="bg-white rounded-xl p-8 border border-[#dbc1ba]/20 shadow-sm hover:shadow-md transition"
@@ -996,19 +954,18 @@ require_once __DIR__ . '/includes/auth.php';
                 <h3
                     class="text-xl font-semibold mb-3"
                 >
-                    Read Reviews
+                    <?php echo __('Read Reviews'); ?>
                 </h3>
 
                 <p class="text-[#55433d] leading-relaxed">
-                    See what other customers say about service
-                    providers before making your choice.
+                    <?php echo __('See what other customers say about service providers before making your choice.'); ?>
                 </p>
 
             </div>
 
 
 
-            <!-- Booking -->
+            <!-- حجز سهل -->
 
             <div
                 class="bg-white rounded-xl p-8 border border-[#dbc1ba]/20 shadow-sm hover:shadow-md transition"
@@ -1029,12 +986,11 @@ require_once __DIR__ . '/includes/auth.php';
                 <h3
                     class="text-xl font-semibold mb-3"
                 >
-                    Easy Booking
+                    <?php echo __('Easy Booking'); ?>
                 </h3>
 
                 <p class="text-[#55433d] leading-relaxed">
-                    Book the service you need online quickly
-                    and conveniently.
+                    <?php echo __('Book the service you need online quickly and conveniently.'); ?>
                 </p>
 
             </div>
@@ -1051,7 +1007,7 @@ require_once __DIR__ . '/includes/auth.php';
 
 
 <!-- =====================================================
-     FOOTER
+     التذييل (FOOTER)
 ===================================================== -->
 
 <footer
@@ -1062,29 +1018,26 @@ require_once __DIR__ . '/includes/auth.php';
         class="flex flex-col md:flex-row justify-between items-center gap-6 max-w-7xl mx-auto"
     >
 
-        <!-- Logo -->
+        <!-- الشعار -->
 
-        <div class="flex flex-col gap-2 text-center md:text-left">
+        <div class="flex flex-col gap-2 text-center md:text-right">
 
             <span
                 class="font-bold text-[#95442b] text-xl"
             >
-                Dabberha
+                <?php echo __('Dabberha'); ?>
             </span>
 
             <p class="text-sm text-stone-600">
 
-                © <?php echo date('Y'); ?>
-
-                Dabberha Local Services.
-                All rights reserved.
+                <?php echo __('© 2026 Dabberha Services. Built for the community.'); ?>
 
             </p>
 
         </div>
 
 
-        <!-- Footer Links -->
+        <!-- روابط التذييل -->
 
         <div class="flex flex-wrap justify-center gap-6">
 
@@ -1092,28 +1045,28 @@ require_once __DIR__ . '/includes/auth.php';
                 href="#"
                 class="text-sm text-stone-500 hover:text-[#95442b] transition-colors"
             >
-                Privacy Policy
+                <?php echo __('Privacy Policy'); ?>
             </a>
 
             <a
                 href="#"
                 class="text-sm text-stone-500 hover:text-[#95442b] transition-colors"
             >
-                Terms of Service
+                <?php echo __('Terms of Service'); ?>
             </a>
 
             <a
                 href="#"
                 class="text-sm text-stone-500 hover:text-[#95442b] transition-colors"
             >
-                Help Center
+                <?php echo __('Help Center'); ?>
             </a>
 
             <a
                 href="#"
                 class="text-sm text-stone-500 hover:text-[#95442b] transition-colors"
             >
-                Contact Us
+                <?php echo __('Contact Us'); ?>
             </a>
 
         </div>
@@ -1125,7 +1078,7 @@ require_once __DIR__ . '/includes/auth.php';
 
 
 <!-- =====================================================
-     MOBILE NAVIGATION
+     القائمة السفلية للجوال
 ===================================================== -->
 
 <nav
@@ -1133,7 +1086,7 @@ require_once __DIR__ . '/includes/auth.php';
 >
 
 
-    <!-- Home -->
+    <!-- الرئيسية -->
 
     <a
         href="/local-services-platform/index.php"
@@ -1145,14 +1098,14 @@ require_once __DIR__ . '/includes/auth.php';
         </span>
 
         <span class="text-[11px] font-semibold">
-            Home
+            <?php echo __('Home'); ?>
         </span>
 
     </a>
 
 
 
-    <!-- Explore -->
+    <!-- استكشاف -->
 
     <a
         href="/local-services-platform/public/browse-services.php"
@@ -1164,14 +1117,14 @@ require_once __DIR__ . '/includes/auth.php';
         </span>
 
         <span class="text-[11px] font-semibold">
-            Explore
+            <?php echo __('Explore'); ?>
         </span>
 
     </a>
 
 
 
-    <!-- Bookings / Join -->
+    <!-- حجوزات / انضم -->
 
     <?php if (isLoggedIn() && getUserRole() === 'customer'): ?>
 
@@ -1185,7 +1138,7 @@ require_once __DIR__ . '/includes/auth.php';
             </span>
 
             <span class="text-[11px] font-semibold">
-                Bookings
+                <?php echo __('Bookings'); ?>
             </span>
 
         </a>
@@ -1202,7 +1155,7 @@ require_once __DIR__ . '/includes/auth.php';
             </span>
 
             <span class="text-[11px] font-semibold">
-                Join
+                <?php echo __('Join'); ?>
             </span>
 
         </a>
@@ -1211,7 +1164,7 @@ require_once __DIR__ . '/includes/auth.php';
 
 
 
-    <!-- Profile -->
+    <!-- الملف الشخصي -->
 
     <?php if (isLoggedIn()): ?>
 
@@ -1227,7 +1180,7 @@ require_once __DIR__ . '/includes/auth.php';
                 </span>
 
                 <span class="text-[11px] font-semibold">
-                    Profile
+                    <?php echo __('Profile'); ?>
                 </span>
 
             </a>
@@ -1244,7 +1197,7 @@ require_once __DIR__ . '/includes/auth.php';
                 </span>
 
                 <span class="text-[11px] font-semibold">
-                    Admin
+                    <?php echo __('Admin'); ?>
                 </span>
 
             </a>
@@ -1261,7 +1214,7 @@ require_once __DIR__ . '/includes/auth.php';
                 </span>
 
                 <span class="text-[11px] font-semibold">
-                    Profile
+                    <?php echo __('Profile'); ?>
                 </span>
 
             </a>
@@ -1280,7 +1233,7 @@ require_once __DIR__ . '/includes/auth.php';
             </span>
 
             <span class="text-[11px] font-semibold">
-                Login
+                <?php echo __('Login'); ?>
             </span>
 
         </a>
@@ -1292,7 +1245,7 @@ require_once __DIR__ . '/includes/auth.php';
 
 
 <!-- =====================================================
-     SUPPORT BUTTON
+     زر الدعم
 ===================================================== -->
 
 <div
@@ -1301,7 +1254,7 @@ require_once __DIR__ . '/includes/auth.php';
 
     <button
         type="button"
-        title="Support"
+        title="<?php echo __('Support'); ?>"
         class="bg-[#95442b] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:bg-[#b45b40] active:scale-95 transition-all"
     >
 

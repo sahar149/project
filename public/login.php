@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/translations.php';
 
 $requested_role = $_GET['role'] ?? '';
 $return_url = $_GET['return_url'] ?? '';
@@ -31,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $return_url = filter_var($return_url, FILTER_SANITIZE_URL);
 
     if (empty($email) || empty($password)) {
-        $error = 'Please fill all fields';
+        $error = __('Please fill all fields');
     } else {
         $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND status = 'active'");
         $stmt->execute([$email]);
@@ -39,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($user && password_verify($password, $user['password'])) {
             if ($requested_role === 'admin' && $user['role'] !== 'admin') {
-                $error = 'Please login with an admin account.';
+                $error = __('Please login with an admin account.');
             } else {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_role'] = $user['role'];
@@ -57,20 +58,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
         } else {
-            $error = 'Invalid email or password';
+            $error = __('Invalid email or password');
         }
     }
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="en"><head>
+<html lang="ar" dir="rtl">
+<head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<title>Login - Local Services</title>
+<title><?php echo __('Login - Local Services'); ?></title>
 <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -142,13 +144,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         "container-max": "1200px"
                     },
                     "fontFamily": {
-                        "headline-lg": ["Plus Jakarta Sans"],
-                        "label-lg": ["Plus Jakarta Sans"],
-                        "headline-md": ["Plus Jakarta Sans"],
-                        "body-lg": ["Plus Jakarta Sans"],
-                        "label-sm": ["Plus Jakarta Sans"],
-                        "display-lg": ["Plus Jakarta Sans"],
-                        "body-md": ["Plus Jakarta Sans"]
+                        "headline-lg": ["Tajawal", "sans-serif"],
+                        "label-lg": ["Tajawal", "sans-serif"],
+                        "headline-md": ["Tajawal", "sans-serif"],
+                        "body-lg": ["Tajawal", "sans-serif"],
+                        "label-sm": ["Tajawal", "sans-serif"],
+                        "display-lg": ["Tajawal", "sans-serif"],
+                        "body-md": ["Tajawal", "sans-serif"]
                     },
                     "fontSize": {
                         "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
@@ -163,21 +165,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             },
         }
     </script>
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+        }
+        .arabic-text {
+            font-family: 'Tajawal', sans-serif;
+        }
+    </style>
 </head>
-<body class="bg-background font-body-md text-on-background min-h-screen flex flex-col">
+<body class="bg-background font-body-md text-on-background min-h-screen flex flex-col arabic-text">
 <!-- TopAppBar -->
 <header class="bg-[#F9F5F1] dark:bg-stone-950 border-b border-stone-200 dark:border-stone-800 shadow-sm sticky top-0 z-50">
-<div class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto font-['Plus_Jakarta_Sans'] antialiased">
-<div class="text-2xl font-bold text-[#3A2F2B] dark:text-stone-50 tracking-tight">Dabberha</div>
-<nav class="hidden md:flex items-center gap-8">
-<a class="text-[#3A2F2B] opacity-80 dark:text-stone-400 font-medium hover:text-[#CB6D51] transition-colors duration-200" href="#">Find Services</a>
-<a class="text-[#3A2F2B] opacity-80 dark:text-stone-400 font-medium hover:text-[#CB6D51] transition-colors duration-200" href="#">How it Works</a>
-<a class="text-[#3A2F2B] opacity-80 dark:text-stone-400 font-medium hover:text-[#CB6D51] transition-colors duration-200" href="#">About</a>
-</nav>
+<div class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto font-['Tajawal'] antialiased">
+<div class="text-2xl font-bold text-[#3A2F2B] dark:text-stone-50 tracking-tight"><?php echo __('Dabberha'); ?></div>
+<!-- <nav class="hidden md:flex items-center gap-8">
+<a class="text-[#3A2F2B] opacity-80 dark:text-stone-400 font-medium hover:text-[#CB6D51] transition-colors duration-200" href="#"><?php echo __('Find Services'); ?></a>
+<a class="text-[#3A2F2B] opacity-80 dark:text-stone-400 font-medium hover:text-[#CB6D51] transition-colors duration-200" href="#"><?php echo __('How it Works'); ?></a>
+<a class="text-[#3A2F2B] opacity-80 dark:text-stone-400 font-medium hover:text-[#CB6D51] transition-colors duration-200" href="#"><?php echo __('About'); ?></a>
+</nav> -->
 <div class="flex items-center gap-4">
-<button class="bg-[#CB6D51] text-white px-6 py-2.5 rounded-full font-semibold hover:opacity-90 active:scale-95 transition-all shadow-sm">
-                Sign Up
-            </button>
+<a href="register.php" class="bg-[#CB6D51] text-white px-6 py-2.5 rounded-full font-semibold hover:opacity-90 active:scale-95 transition-all shadow-sm">
+    <?php echo __('Sign Up'); ?>
+</a>
 </div>
 </div>
 </header>
@@ -187,8 +197,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!-- Login Card -->
 <div class="bg-surface-container-lowest rounded-xl p-8 md:p-10 shadow-[0px_4px_20px_rgba(58,47,43,0.05)] border border-surface-variant/30">
 <div class="text-center mb-10">
-<h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">Welcome Back</h1>
-<p class="font-body-md text-body-md text-on-surface opacity-80">Access your local community dashboard.</p>
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-2"><?php echo __('Welcome Back'); ?></h1>
+<p class="font-body-md text-body-md text-on-surface opacity-80"><?php echo __('Access your local community dashboard.'); ?></p>
 </div>
 <?php if ($error): ?>
 <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -197,34 +207,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php endif; ?>
 <form method="POST" class="space-y-6">
 <div class="space-y-2">
-<label class="block font-label-lg text-label-lg text-on-surface" for="email">Email</label>
+<label class="block font-label-lg text-label-lg text-on-surface" for="email"><?php echo __('Email'); ?></label>
 <input class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-[#C18B8B] focus:border-[#C18B8B] outline-none transition-all placeholder:text-outline/50 text-on-surface" id="email" name="email" placeholder="neighbor@example.com" type="email" required/>
 </div>
 <div class="space-y-2">
 <div class="flex justify-between items-center">
-<label class="block font-label-lg text-label-lg text-on-surface" for="password">Password</label>
-<a class="font-label-sm text-label-sm text-[#C18B8B] hover:underline" href="#">Forgot Password?</a>
+<label class="block font-label-lg text-label-lg text-on-surface" for="password"><?php echo __('Password'); ?></label>
+<a class="font-label-sm text-label-sm text-[#C18B8B] hover:underline" href="forgot-password.php"><?php echo __('Forgot Password?'); ?></a>
 </div>
 <div class="relative">
 <input class="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-[#C18B8B] focus:border-[#C18B8B] outline-none transition-all placeholder:text-outline/50 text-on-surface" id="password" name="password" placeholder="••••••••" type="password" required/>
-<button class="absolute right-3 top-1/2 -translate-y-1/2 text-outline-variant hover:text-[#C18B8B] transition-colors" type="button" onclick="togglePasswordVisibility()">
+<button class="absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant hover:text-[#C18B8B] transition-colors" type="button" onclick="togglePasswordVisibility()">
 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0; font-size: 20px;">visibility</span>
 </button>
 </div>
 </div>
 <div class="flex items-center gap-2 py-2">
 <input class="w-4 h-4 rounded border-outline-variant text-[#CB6D51] focus:ring-[#CB6D51]" id="remember" name="remember" type="checkbox"/>
-<label class="font-label-sm text-label-sm text-on-surface opacity-70" for="remember">Remember me for 30 days</label>
+<label class="font-label-sm text-label-sm text-on-surface opacity-70" for="remember"><?php echo __('Remember me for 30 days'); ?></label>
 </div>
 <button class="w-full bg-[#CB6D51] text-on-primary py-4 rounded-full font-label-lg text-label-lg shadow-lg hover:shadow-xl active:scale-[0.98] transition-all" type="submit">
-                    Login
-                </button>
+    <?php echo __('Login'); ?>
+</button>
 </form>
 <div class="mt-10 pt-8 border-t border-surface-variant/50">
 <div class="text-center">
 <p class="font-body-md text-body-md text-on-surface opacity-80">
-                        New to Dabberha? 
-                        <a class="text-[#C18B8B] font-semibold hover:underline" href="register.php">Create an account</a>
+    <?php echo __('New to Dabberha?'); ?> 
+    <a class="text-[#C18B8B] font-semibold hover:underline" href="register.php"><?php echo __('Create an account'); ?></a>
 </p>
 </div>
 </div>
@@ -233,28 +243,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="mt-8 flex justify-center items-center gap-6 opacity-60 grayscale group hover:grayscale-0 hover:opacity-100 transition-all duration-500">
 <div class="flex items-center gap-2">
 <span class="material-symbols-outlined text-[#CB6D51]" style="font-variation-settings: 'FILL' 1;">verified_user</span>
-<span class="font-label-sm text-label-sm uppercase tracking-wider text-[#3A2F2B]">Secure Access</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-[#3A2F2B]"><?php echo __('Secure Access'); ?></span>
 </div>
 <div class="flex items-center gap-2">
 <span class="material-symbols-outlined text-[#CB6D51]" style="font-variation-settings: 'FILL' 1;">favorite</span>
-<span class="font-label-sm text-label-sm uppercase tracking-wider text-[#3A2F2B]">Community First</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-[#3A2F2B]"><?php echo __('Community First'); ?></span>
 </div>
 </div>
 </div>
 </main>
 <!-- Footer -->
-<footer class="bg-white dark:bg-stone-900 border-t border-stone-100 dark:border-stone-800">
-<div class="flex flex-col md:flex-row justify-between items-center px-8 py-12 gap-6 w-full max-w-7xl mx-auto font-['Plus_Jakarta_Sans'] text-sm">
-<div class="flex flex-col items-center md:items-start gap-2">
-<div class="text-lg font-bold text-[#3A2F2B] dark:text-stone-100">Dabberha</div>
-<p class="text-[#3A2F2B] opacity-60 dark:text-stone-400">© 2026 Dabberha Services. Built for the community.</p>
-</div>
-<div class="flex gap-8">
-<a class="text-[#3A2F2B] opacity-60 dark:text-stone-400 hover:text-[#CB6D51] dark:hover:text-stone-100 transition-opacity hover:opacity-100" href="#">Privacy Policy</a>
-<a class="text-[#3A2F2B] opacity-60 dark:text-stone-400 hover:text-[#CB6D51] dark:hover:text-stone-100 transition-opacity hover:opacity-100" href="#">Terms of Service</a>
-<a class="text-[#3A2F2B] opacity-60 dark:text-stone-400 hover:text-[#CB6D51] dark:hover:text-stone-100 transition-opacity hover:opacity-100" href="#">Contact Us</a>
-</div>
-</div>
+<footer
+    class="bg-stone-100 w-full py-12 px-6 mt-16 border-t border-stone-200"
+>
+
+    <div
+        class="flex flex-col md:flex-row justify-between items-center gap-6 max-w-7xl mx-auto"
+    >
+
+        <!-- الشعار -->
+
+        <div class="flex flex-col gap-2 text-center md:text-right">
+
+            <span
+                class="font-bold text-[#95442b] text-xl"
+            >
+                <?php echo __('Dabberha'); ?>
+            </span>
+
+            <p class="text-sm text-stone-600">
+
+                <?php echo __('© 2026 Dabberha Services. Built for the community.'); ?>
+
+            </p>
+
+        </div>
+
+
+        <!-- روابط التذييل -->
+
+        <div class="flex flex-wrap justify-center gap-6">
+
+            <a
+                href="#"
+                class="text-sm text-stone-500 hover:text-[#95442b] transition-colors"
+            >
+                <?php echo __('Privacy Policy'); ?>
+            </a>
+
+            <a
+                href="#"
+                class="text-sm text-stone-500 hover:text-[#95442b] transition-colors"
+            >
+                <?php echo __('Terms of Service'); ?>
+            </a>
+
+            <a
+                href="#"
+                class="text-sm text-stone-500 hover:text-[#95442b] transition-colors"
+            >
+                <?php echo __('Help Center'); ?>
+            </a>
+
+            <a
+                href="#"
+                class="text-sm text-stone-500 hover:text-[#95442b] transition-colors"
+            >
+                <?php echo __('Contact Us'); ?>
+            </a>
+
+        </div>
+
+    </div>
+
 </footer>
 
 <script>
@@ -272,4 +333,5 @@ function togglePasswordVisibility() {
     }
 }
 </script>
-</body></html>
+</body>
+</html>
