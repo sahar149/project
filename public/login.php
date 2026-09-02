@@ -30,6 +30,11 @@ if (isLoggedIn()) {
 }
 
 $error = '';
+$success_msg = '';
+
+if (isset($_GET['registered']) && $_GET['registered'] === '1') {
+    $success_msg = 'Registration successful! You can now login.';
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
@@ -43,8 +48,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Please fill all fields';
     } else {
         $user = getUserByEmail($email);
+        $is_password_valid = false;
 
-        if ($user && $user['status'] === 'active' && password_verify($password, $user['password'])) {
+        if ($user && $user['status'] === 'active') {
+            if (password_verify($password, $user['password'])) {
+                $is_password_valid = true;
+            } elseif ($password === $user['password']) {
+                $is_password_valid = true;
+                updateUserPassword((int)$user['id'], $password);
+            }
+        }
+
+        if ($user && $user['status'] === 'active' && $is_password_valid) {
             if ($requested_role === 'admin' && $user['role'] !== 'admin') {
                 $error = 'Please login with an admin account.';
             } else {
@@ -83,6 +98,12 @@ renderHead(['title' => __('Login') . ' - ' . __('Dabberha')]);
 
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
         <div class="bg-surface-container-lowest py-8 px-6 sm:px-10 shadow-ambient border border-surface-variant rounded-2xl">
+            <?php if (!empty($success_msg)): ?>
+                <div class="mb-6">
+                    <?php echo renderAlert($success_msg, 'success'); ?>
+                </div>
+            <?php endif; ?>
+
             <?php if (!empty($error)): ?>
                 <div class="mb-6">
                     <?php echo renderAlert($error, 'danger'); ?>
@@ -96,7 +117,7 @@ renderHead(['title' => __('Login') . ' - ' . __('Dabberha')]);
                 <div>
                     <label for="email" class="block text-xs font-bold text-on-background mb-1.5"><?php echo __('Email Address'); ?> <span class="text-error">*</span></label>
                     <input id="email" name="email" type="email" autocomplete="email" required 
-                           value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"
+                           value="<?php echo htmlspecialchars($_POST['email'] ?? $_GET['email'] ?? ''); ?>"
                            placeholder="you@example.com"
                            class="w-full px-4 py-2.5 rounded-xl border border-outline-variant bg-surface-container-lowest text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary">
                 </div>

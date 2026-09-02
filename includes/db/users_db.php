@@ -113,6 +113,13 @@ function updateUserProfile(int $id, array $data): bool {
     return $stmt->execute($params);
 }
 
+function updateUserPassword(int $id, string $raw_password): bool {
+    global $pdo;
+    $hashed = password_hash($raw_password, PASSWORD_DEFAULT);
+    $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+    return $stmt->execute([$hashed, $id]);
+}
+
 function deleteUser(int $id): bool {
     global $pdo;
     $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");

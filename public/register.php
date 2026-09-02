@@ -55,7 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             if ($created_id > 0) {
-                $success = 'Registration successful! You can now login.';
+                header('Location: login.php?registered=1&email=' . urlencode($email));
+                exit;
             } else {
                 $error = 'Registration failed. Please try again.';
             }
@@ -83,18 +84,7 @@ renderHead(['title' => __('Create Account') . ' - ' . __('Dabberha')]);
                 </div>
             <?php endif; ?>
 
-            <?php if (!empty($success)): ?>
-                <div class="mb-6">
-                    <?php echo renderAlert($success, 'success'); ?>
-                </div>
-                <div class="text-center pt-2">
-                    <a href="login.php" class="w-full inline-flex items-center justify-center bg-primary hover:bg-[#7a2f18] text-white font-bold py-3 rounded-xl text-sm shadow-ambient transition-all">
-                        <span><?php echo __('Proceed to Login'); ?></span>
-                        <i class="fa-solid fa-arrow-right mr-2"></i>
-                    </a>
-                </div>
-            <?php else: ?>
-                <form method="POST" class="space-y-4">
+            <form method="POST" class="space-y-4">
                     <!-- Role Selection Radio Cards -->
                     <div>
                         <label class="block text-xs font-bold text-on-background mb-2"><?php echo __('Account Type'); ?> <span class="text-error">*</span></label>
@@ -255,7 +245,6 @@ renderHead(['title' => __('Create Account') . ' - ' . __('Dabberha')]);
                     }
                 });
                 </script>
-            <?php endif; ?>
 
             <div class="mt-6 pt-6 border-t border-surface-variant text-center space-y-3">
                 <p class="text-xs text-on-surface-variant">
