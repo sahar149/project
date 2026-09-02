@@ -96,12 +96,12 @@ renderHead(['title' => 'Register Admin - Dabberha']);
 
                     <div>
                         <label for="password" class="block text-xs font-bold text-brand-text mb-1">Password *</label>
-                        <input id="password" name="password" type="password" required class="w-full px-4 py-2.5 rounded-xl border border-brand-border bg-brand-surface text-sm font-medium focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary">
+                        <input id="password" name="password" type="password" minlength="6" required class="w-full px-4 py-2.5 rounded-xl border border-brand-border bg-brand-surface text-sm font-medium focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary">
                     </div>
 
                     <div>
                         <label for="confirm_password" class="block text-xs font-bold text-brand-text mb-1">Confirm Password *</label>
-                        <input id="confirm_password" name="confirm_password" type="password" required class="w-full px-4 py-2.5 rounded-xl border border-brand-border bg-brand-surface text-sm font-medium focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary">
+                        <input id="confirm_password" name="confirm_password" type="password" minlength="6" required class="w-full px-4 py-2.5 rounded-xl border border-brand-border bg-brand-surface text-sm font-medium focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary">
                     </div>
 
                     <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-xs flex items-center justify-center gap-2 mt-4">

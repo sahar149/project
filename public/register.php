@@ -135,23 +135,74 @@ renderHead(['title' => __('Create Account') . ' - ' . __('Dabberha')]);
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label for="password" class="block text-xs font-bold text-on-background mb-1"><?php echo __('Password'); ?> <span class="text-error">*</span></label>
-                            <input id="password" name="password" type="password" required placeholder="••••••••"
+                            <label for="password" class="block text-xs font-bold text-on-background mb-1">
+                                <?php echo __('Password'); ?> <span class="text-error">*</span>
+                            </label>
+                            <input id="password" name="password" type="password" minlength="6" required placeholder="••••••••"
                                    class="w-full px-4 py-2.5 rounded-xl border border-outline-variant bg-surface-container-lowest text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                            <span id="pass-hint" class="text-[11px] text-on-surface-variant block mt-1">
+                                <i class="fa-solid fa-circle-info text-[10px] ml-1"></i><?php echo __('Must be at least 6 characters'); ?>
+                            </span>
                         </div>
 
                         <div>
-                            <label for="confirm_password" class="block text-xs font-bold text-on-background mb-1"><?php echo __('Confirm Password'); ?> <span class="text-error">*</span></label>
-                            <input id="confirm_password" name="confirm_password" type="password" required placeholder="••••••••"
+                            <label for="confirm_password" class="block text-xs font-bold text-on-background mb-1">
+                                <?php echo __('Confirm Password'); ?> <span class="text-error">*</span>
+                            </label>
+                            <input id="confirm_password" name="confirm_password" type="password" minlength="6" required placeholder="••••••••"
                                    class="w-full px-4 py-2.5 rounded-xl border border-outline-variant bg-surface-container-lowest text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                            <span id="match-hint" class="text-[11px] text-on-surface-variant block mt-1"></span>
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full bg-primary hover:bg-[#7a2f18] text-white font-bold py-3 rounded-xl text-sm transition-all shadow-ambient flex items-center justify-center gap-2 mt-4">
+                    <button type="submit" id="submit-btn" class="w-full bg-primary hover:bg-[#7a2f18] text-white font-bold py-3 rounded-xl text-sm transition-all shadow-ambient flex items-center justify-center gap-2 mt-4">
                         <i class="fa-solid fa-user-plus"></i>
                         <span><?php echo __('Create Account'); ?></span>
                     </button>
                 </form>
+
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const pass = document.getElementById('password');
+                    const confirmPass = document.getElementById('confirm_password');
+                    const passHint = document.getElementById('pass-hint');
+                    const matchHint = document.getElementById('match-hint');
+
+                    if (pass) {
+                        pass.addEventListener('input', function() {
+                            if (this.value.length > 0 && this.value.length < 6) {
+                                passHint.className = 'text-[11px] text-red-600 font-semibold block mt-1';
+                                passHint.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-[10px] ml-1"></i> <?php echo __('Password must be at least 6 characters'); ?> (' + this.value.length + '/6)';
+                            } else if (this.value.length >= 6) {
+                                passHint.className = 'text-[11px] text-green-600 font-semibold block mt-1';
+                                passHint.innerHTML = '<i class="fa-solid fa-check text-[10px] ml-1"></i> <?php echo __('Password meets minimum requirements'); ?>';
+                            } else {
+                                passHint.className = 'text-[11px] text-on-surface-variant block mt-1';
+                                passHint.innerHTML = '<i class="fa-solid fa-circle-info text-[10px] ml-1"></i> <?php echo __('Must be at least 6 characters'); ?>';
+                            }
+                            checkMatch();
+                        });
+                    }
+
+                    if (confirmPass) {
+                        confirmPass.addEventListener('input', checkMatch);
+                    }
+
+                    function checkMatch() {
+                        if (!confirmPass || confirmPass.value.length === 0) {
+                            matchHint.innerHTML = '';
+                            return;
+                        }
+                        if (pass && confirmPass.value === pass.value) {
+                            matchHint.className = 'text-[11px] text-green-600 font-semibold block mt-1';
+                            matchHint.innerHTML = '<i class="fa-solid fa-check text-[10px] ml-1"></i> <?php echo __('Passwords match'); ?>';
+                        } else {
+                            matchHint.className = 'text-[11px] text-red-600 font-semibold block mt-1';
+                            matchHint.innerHTML = '<i class="fa-solid fa-xmark text-[10px] ml-1"></i> <?php echo __('Passwords do not match'); ?>';
+                        }
+                    }
+                });
+                </script>
             <?php endif; ?>
 
             <div class="mt-6 pt-6 border-t border-surface-variant text-center space-y-3">

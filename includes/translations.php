@@ -199,6 +199,14 @@ $translations = [
     'Please fill all fields' => 'يرجى ملء جميع الحقول',
     'Invalid email or password' => 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
     'Please login with an admin account.' => 'يرجى تسجيل الدخول بحساب مدير.',
+    'Password must be at least 6 characters' => 'يجب أن تتكون كلمة المرور من 6 خانات (أحرف أو أرقام) على الأقل',
+    'Must be at least 6 characters' => '6 خانات (أحرف أو أرقام) على الأقل',
+    'Passwords do not match' => 'كلمتا المرور غير متطابقتين',
+    'Please fill all required fields' => 'يرجى ملء جميع الحقول المطلوبة',
+    'Email already registered' => 'البريد الإلكتروني مسجل مسبقاً',
+    'Registration successful! You can now login.' => 'تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.',
+    'Registration failed. Please try again.' => 'فشل إنشاء الحساب، يرجى المحاولة مرة أخرى.',
+    'Invalid account type' => 'نوع الحساب غير صالح',
     
     // ===== أيقونات وعناصر =====
     'Local Expert' => 'خبير محلي',
