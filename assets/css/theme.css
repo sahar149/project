@@ -1,0 +1,100 @@
+/**
+ * Dabberha (دبرها) - Centralized Theme & Design Tokens
+ * Location: assets/css/theme.css
+ */
+
+:root {
+    /* Brand Colors (Terracotta Palette) */
+    --brand-primary: #CB6D51;
+    --brand-primary-hover: #B55A40;
+    --brand-primary-light: #FFF0ED;
+    --brand-primary-dark: #914530;
+    --brand-secondary: #C18B8B;
+    --brand-secondary-dark: #805252;
+
+    /* Backgrounds & Surfaces */
+    --brand-bg: #F9F5F1;
+    --brand-surface: #FFFFFF;
+    --brand-surface-alt: #F4EAE6;
+    --brand-surface-low: #FFF1EC;
+    --brand-surface-card: #FFFFFF;
+
+    /* Borders */
+    --brand-border: #E8DFD8;
+    --brand-border-light: #E9D5CF;
+    --brand-border-strong: #D5B4AB;
+
+    /* Typography / Text */
+    --brand-text: #3A2F2B;
+    --brand-text-muted: #6B5E59;
+    --brand-text-light: #9C8E87;
+
+    /* Status Colors */
+    --brand-success: #16A34A;
+    --brand-success-bg: #DCFCE7;
+    --brand-success-border: #BBF7D0;
+
+    --brand-warning: #D97706;
+    --brand-warning-bg: #FEF3C7;
+    --brand-warning-border: #FDE68A;
+
+    --brand-danger: #DC2626;
+    --brand-danger-bg: #FEE2E2;
+    --brand-danger-border: #FECACA;
+
+    --brand-info: #2563EB;
+    --brand-info-bg: #DBEAFE;
+    --brand-info-border: #BFDBFE;
+
+    /* Shadows & Radii */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.5rem;
+    --shadow-soft: 0 4px 20px -2px rgba(58, 47, 43, 0.05);
+}
+
+/* Base Utility Classes */
+body {
+    background-color: var(--brand-bg);
+    color: var(--brand-text);
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #F4EAE6;
+}
+::-webkit-scrollbar-thumb {
+    background: #D5B4AB;
+    border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #CB6D51;
+}
+
+/* Material Symbols default settings */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+}
+
+/* RTL Form Controls & Dropdowns */
+[dir="rtl"] select,
+html[dir="rtl"] select,
+body select {
+    background-position: left 0.75rem center !important;
+    padding-left: 2.5rem !important;
+    padding-right: 1rem !important;
+    text-align: right;
+}
+

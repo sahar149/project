@@ -1,8 +1,17 @@
 <?php
-require_once __DIR__ . '/../config/db.php';
+/**
+ * Dabberha (دبرها) - Admin Registration Utility
+ * Location: public/register-admin.php
+ */
 
-// كلمة مرور سرية للدخول إلى هذه الصفحة
-$secret_key = 'admin123'; // غيّرها إلى كلمة سرية
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../includes/translations.php';
+require_once __DIR__ . '/../includes/helpers/ui_helpers.php';
+require_once __DIR__ . '/../includes/components/head.php';
+require_once __DIR__ . '/../includes/db/users_db.php';
+
+// Secret key
+$secret_key = 'admin123';
 
 if (!isset($_GET['key']) || $_GET['key'] !== $secret_key) {
     die('Access denied. Invalid key.');
@@ -12,10 +21,10 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim($_POST['name']);
-    $email = trim($_POST['email']);
-    $password = $_POST['password'];
-    $confirm_password = $_POST['confirm_password'];
+    $name = trim($_POST['name'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $confirm_password = $_POST['confirm_password'] ?? '';
 
     if (empty($name) || empty($email) || empty($password)) {
         $error = 'Please fill all required fields';
@@ -24,14 +33,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (strlen($password) < 6) {
         $error = 'Password must be at least 6 characters';
     } else {
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        if ($stmt->fetch()) {
+        if (getUserByEmail($email)) {
             $error = 'Email already registered';
         } else {
-            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'admin')");
-            if ($stmt->execute([$name, $email, $hashed_password])) {
+            $created_id = createUser([
+                'name' => $name,
+                'email' => $email,
+                'password' => $password,
+                'role' => 'admin'
+            ]);
+
+            if ($created_id > 0) {
                 $success = 'Admin registered successfully! You can now login.';
             } else {
                 $error = 'Registration failed. Please try again.';
@@ -39,57 +51,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+
+renderHead(['title' => 'Register Admin - Dabberha']);
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card shadow">
-                    <div class="card-header bg-danger text-white">
-                        <h4 class="mb-0"><i class="bi bi-shield-lock"></i> Register Admin</h4>
-                    </div>
-                    <div class="card-body">
-                        <?php if ($error): ?>
-                            <div class="alert alert-danger"><?php echo $error; ?></div>
-                        <?php endif; ?>
-                        <?php if ($success): ?>
-                            <div class="alert alert-success"><?php echo $success; ?></div>
-                        <?php endif; ?>
+<div class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-brand-bg">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
+        <div class="w-14 h-14 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center mx-auto text-2xl mb-3 shadow-2xs">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-brand-900">Register System Administrator</h2>
+        <p class="mt-1 text-xs text-brand-textMuted">Secret Administrator Provisioning</p>
+    </div>
 
-                        <form method="POST">
-                            <div class="mb-3">
-                                <label>Full Name *</label>
-                                <input type="text" name="name" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label>Email *</label>
-                                <input type="email" name="email" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label>Password *</label>
-                                <input type="password" name="password" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label>Confirm Password *</label>
-                                <input type="password" name="confirm_password" class="form-control" required>
-                            </div>
-                            <button type="submit" class="btn btn-danger w-100">Register Admin</button>
-                        </form>
-                        <hr>
-                        <p class="text-center mb-0"><a href="login.php">Back to Login</a></p>
-                    </div>
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
+        <div class="bg-white py-8 px-6 sm:px-10 shadow-soft border border-brand-border rounded-2xl">
+            <?php if (!empty($error)): ?>
+                <div class="mb-6">
+                    <?php echo renderAlert($error, 'danger'); ?>
                 </div>
+            <?php endif; ?>
+
+            <?php if (!empty($success)): ?>
+                <div class="mb-6">
+                    <?php echo renderAlert($success, 'success'); ?>
+                </div>
+                <div class="text-center pt-2">
+                    <a href="login.php?role=admin" class="w-full inline-flex items-center justify-center bg-brand-primary hover:bg-brand-primaryHover text-white font-bold py-3 rounded-xl text-sm shadow-xs transition-all">
+                        <span>Go to Admin Login</span>
+                        <i class="fa-solid fa-arrow-right mr-2"></i>
+                    </a>
+                </div>
+            <?php else: ?>
+                <form method="POST" class="space-y-4">
+                    <div>
+                        <label for="name" class="block text-xs font-bold text-brand-text mb-1">Full Name *</label>
+                        <input id="name" name="name" type="text" required class="w-full px-4 py-2.5 rounded-xl border border-brand-border bg-brand-surface text-sm font-medium focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary">
+                    </div>
+
+                    <div>
+                        <label for="email" class="block text-xs font-bold text-brand-text mb-1">Email Address *</label>
+                        <input id="email" name="email" type="email" required class="w-full px-4 py-2.5 rounded-xl border border-brand-border bg-brand-surface text-sm font-medium focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary">
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-xs font-bold text-brand-text mb-1">Password *</label>
+                        <input id="password" name="password" type="password" required class="w-full px-4 py-2.5 rounded-xl border border-brand-border bg-brand-surface text-sm font-medium focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary">
+                    </div>
+
+                    <div>
+                        <label for="confirm_password" class="block text-xs font-bold text-brand-text mb-1">Confirm Password *</label>
+                        <input id="confirm_password" name="confirm_password" type="password" required class="w-full px-4 py-2.5 rounded-xl border border-brand-border bg-brand-surface text-sm font-medium focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary">
+                    </div>
+
+                    <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-xs flex items-center justify-center gap-2 mt-4">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <span>Register Administrator</span>
+                    </button>
+                </form>
+            <?php endif; ?>
+
+            <div class="mt-6 pt-6 border-t border-brand-border text-center">
+                <a href="login.php" class="text-xs text-brand-textMuted hover:text-brand-primary transition-colors">
+                    Back to Login
+                </a>
             </div>
         </div>
     </div>
+</div>
 </body>
 </html>

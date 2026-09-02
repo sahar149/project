@@ -1,67 +1,35 @@
 <?php
-
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/translations.php';
+require_once __DIR__ . '/../includes/helpers/ui_helpers.php';
+require_once __DIR__ . '/../includes/components/head.php';
+require_once __DIR__ . '/../includes/components/navbar_public.php';
+require_once __DIR__ . '/../includes/components/footer_public.php';
+require_once __DIR__ . '/../includes/db/categories_db.php';
 
-
-// ============================================
-// 🗺️ ميزة الموقع الجغرافي (Geolocation)
-// ============================================
-
-// الحصول على موقع المستخدم من الرابط
+// Geolocation
 $user_lat = isset($_GET['lat']) ? (float)$_GET['lat'] : null;
 $user_lng = isset($_GET['lng']) ? (float)$_GET['lng'] : null;
 
-
-// حفظ الموقع في الجلسة إذا كان موجوداً
 if ($user_lat && $user_lng) {
     $_SESSION['user_lat'] = $user_lat;
     $_SESSION['user_lng'] = $user_lng;
 }
 
-
-// إذا لم يكن هناك موقع في الرابط، حاول جلبه من الجلسة
 if (!$user_lat || !$user_lng) {
     $user_lat = $_SESSION['user_lat'] ?? null;
     $user_lng = $_SESSION['user_lng'] ?? null;
 }
 
-
-// ============================================
-// 🧠 نظام التوصيات الذكي
-// ============================================
-
 $rating_weight = 0.7;
 $distance_weight = 0.3;
 
+$categories = getAllCategories();
 
-// جلب جميع الفئات للفلتر
-$categories = $pdo->query(
-    "SELECT * FROM categories ORDER BY name"
-)->fetchAll();
-
-
-// ============================================
-// الفلاتر
-// ============================================
-
-$category_filter = isset($_GET['category'])
-    ? (int)$_GET['category']
-    : 0;
-
-
-$search = isset($_GET['search'])
-    ? trim($_GET['search'])
-    : '';
-
-
+$category_filter = isset($_GET['category']) ? (int)$_GET['category'] : 0;
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $search_term = $search;
-
-
-// ============================================
-// 📊 استعلام SQL
-// ============================================
 
 $sql = "SELECT s.*, 
         u.name as provider_name, 
@@ -72,17 +40,13 @@ $sql = "SELECT s.*,
         COALESCE(ROUND(AVG(r.rating), 1), 0) as avg_rating,
         COUNT(r.id) as review_count";
 
-
-// إذا كان المستخدم لديه موقع
 if ($user_lat && $user_lng) {
-
     $sql .= ",
         (6371 * acos(
             cos(radians($user_lat)) * cos(radians(u.latitude)) * 
             cos(radians(u.longitude) - radians($user_lng)) + 
             sin(radians($user_lat)) * sin(radians(u.latitude))
         )) as distance,
-
         (
             COALESCE(ROUND(AVG(r.rating), 1), 0) * $rating_weight + 
             (
@@ -97,19 +61,9 @@ if ($user_lat && $user_lng) {
                 )
             ) * $distance_weight
         ) as recommendation_score";
-
 } else {
-
-    // إذا لم يكن هناك موقع، استخدم التقييم فقط
-
-    $sql .= ",
-        COALESCE(ROUND(AVG(r.rating), 1), 0) as recommendation_score";
+    $sql .= ", COALESCE(ROUND(AVG(r.rating), 1), 0) as recommendation_score";
 }
-
-
-// ============================================
-// FROM / JOIN
-// ============================================
 
 $sql .= " FROM services s
         JOIN users u ON s.provider_id = u.id
@@ -117,527 +71,32 @@ $sql .= " FROM services s
         LEFT JOIN reviews r ON r.provider_id = u.id
         WHERE u.status = 'active'";
 
-
-// ============================================
-// فلترة الفئة
-// ============================================
-
 if ($category_filter > 0) {
-
     $sql .= " AND s.category_id = $category_filter";
-
 }
 
-
-// ============================================
-// البحث
-// ============================================
-
 if (!empty($search)) {
-
-    $search_param = $pdo->quote("%$search%");
-
+    $search_param = $pdo->quote('%' . $search . '%');
     $sql .= " AND (
         s.title LIKE $search_param 
         OR s.description LIKE $search_param 
         OR u.name LIKE $search_param
     )";
-
 }
-
-
-// ============================================
-// GROUP BY
-// ============================================
 
 $sql .= " GROUP BY s.id";
 
-
-// ============================================
-// ترتيب النتائج
-// ============================================
-
 if ($user_lat && $user_lng) {
-
     $sql .= " ORDER BY recommendation_score DESC, distance ASC";
-
 } else {
-
     $sql .= " ORDER BY recommendation_score DESC, s.id DESC";
-
 }
-
 
 $services = $pdo->query($sql)->fetchAll();
 
+renderHead(['title' => __('Browse Services - Dabberha')]);
+renderPublicNavbar(['active_page' => 'services']);
 ?>
-
-<!DOCTYPE html>
-
-<html
-    class="light"
-    lang="ar"
-    dir="rtl"
->
-
-<head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        <?php echo __('Browse Services - Dabberha'); ?>
-    </title>
-
-
-    <!-- ========================================================= -->
-    <!-- GOOGLE FONT -->
-    <!-- ========================================================= -->
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
-
-
-    <!-- ========================================================= -->
-    <!-- MATERIAL SYMBOLS -->
-    <!-- ========================================================= -->
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet"
-    >
-
-
-    <!-- ========================================================= -->
-    <!-- TAILWIND -->
-    <!-- ========================================================= -->
-
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-
-
-    <script>
-
-        tailwind.config = {
-
-            darkMode: "class",
-
-            theme: {
-
-                extend: {
-
-                    colors: {
-
-                        "primary": "#95442b",
-                        "surface-tint": "#98462d",
-                        "tertiary": "#5d5c59",
-
-                        "on-secondary-container": "#7b4d4e",
-
-                        "primary-fixed-dim": "#ffb59f",
-                        "primary-fixed": "#ffdbd1",
-
-                        "on-surface-variant": "#55433d",
-
-                        "secondary-fixed-dim": "#f3b8b8",
-                        "on-secondary-fixed": "#321112",
-
-                        "on-background": "#231916",
-
-                        "inverse-surface": "#392e2a",
-
-                        "secondary": "#805252",
-
-                        "on-secondary-fixed-variant": "#653b3c",
-
-                        "surface-container-high": "#f7e4de",
-
-                        "secondary-container": "#ffc3c2",
-
-                        "surface": "#fff8f6",
-
-                        "on-error-container": "#93000a",
-
-                        "background": "#fff8f6",
-
-                        "error-container": "#ffdad6",
-
-                        "surface-container-lowest": "#ffffff",
-
-                        "on-tertiary": "#ffffff",
-                        "on-primary": "#ffffff",
-
-                        "surface-container-low": "#fff1ec",
-
-                        "on-primary-container": "#fffbff",
-
-                        "tertiary-fixed": "#e6e2de",
-
-                        "surface-bright": "#fff8f6",
-
-                        "primary-container": "#b45b40",
-
-                        "surface-container": "#fdeae4",
-
-                        "on-tertiary-fixed": "#1c1c19",
-
-                        "error": "#ba1a1a",
-
-                        "on-tertiary-fixed-variant": "#484744",
-
-                        "inverse-primary": "#ffb59f",
-
-                        "on-secondary": "#ffffff",
-
-                        "secondary-fixed": "#ffdad9",
-
-                        "outline-variant": "#dbc1ba",
-
-                        "on-surface": "#231916",
-
-                        "on-tertiary-container": "#fffbff",
-
-                        "on-primary-fixed-variant": "#7a2f18",
-
-                        "tertiary-container": "#767471",
-
-                        "outline": "#88726c",
-
-                        "surface-dim": "#e9d6d0",
-
-                        "on-error": "#ffffff",
-
-                        "surface-container-highest": "#f1dfd8",
-
-                        "surface-variant": "#f1dfd8",
-
-                        "tertiary-fixed-dim": "#c9c6c2",
-
-                        "inverse-on-surface": "#ffede7",
-
-                        "on-primary-fixed": "#3a0a00"
-
-                    },
-
-
-                    borderRadius: {
-
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-
-                    },
-
-
-                    spacing: {
-
-                        "margin-mobile": "16px",
-                        "margin-desktop": "40px",
-
-                        "gutter": "24px",
-
-                        "stack-sm": "8px",
-                        "stack-lg": "32px",
-                        "base": "8px",
-                        "stack-md": "16px",
-
-                        "container-max": "1200px"
-
-                    },
-
-
-                    fontFamily: {
-
-                        "display-lg": ["Tajawal", "sans-serif"],
-                        "label-lg": ["Tajawal", "sans-serif"],
-                        "body-md": ["Tajawal", "sans-serif"],
-                        "headline-md": ["Tajawal", "sans-serif"],
-                        "label-sm": ["Tajawal", "sans-serif"],
-                        "headline-lg": ["Tajawal", "sans-serif"],
-                        "body-lg": ["Tajawal", "sans-serif"]
-
-                    },
-
-
-                    fontSize: {
-
-                        "display-lg": [
-                            "24px",
-                            {
-                                "lineHeight": "56px",
-                                "letterSpacing": "-0.02em",
-                                "fontWeight": "700"
-                            }
-                        ],
-
-                        "label-lg": [
-                            "14px",
-                            {
-                                "lineHeight": "20px",
-                                "letterSpacing": "0.01em",
-                                "fontWeight": "600"
-                            }
-                        ],
-
-                        "body-md": [
-                            "16px",
-                            {
-                                "lineHeight": "24px",
-                                "fontWeight": "400"
-                            }
-                        ],
-
-                        "headline-md": [
-                            "24px",
-                            {
-                                "lineHeight": "32px",
-                                "fontWeight": "600"
-                            }
-                        ],
-
-                        "label-sm": [
-                            "12px",
-                            {
-                                "lineHeight": "16px",
-                                "fontWeight": "500"
-                            }
-                        ],
-
-                        "headline-lg": [
-                            "32px",
-                            {
-                                "lineHeight": "40px",
-                                "letterSpacing": "-0.01em",
-                                "fontWeight": "600"
-                            }
-                        ],
-
-                        "body-lg": [
-                            "18px",
-                            {
-                                "lineHeight": "28px",
-                                "fontWeight": "400"
-                            }
-                        ]
-
-                    }
-
-                }
-
-            }
-
-        };
-
-    </script>
-
-
-    <!-- ========================================================= -->
-    <!-- CUSTOM CSS -->
-    <!-- ========================================================= -->
-
-    <style>
-
-        body {
-            font-family: 'Tajawal', sans-serif;
-        }
-
-
-        .ambient-shadow {
-
-            box-shadow:
-                0 4px 20px rgba(85, 67, 61, 0.08);
-
-        }
-
-
-        .ambient-shadow:hover {
-
-            box-shadow:
-                0 8px 24px rgba(85, 67, 61, 0.12);
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Category Dropdown
-        |--------------------------------------------------------------------------
-        */
-
-        .category-menu {
-
-            box-shadow:
-                0 10px 30px rgba(85, 67, 61, 0.12);
-
-        }
-
-
-        .category-arrow {
-
-            transition:
-                transform 0.2s ease;
-
-        }
-
-    </style>
-
-</head>
-
-
-<body
-    class="bg-background text-on-background font-body-md min-h-screen flex flex-col"
->
-
-
-<!-- ========================================================= -->
-<!-- NAVBAR -->
-<!-- ========================================================= -->
-
-<!-- ========================================================= -->
-<!-- UNIFIED NAVBAR -->
-<!-- ========================================================= -->
-
-<header class="bg-background w-full top-0 z-50">
-
-    <div
-        class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max mx-auto"
-    >
-
-        <!-- ================================================= -->
-        <!-- LOGO -->
-        <!-- ================================================= -->
-
-        <div class="flex items-center gap-4">
-
-            <a
-                href="/local-services-platform/index.php"
-                class="text-2xl font-bold text-primary"
-            >
-                <?php echo __('Dabberha'); ?>
-            </a>
-
-        </div>
-
-
-        <!-- ================================================= -->
-        <!-- NAVIGATION -->
-        <!-- ================================================= -->
-
-        <nav class="hidden md:flex gap-8 items-center">
-
-            <!-- Browse Services -->
-
-            <a
-                href="/local-services-platform/public/browse-services.php"
-                class="text-on-surface-variant font-label-lg text-label-lg hover:text-primary transition-colors duration-200"
-            >
-                <?php echo __('Browse Services'); ?>
-            </a>
-
-
-            <!-- My Bookings -->
-
-            <?php if (
-                isLoggedIn() &&
-                getUserRole() === 'customer'
-            ): ?>
-
-                <a
-                    href="/local-services-platform/public/my-bookings.php"
-                    class="text-on-surface-variant font-label-lg text-label-lg hover:text-primary transition-colors duration-200"
-                >
-                    <?php echo __('My Bookings'); ?>
-                </a>
-
-            <?php endif; ?>
-
-
-            <!-- Provider Dashboard -->
-
-            <?php if (
-                isLoggedIn() &&
-                getUserRole() === 'provider'
-            ): ?>
-
-                <a
-                    href="/local-services-platform/provider/dashboard.php"
-                    class="text-on-surface-variant font-label-lg text-label-lg hover:text-primary transition-colors duration-200"
-                >
-                    <?php echo __('Provider Dashboard'); ?>
-                </a>
-
-            <?php endif; ?>
-
-        </nav>
-
-
-        <!-- ================================================= -->
-        <!-- USER AREA -->
-        <!-- ================================================= -->
-
-        <div class="flex items-center gap-4">
-
-            <?php if (isLoggedIn()): ?>
-
-                <!-- USER NAME -->
-
-                <div
-                    class="hidden sm:flex items-center gap-2 text-on-surface-variant"
-                >
-
-                    <span class="material-symbols-outlined">
-                        account_circle
-                    </span>
-
-                    <span class="font-label-lg">
-                        <?php
-                        echo htmlspecialchars(
-                            getUserName()
-                        );
-                        ?>
-                    </span>
-
-                </div>
-
-
-                <!-- LOGOUT -->
-
-                <a
-                    href="/local-services-platform/public/logout.php"
-                    class="bg-primary text-on-primary px-6 py-2 rounded-full font-label-lg text-label-lg hover:bg-surface-tint transition-colors"
-                >
-                    <?php echo __('Logout'); ?>
-                </a>
-
-            <?php else: ?>
-
-                <!-- SIGN IN -->
-
-                <a
-                    href="/local-services-platform/public/login.php"
-                    class="bg-primary text-on-primary px-6 py-2 rounded-full font-label-lg text-label-lg hover:bg-surface-tint transition-colors"
-                >
-                    <?php echo __('Sign In'); ?>
-                </a>
-
-            <?php endif; ?>
-
-        </div>
-
-    </div>
-
-</header>
-
-
-<!-- ========================================================= -->
-<!-- MAIN -->
-<!-- ========================================================= -->
 
 <main
     class="flex-grow px-margin-desktop py-stack-lg max-w-container-max mx-auto w-full"
@@ -1265,7 +724,7 @@ $services = $pdo->query($sql)->fetchAll();
                                 ?>
 
                                 <span dir="rtl">
-                                    دل
+                                    د.ل
                                 </span>
 
                             </span>
@@ -1463,89 +922,6 @@ $services = $pdo->query($sql)->fetchAll();
     </div>
 
 </main>
-
-
-<!-- ========================================================= -->
-<!-- FOOTER -->
-<!-- ========================================================= -->
-
-<footer
-    class="bg-stone-100 w-full py-12 px-6 mt-16 border-t border-stone-200"
->
-
-    <div
-        class="flex flex-col md:flex-row justify-between items-center gap-6 max-w-7xl mx-auto"
-    >
-
-
-        <!-- LOGO -->
-
-        <div
-            class="flex flex-col gap-2 text-center md:text-right"
-        >
-
-            <span
-                class="font-bold text-[#95442b] text-xl"
-            >
-                <?php echo __('Dabberha'); ?>
-            </span>
-
-
-            <p
-                class="text-sm text-stone-600"
-            >
-                <?php
-                echo __(
-                    '© 2026 Dabberha Services. Built for the community.'
-                );
-                ?>
-            </p>
-
-        </div>
-
-
-        <!-- FOOTER LINKS -->
-
-        <div
-            class="flex flex-wrap justify-center gap-6"
-        >
-
-            <a
-                href="#"
-                class="text-sm text-stone-500 hover:text-[#95442b] transition-colors"
-            >
-                <?php echo __('Privacy Policy'); ?>
-            </a>
-
-
-            <a
-                href="#"
-                class="text-sm text-stone-500 hover:text-[#95442b] transition-colors"
-            >
-                <?php echo __('Terms of Service'); ?>
-            </a>
-
-
-            <a
-                href="#"
-                class="text-sm text-stone-500 hover:text-[#95442b] transition-colors"
-            >
-                <?php echo __('Help Center'); ?>
-            </a>
-
-
-            <a
-                href="#"
-                class="text-sm text-stone-500 hover:text-[#95442b] transition-colors"
-            >
-                <?php echo __('Contact Us'); ?>
-            </a>
-
-        </div>
-
-    </div>
-
-</footer>
 
 
 <!-- ========================================================= -->
@@ -1811,7 +1187,4 @@ function getLocation() {
 
 </script>
 
-
-</body>
-
-</html>
+<?php renderPublicFooter(['active_page' => 'services']); ?>

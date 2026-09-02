@@ -2,6 +2,10 @@
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/translations.php';
+require_once __DIR__ . '/../includes/helpers/ui_helpers.php';
+require_once __DIR__ . '/../includes/components/head.php';
+require_once __DIR__ . '/../includes/components/navbar_public.php';
+require_once __DIR__ . '/../includes/components/footer_public.php';
 
 $service_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
@@ -18,6 +22,7 @@ $stmt = $pdo->prepare("
            u.email as provider_email,
            u.address as provider_address, 
            c.name as category_name,
+           c.icon as category_icon,
            COALESCE(ROUND(AVG(r.rating), 1), 0) as avg_rating, 
            COUNT(r.id) as review_count
     FROM services s
@@ -49,433 +54,14 @@ $stmt = $pdo->prepare("
 $stmt->execute([$service_id]);
 $reviews = $stmt->fetchAll();
 
-// مساعدة لعرض عدد التقييمات
-$review_word = ($service['review_count'] == 1)
-    ? __('Review')
-    : __('Reviews');
+$review_word = ($service['review_count'] == 1) ? __('Review') : __('Reviews');
+$service_icon = getCategoryFAIcon($service['category_name'], $service['category_icon'] ?? '');
 
-
-// =========================================================
-// تحديد أيقونة الخدمة ديناميكياً حسب التصنيف
-// =========================================================
-
-$category = trim(
-    mb_strtolower(
-        (string)($service['category_name'] ?? ''),
-        'UTF-8'
-    )
-);
-
-$category_icons = [
-
-    // Plumbing
-    'plumbing' => 'plumbing',
-    'سباكة' => 'plumbing',
-
-    // Electrical
-    'electrical' => 'electrical_services',
-    'كهرباء' => 'electrical_services',
-
-    // Cleaning
-    'cleaning' => 'cleaning_services',
-    'تنظيف' => 'cleaning_services',
-
-    // Gardening
-    'gardening' => 'yard',
-    'بستنة' => 'yard',
-
-    // Moving
-    'moving' => 'local_shipping',
-    'نقل' => 'local_shipping',
-
-    // Painting
-    'painting' => 'format_paint',
-    'دهان' => 'format_paint',
-];
-
-// إذا لم نجد التصنيف نستخدم handyman كأيقونة افتراضية
-$service_icon = $category_icons[$category] ?? 'handyman';
-
+renderHead(['title' => $service['title'] . ' - Dabberha']);
+renderPublicNavbar(['active_page' => 'services']);
 ?>
 
-<!DOCTYPE html>
-<html class="light" lang="ar" dir="rtl">
-
-<head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        <?php echo htmlspecialchars($service['title']); ?> - دبرها    </title>
-
-
-    <!-- Tailwind -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-
-
-    <!-- Tajawal Font for Arabic -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
-
-
-    <!-- Material Symbols -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet"
-    >
-
-
-    <script>
-
-        tailwind.config = {
-
-            darkMode: "class",
-
-            theme: {
-
-                extend: {
-
-                    colors: {
-
-                        "secondary-fixed": "#ffdad9",
-                        "primary-fixed": "#ffdbd1",
-                        "surface-variant": "#f1dfd8",
-                        "on-primary-container": "#fffbff",
-                        "on-surface-variant": "#55433d",
-                        "error-container": "#ffdad6",
-                        "on-secondary-fixed-variant": "#653b3c",
-                        "on-error": "#ffffff",
-                        "tertiary-fixed": "#e6e2de",
-                        "outline": "#88726c",
-                        "secondary-fixed-dim": "#f3b8b8",
-                        "inverse-on-surface": "#ffede7",
-                        "surface-bright": "#fff8f6",
-                        "surface-dim": "#e9d6d0",
-                        "on-primary-fixed": "#3a0a00",
-                        "on-secondary-container": "#7b4d4e",
-                        "on-secondary": "#ffffff",
-                        "surface-container": "#fdeae4",
-                        "primary-container": "#b45b40",
-                        "tertiary-container": "#767471",
-                        "tertiary": "#5d5c59",
-                        "primary": "#95442b",
-                        "on-secondary-fixed": "#321112",
-                        "outline-variant": "#dbc1ba",
-                        "surface-tint": "#98462d",
-                        "surface-container-highest": "#f1dfd8",
-                        "on-tertiary-fixed": "#1c1c19",
-                        "surface-container-low": "#fff1ec",
-                        "on-background": "#231916",
-                        "on-tertiary-fixed-variant": "#484744",
-                        "on-error-container": "#93000a",
-                        "surface": "#fff8f6",
-                        "secondary-container": "#ffc3c2",
-                        "on-surface": "#231916",
-                        "error": "#ba1a1a",
-                        "surface-container-lowest": "#ffffff",
-                        "primary-fixed-dim": "#ffb59f",
-                        "on-tertiary-container": "#fffbff",
-                        "tertiary-fixed-dim": "#c9c6c2",
-                        "surface-container-high": "#f7e4de",
-                        "secondary": "#805252",
-                        "background": "#fff8f6",
-                        "inverse-surface": "#392e2a",
-                        "on-tertiary": "#ffffff",
-                        "on-primary": "#ffffff"
-
-                    },
-
-                    borderRadius: {
-
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-
-                    },
-
-                    spacing: {
-
-                        "margin-mobile": "16px",
-                        "gutter": "24px",
-                        "container-max": "1200px",
-                        "stack-md": "16px",
-                        "stack-lg": "32px",
-                        "base": "8px",
-                        "stack-sm": "8px",
-                        "margin-desktop": "40px"
-
-                    },
-
-                    fontFamily: {
-
-                        "display-lg": ["Tajawal"],
-                        "body-lg": ["Tajawal"],
-                        "label-lg": ["Tajawal"],
-                        "headline-md": ["Tajawal"],
-                        "headline-lg": ["Tajawal"],
-                        "body-md": ["Tajawal"],
-                        "label-sm": ["Tajawal"]
-
-                    },
-
-                    fontSize: {
-
-                        "display-lg": [
-                            "48px",
-                            {
-                                lineHeight: "56px",
-                                letterSpacing: "-0.02em",
-                                fontWeight: "700"
-                            }
-                        ],
-
-                        "body-lg": [
-                            "18px",
-                            {
-                                lineHeight: "28px",
-                                fontWeight: "400"
-                            }
-                        ],
-
-                        "label-lg": [
-                            "14px",
-                            {
-                                lineHeight: "20px",
-                                letterSpacing: "0.01em",
-                                fontWeight: "600"
-                            }
-                        ],
-
-                        "headline-md": [
-                            "24px",
-                            {
-                                lineHeight: "32px",
-                                fontWeight: "600"
-                            }
-                        ],
-
-                        "headline-lg": [
-                            "32px",
-                            {
-                                lineHeight: "40px",
-                                letterSpacing: "-0.01em",
-                                fontWeight: "600"
-                            }
-                        ],
-
-                        "body-md": [
-                            "16px",
-                            {
-                                lineHeight: "24px",
-                                fontWeight: "400"
-                            }
-                        ],
-
-                        "label-sm": [
-                            "12px",
-                            {
-                                lineHeight: "16px",
-                                fontWeight: "500"
-                            }
-                        ]
-
-                    }
-
-                }
-
-            }
-
-        };
-
-    </script>
-
-
-    <style>
-
-        body {
-
-            background-color: #F9F5F1;
-            color: #3A2F2B;
-            font-family: 'Tajawal', sans-serif;
-
-        }
-
-        .warm-shadow {
-
-            box-shadow:
-                0 4px 20px rgba(58, 47, 43, 0.05);
-
-        }
-
-        .material-symbols-outlined {
-
-            font-variation-settings:
-                'FILL' 0,
-                'wght' 400,
-                'GRAD' 0,
-                'opsz' 24;
-
-        }
-
-    </style>
-
-</head>
-
-
-<body class="font-body-md text-on-background min-h-screen">
-
-
-<!-- ========================================================= -->
-<!-- HEADER -->
-<!-- ========================================================= -->
-<!-- ========================================================= -->
-<!-- UNIFIED NAVBAR -->
-<!-- ========================================================= -->
-
-<header class="bg-background w-full top-0 z-50">
-
-    <div
-        class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max mx-auto"
-    >
-
-        <!-- ================================================= -->
-        <!-- LOGO -->
-        <!-- ================================================= -->
-
-        <div class="flex items-center gap-4">
-
-            <a
-                href="/local-services-platform/index.php"
-                class="text-2xl font-bold text-primary"
-            >
-                <?php echo __('Dabberha'); ?>
-            </a>
-
-        </div>
-
-
-        <!-- ================================================= -->
-        <!-- NAVIGATION -->
-        <!-- ================================================= -->
-
-        <nav class="hidden md:flex gap-8 items-center">
-
-            <!-- Browse Services -->
-
-            <a
-                href="/local-services-platform/public/browse-services.php"
-                class="text-on-surface-variant font-label-lg text-label-lg hover:text-primary transition-colors duration-200"
-            >
-                <?php echo __('Browse Services'); ?>
-            </a>
-
-
-            <!-- My Bookings -->
-
-            <?php if (
-                isLoggedIn() &&
-                getUserRole() === 'customer'
-            ): ?>
-
-                <a
-                    href="/local-services-platform/public/my-bookings.php"
-                    class="text-on-surface-variant font-label-lg text-label-lg hover:text-primary transition-colors duration-200"
-                >
-                    <?php echo __('My Bookings'); ?>
-                </a>
-
-            <?php endif; ?>
-
-
-            <!-- Provider Dashboard -->
-
-            <?php if (
-                isLoggedIn() &&
-                getUserRole() === 'provider'
-            ): ?>
-
-                <a
-                    href="/local-services-platform/provider/dashboard.php"
-                    class="text-on-surface-variant font-label-lg text-label-lg hover:text-primary transition-colors duration-200"
-                >
-                    <?php echo __('Provider Dashboard'); ?>
-                </a>
-
-            <?php endif; ?>
-
-        </nav>
-
-
-        <!-- ================================================= -->
-        <!-- USER AREA -->
-        <!-- ================================================= -->
-
-        <div class="flex items-center gap-4">
-
-            <?php if (isLoggedIn()): ?>
-
-                <!-- USER NAME -->
-
-                <div
-                    class="hidden sm:flex items-center gap-2 text-on-surface-variant"
-                >
-
-                    <span class="material-symbols-outlined">
-                        account_circle
-                    </span>
-
-                    <span class="font-label-lg">
-                        <?php
-                        echo htmlspecialchars(
-                            getUserName()
-                        );
-                        ?>
-                    </span>
-
-                </div>
-
-
-                <!-- LOGOUT -->
-
-                <a
-                    href="/local-services-platform/public/logout.php"
-                    class="bg-primary text-on-primary px-6 py-2 rounded-full font-label-lg text-label-lg hover:bg-surface-tint transition-colors"
-                >
-                    <?php echo __('Logout'); ?>
-                </a>
-
-            <?php else: ?>
-
-                <!-- SIGN IN -->
-
-                <a
-                    href="/local-services-platform/public/login.php"
-                    class="bg-primary text-on-primary px-6 py-2 rounded-full font-label-lg text-label-lg hover:bg-surface-tint transition-colors"
-                >
-                    <?php echo __('Sign In'); ?>
-                </a>
-
-            <?php endif; ?>
-
-        </div>
-
-    </div>
-
-</header>
-
-<!-- ========================================================= -->
-<!-- MAIN -->
-<!-- ========================================================= -->
-
-<main class="max-w-7xl mx-auto px-6 py-12">
+<main class="max-w-7xl mx-auto px-6 py-12 flex-1">
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
 
@@ -502,15 +88,13 @@ $service_icon = $category_icons[$category] ?? 'handyman';
                 >
 
                     <!--
-                        الأيقونة ديناميكية حسب Category
+                        الأيقونة ديناميكية حسب Category التي أضافها الأدمن
                     -->
 
-                    <span
-                        class="material-symbols-outlined text-primary text-[64px]"
+                    <i
+                        class="<?php echo htmlspecialchars($service_icon); ?> text-primary text-5xl md:text-6xl"
                         aria-hidden="true"
-                    >
-                        <?php echo htmlspecialchars($service_icon); ?>
-                    </span>
+                    ></i>
 
                 </div>
 
@@ -718,15 +302,13 @@ $service_icon = $category_icons[$category] ?? 'handyman';
                         <!-- Dynamic Service Icon -->
 
                         <div
-                            class="p-3 bg-surface-container-low rounded-lg text-primary"
+                            class="p-3 bg-surface-container-low rounded-lg text-primary flex items-center justify-center"
                         >
 
-                            <span
-                                class="material-symbols-outlined text-[32px]"
+                            <i
+                                class="<?php echo htmlspecialchars($service_icon); ?> text-2xl"
                                 aria-hidden="true"
-                            >
-                                <?php echo htmlspecialchars($service_icon); ?>
-                            </span>
+                            ></i>
 
                         </div>
 
@@ -740,7 +322,7 @@ $service_icon = $category_icons[$category] ?? 'handyman';
 
                               <span dir="rtl" class="text-headline-md text-primary font-bold">
     <?php echo number_format($service['price'], 2); ?>
-    <span dir="rtl"> دل</span>
+    <span dir="rtl"> د.ل</span>
 </span>
 
 
@@ -1351,72 +933,25 @@ $service_icon = $category_icons[$category] ?? 'handyman';
 
 
                         <!-- Price -->
-
-                        <div
-                            class="pt-4 border-t border-surface-variant space-y-4"
-                        >
-
-                            <div
-                                class="flex justify-between items-center text-label-lg"
-                            >
-
-                                <span
-                                    class="text-on-surface-variant"
-                                >
+                        <div class="pt-4 border-t border-surface-variant space-y-3">
+                            <div class="flex justify-between items-center text-label-lg">
+                                <span class="text-on-surface-variant font-medium">
                                     <?php echo __('Service Price'); ?>
                                 </span>
-
-                                  <span dir="rtl" class="text-headline-md text-primary font-bold">
-    <?php echo number_format($service['price'], 2); ?>
-    <span dir="rtl"> دل</span>
-</span>
-
-                            </div>
-
-
-                            <!-- <div
-                                class="flex justify-between items-center text-headline-md pt-2"
-                            >
-
-                                <span>
-                                    <?php echo __('Total'); ?>
+                                <span dir="rtl" class="text-headline-md text-primary font-bold">
+                                    <?php echo number_format($service['price'], 2); ?>
+                                    <span>د.ل</span>
                                 </span>
-
-                                  <span dir="rtl" class="text-headline-md text-primary font-bold">
-    <?php echo number_format($service['price'], 2); ?>
-    <span dir="rtl"> دل</span>
-</span>
-
                             </div>
-
-                        </div> -->
-
+                        </div>
 
                         <!-- Book Button -->
-
                         <button
                             type="submit"
-                            class="w-full py-4 bg-primary text-white rounded-xl font-bold text-lg warm-shadow hover:brightness-105 transition-all flex items-center justify-center gap-2 active:scale-95"
+                            class="w-full py-3.5 bg-primary hover:bg-[#7a2f18] text-white rounded-xl font-bold text-base shadow-ambient hover:shadow-floating transition-all flex items-center justify-center gap-2 active:scale-95 mt-4"
                         >
-
-                            <?php echo __('Book Now'); ?>
-
-                            <svg
-                                class="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                                ></path>
-
-                            </svg>
-
+                            <span><?php echo __('Book Now'); ?></span>
+                            <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
                         </button>
 
                     </form>
@@ -1623,116 +1158,4 @@ $service_icon = $category_icons[$category] ?? 'handyman';
 </main>
 
 
-<!-- ========================================================= -->
-<!-- FOOTER -->
-<!-- ========================================================= -->
-
-<footer
-    class="bg-stone-100 w-full py-12 px-6 mt-16 border-t border-stone-200"
->
-
-    <div
-        class="flex flex-col md:flex-row justify-between items-center gap-6 max-w-7xl mx-auto"
-    >
-
-        <!-- الشعار -->
-
-        <div class="flex flex-col gap-2 text-center md:text-right">
-
-            <span
-                class="font-bold text-[#95442b] text-xl"
-            >
-                <?php echo __('Dabberha'); ?>
-            </span>
-
-            <p class="text-sm text-stone-600">
-
-                <?php echo __('© 2026 Dabberha Services. Built for the community.'); ?>
-
-            </p>
-
-        </div>
-
-
-        <!-- روابط التذييل -->
-
-        <div class="flex flex-wrap justify-center gap-6">
-
-            <a
-                href="#"
-                class="text-sm text-stone-500 hover:text-[#95442b] transition-colors"
-            >
-                <?php echo __('Privacy Policy'); ?>
-            </a>
-
-            <a
-                href="#"
-                class="text-sm text-stone-500 hover:text-[#95442b] transition-colors"
-            >
-                <?php echo __('Terms of Service'); ?>
-            </a>
-
-            <a
-                href="#"
-                class="text-sm text-stone-500 hover:text-[#95442b] transition-colors"
-            >
-                <?php echo __('Help Center'); ?>
-            </a>
-
-            <a
-                href="#"
-                class="text-sm text-stone-500 hover:text-[#95442b] transition-colors"
-            >
-                <?php echo __('Contact Us'); ?>
-            </a>
-
-        </div>
-
-    </div>
-
-</footer>
-
-<!-- ========================================================= -->
-<!-- MOBILE BOOKING BAR -->
-<!-- ========================================================= -->
-
-<?php if (isLoggedIn() && getUserRole() == 'customer'): ?>
-
-    <div
-        class="md:hidden fixed bottom-0 left-0 right-0 bg-white p-4 border-t border-surface-variant flex items-center justify-between z-50"
-    >
-
-        <div>
-
-            <span
-                class="text-label-sm text-on-surface-variant block uppercase tracking-wider"
-            >
-                <?php echo __('Starting from'); ?>
-            </span>
-
-
-             <span dir="rtl" class="text-headline-md text-primary font-bold">
-    <?php echo number_format($service['price'], 2); ?>
-    <span dir="rtl"> دل</span>
-</span>
-
-
-        </div>
-
-
-        <a
-            href="#booking-form"
-            onclick="document.querySelector('input[name=booking_date]').focus();"
-            class="bg-primary text-white px-8 py-3 rounded-xl font-bold"
-        >
-            <?php echo __('Book Now'); ?>
-        </a>
-
-    </div>
-
-<?php endif; ?>
-
-
-</body>
-
-</html>
+<?php renderPublicFooter(['active_page' => 'services']); ?>

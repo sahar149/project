@@ -1,37 +1,38 @@
 <?php
+/**
+ * Dabberha (دبرها) - Add Review (Customer Panel)
+ * Location: public/add-review.php
+ */
+
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/translations.php';
+require_once __DIR__ . '/../includes/helpers/ui_helpers.php';
+require_once __DIR__ . '/../includes/components/head.php';
+require_once __DIR__ . '/../includes/components/navbar_public.php';
+require_once __DIR__ . '/../includes/components/footer_public.php';
+require_once __DIR__ . '/../includes/db/bookings_db.php';
+require_once __DIR__ . '/../includes/db/reviews_db.php';
 
 requireRole('customer');
 
 $booking_id = isset($_GET['booking_id']) ? (int)$_GET['booking_id'] : 0;
 $customer_id = getUserId();
 
-if ($booking_id == 0) {
-    header('Location: browse-services.php');
+if ($booking_id <= 0) {
+    header('Location: my-bookings.php');
     exit;
 }
 
-// جلب تفاصيل الحجز
-$stmt = $pdo->prepare("
-    SELECT b.*, s.title as service_title, u.name as provider_name, u.id as provider_id, s.id as service_id
-    FROM bookings b
-    JOIN services s ON b.service_id = s.id
-    JOIN users u ON b.provider_id = u.id
-    WHERE b.id = ? AND b.customer_id = ? AND b.status = 'completed'
-");
-$stmt->execute([$booking_id, $customer_id]);
-$booking = $stmt->fetch();
+$booking = getBookingById($booking_id, $customer_id, 'customer');
 
-if (!$booking) {
-    header('Location: browse-services.php');
+if (!$booking || $booking['status'] !== 'completed') {
+    header('Location: my-bookings.php');
     exit;
 }
 
-// التحقق إذا كان هناك تقييم مسبق
-$stmt = $pdo->prepare("SELECT id FROM reviews WHERE booking_id = ?");
-$stmt->execute([$booking_id]);
-if ($stmt->fetch()) {
+// Check if review already submitted
+if (getReviewByBookingId($booking_id)) {
     header('Location: booking-confirmation.php?id=' . $booking_id . '&already_reviewed=1');
     exit;
 }
@@ -40,131 +41,92 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $rating = (int)$_POST['rating'];
-    $comment = trim($_POST['comment']);
+    $rating = (int)($_POST['rating'] ?? 0);
+    $comment = trim($_POST['comment'] ?? '');
 
     if ($rating < 1 || $rating > 5) {
         $error = 'Please select a rating between 1 and 5 stars.';
     } elseif (empty($comment)) {
         $error = 'Please write a comment.';
     } else {
-        $stmt = $pdo->prepare("
-            INSERT INTO reviews (booking_id, customer_id, provider_id, service_id, rating, comment)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ");
-        if ($stmt->execute([$booking_id, $customer_id, $booking['provider_id'], $booking['service_id'], $rating, $comment])) {
+        $review_id = createReview([
+            'booking_id' => $booking_id,
+            'customer_id' => $customer_id,
+            'provider_id' => (int)$booking['provider_id'],
+            'service_id' => (int)$booking['service_id'],
+            'rating' => $rating,
+            'comment' => $comment
+        ]);
+
+        if ($review_id > 0) {
             $success = 'Thank you for your review!';
         } else {
             $error = 'Failed to save review. Please try again.';
         }
     }
 }
+
+renderHead(['title' => __('Add Review') . ' - ' . __('Dabberha')]);
+renderPublicNavbar(['active_page' => 'bookings']);
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Review - Local Services</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <style>
-        .star-rating {
-            display: flex;
-            flex-direction: row-reverse;
-            justify-content: center;
-            gap: 10px;
-        }
-        .star-rating input {
-            display: none;
-        }
-        .star-rating label {
-            font-size: 40px;
-            color: #ddd;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .star-rating label:hover,
-        .star-rating label:hover ~ label,
-        .star-rating input:checked ~ label {
-            color: #ffc107;
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="/local-services-platform/index.php">
-                <i class="bi bi-tools"></i> Local Services
-            </a>
-            <div>
-                <span class="text-white me-3">Welcome, <?php echo htmlspecialchars(getUserName()); ?></span>
-                <a href="/local-services-platform/public/logout.php" class="btn btn-light btn-sm">Logout</a>
+<main class="flex-grow flex items-center justify-center py-16 px-4 md:px-margin-desktop">
+    <div class="bg-surface-container-lowest w-full max-w-xl rounded-2xl shadow-ambient border border-surface-variant p-6 sm:p-10 space-y-6">
+        <div class="text-center space-y-2">
+            <div class="w-16 h-16 bg-primary-fixed rounded-full flex items-center justify-center text-primary text-3xl mx-auto">
+                <i class="fa-solid fa-star"></i>
             </div>
+            <h1 class="text-2xl font-bold text-on-background"><?php echo __('Rate & Review Service'); ?></h1>
+            <p class="text-xs text-on-surface-variant"><?php echo __('Share your experience to help others in the community'); ?></p>
         </div>
-    </nav>
 
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card shadow">
-                    <div class="card-header bg-warning">
-                        <h4><i class="bi bi-star"></i> Rate Your Experience</h4>
-                    </div>
-                    <div class="card-body">
-                        <?php if ($error): ?>
-                            <div class="alert alert-danger"><?php echo $error; ?></div>
-                        <?php endif; ?>
-                        <?php if ($success): ?>
-                            <div class="alert alert-success">
-                                <i class="bi bi-check-circle"></i> <?php echo $success; ?>
-                                <br>
-                                <a href="booking-confirmation.php?id=<?php echo $booking_id; ?>" class="alert-link">
-                                    Back to booking confirmation
-                                </a>
-                            </div>
-                        <?php else: ?>
-                            <p><strong>Service:</strong> <?php echo htmlspecialchars($booking['service_title']); ?></p>
-                            <p><strong>Provider:</strong> <?php echo htmlspecialchars($booking['provider_name']); ?></p>
-                            <hr>
+        <!-- Service Info Box -->
+        <div class="bg-surface-container-low p-4 rounded-xl border border-surface-variant space-y-1 text-xs">
+            <p class="font-bold text-on-background text-sm"><?php echo htmlspecialchars($booking['service_title']); ?></p>
+            <p class="text-on-surface-variant"><?php echo __('Service Provider'); ?>: <strong class="text-on-background"><?php echo htmlspecialchars($booking['provider_name']); ?></strong></p>
+            <p class="text-on-surface-variant"><?php echo __('Completed on'); ?>: <?php echo htmlspecialchars($booking['booking_date']); ?></p>
+        </div>
 
-                            <form method="POST">
-                                <div class="mb-4">
-                                    <label class="form-label fw-bold">How was your experience? ⭐</label>
-                                    <div class="star-rating">
-                                        <input type="radio" name="rating" id="star5" value="5" required>
-                                        <label for="star5" title="5 stars">★</label>
-                                        <input type="radio" name="rating" id="star4" value="4">
-                                        <label for="star4" title="4 stars">★</label>
-                                        <input type="radio" name="rating" id="star3" value="3">
-                                        <label for="star3" title="3 stars">★</label>
-                                        <input type="radio" name="rating" id="star2" value="2">
-                                        <label for="star2" title="2 stars">★</label>
-                                        <input type="radio" name="rating" id="star1" value="1">
-                                        <label for="star1" title="1 star">★</label>
-                                    </div>
-                                </div>
+        <?php if (!empty($error)): ?>
+            <?php echo renderAlert($error, 'danger'); ?>
+        <?php endif; ?>
 
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Your Review</label>
-                                    <textarea name="comment" class="form-control" rows="4" 
-                                              placeholder="Describe your experience..." required></textarea>
-                                </div>
-
-                                <button type="submit" class="btn btn-warning w-100">
-                                    <i class="bi bi-send"></i> Submit Review
-                                </button>
-                            </form>
-                            <hr>
-                            <a href="booking-confirmation.php?id=<?php echo $booking_id; ?>" class="btn btn-secondary w-100">
-                                <i class="bi bi-arrow-left"></i> Back to Confirmation
-                            </a>
-                        <?php endif; ?>
+        <?php if (!empty($success)): ?>
+            <?php echo renderAlert($success, 'success'); ?>
+            <div class="text-center pt-2">
+                <a href="my-bookings.php" class="inline-flex items-center gap-2 bg-primary hover:bg-[#7a2f18] text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-ambient transition-all">
+                    <span><?php echo __('Back to My Bookings'); ?></span>
+                </a>
+            </div>
+        <?php else: ?>
+            <form method="POST" class="space-y-6">
+                <!-- Interactive Star Rating Input -->
+                <div class="text-center space-y-2">
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider"><?php echo __('Your Rating'); ?></label>
+                    <div class="flex flex-row-reverse justify-center gap-2 text-3xl" id="starContainer">
+                        <?php for ($i = 5; $i >= 1; $i--): ?>
+                            <input type="radio" id="star<?php echo $i; ?>" name="rating" value="<?php echo $i; ?>" class="hidden peer">
+                            <label for="star<?php echo $i; ?>" class="cursor-pointer text-outline-variant hover:text-amber-400 peer-checked:text-amber-500 peer-checked:~label:text-amber-500 hover:~label:text-amber-400 transition-colors">
+                                ★
+                            </label>
+                        <?php endfor; ?>
                     </div>
                 </div>
-            </div>
-        </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-on-background mb-2" for="comment">
+                        <?php echo __('Your Feedback / Comment'); ?> <span class="text-error">*</span>
+                    </label>
+                    <textarea name="comment" id="comment" rows="4" class="w-full px-4 py-3 rounded-xl border border-outline-variant bg-surface-container-lowest text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary leading-relaxed" placeholder="<?php echo __('Write your review here...'); ?>" required></textarea>
+                </div>
+
+                <button type="submit" class="w-full bg-primary hover:bg-[#7a2f18] text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-ambient flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span><?php echo __('Submit Review'); ?></span>
+                </button>
+            </form>
+        <?php endif; ?>
     </div>
-</body>
-</html>
+</main>
+
+<?php renderPublicFooter(['active_page' => 'bookings']); ?>
