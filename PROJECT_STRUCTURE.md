@@ -1,281 +1,283 @@
-# 📁 Project Structure & Architectural Overview
-## Local Service Connector System (Dabberha - دبرها)
-### Comprehensive Academic Graduation Project Documentation
+# 📁 هيكلية المشروع ودليل الملفات الشامل
+## نظام منصة الخدمات المحلية (دبرها - Dabberha)
+### التوثيق الرسمي الشامل لمشروع التخرج
 
 ---
 
-## 1. Executive Summary & Project Introduction
+## 1. نبذة عامة عن المشروع وفكرته (Executive Summary)
 
-The **Local Service Connector System** (branded as **Dabberha / دبرها**) is a full-stack web application designed to connect local customers seeking home and professional maintenance services (such as plumbers, electricians, tutors, car mechanics, cleaners, and painters) with verified local service providers.
+**منصة دبرها (Dabberha / Local Service Connector System)** هي منصة إلكترونية خدمية وسيطة، تهدف إلى ربط الزبائن والعملاء من أصحاب المنازل بمزودي الخدمات الفنية والمهنية المعتمدين محلياً (مثل: السباكة، الكهرباء، المعلمين والدروس الخصوصية، ميكانيكا السيارات، شركات التنظيف، وأعمال الدهان والديكور).
 
-The platform operates on a **Three-Tier Multi-Role Architecture**:
-1. **Customers (الزبائن)**: Can browse services, search by keyword, filter by category, calculate proximity recommendations, book services, track booking statuses, and leave verified ratings/reviews.
-2. **Service Providers (مقدمو الخدمات)**: Can register their professional profile, publish and manage their service listings, set pricing in Libyan Dinar (`د.ل`), view booking requests, update service lifecycle statuses, and track revenue.
-3. **Administrators (مديرو النظام)**: Maintain platform governance by managing service categories and icons, moderating services and reviews, overseeing user accounts, and monitoring global activity.
+يعتمد النظام على **معمارية ثلاثية الأدوار (Three-Tier Multi-Role Architecture)**:
+
+```
+                  ┌─────────────────────────────────┐
+                  │    منصة دبرها (Dabberha)        │
+                  └───────────────┬─────────────────┘
+         ┌────────────────────────┼────────────────────────┐
+         ▼                        ▼                        ▼
+  ┌──────────────┐         ┌──────────────┐         ┌──────────────┐
+  │  1. الزبون    │         │ 2. مزود الخدمة│         │  3. المدير   │
+  │  (Customer)  │         │  (Provider)  │         │   (Admin)    │
+  └──────────────┘         └──────────────┘         └──────────────┘
+```
+
+1. **الزبون (Customer)**:
+   - تصفح واستعراض جميع الخدمات المتاحة محلياً.
+   - البحث بالكلمات المفتاحية والتصفية حسب التصنيف (Category).
+   - الاستفادة من خوارزمية التوصية الذكية بناءً على القرب الجغرافي والتقييمات.
+   - حجز الخدمة واختيار الموعد المناسب وكتابة الملاحظات.
+   - متابعة حالة الحجوزات (معلقة، مؤكدة، مكتملة، ملغية).
+   - تقييم الخدمة بالنجوم والتعليقات بعد اكتمال تنفيذها.
+
+2. **مزود الخدمة (Service Provider)**:
+   - إنشاء ملف مهني وإدارته وتحديد موقع العمل ورقم الهاتف الليبي (`+218`).
+   - إضافة ونشر الخدمات مع تحديد السعر بالدينار الليبي (`د.ل`) ونوع السعر (ثابت Fixed أو بالساعة Hourly).
+   - استقبال طلبات الحجز من الزبائن ومراجعة تفاصيلها.
+   - تحديث حالة الحجز (قبول وتأكيد، إتمام الخدمة، أو الإلغاء).
+   - متابعة لوحة الإحصائيات (الأرباح الإجمالية، عدد الطلبات، متوسط التقييم).
+
+3. **المدير / المشرف (Administrator)**:
+   - إدارة تصنيفات الخدمات (Categories) وإضافة أيقوناتها المناسبة (`FontAwesome Icons`).
+   - الرقابة على الخدمات المنشورة وإدارتها.
+   - متابعة جميع سجلات الحجوزات ومراقبة المعاملات المالية بالدينار الليبي.
+   - مراقبة مراجعات وتقييمات العملاء وحذف التعليقات غير اللائقة.
+   - إدارة حسابات المستخدمين (تفعيل الحسابات، إيقافها Suspended، أو حذفها).
 
 ---
 
-## 2. Directory Tree & File Inventory
-
-Below is the complete inventory of all files and folders currently in the project:
+## 2. الشجرة الكاملة لمجلدات وملفات المشروع (Directory Tree)
 
 ```
 local-services-platform/
 │
-├── config/
-│   ├── db.php                          # Database PDO connection configuration
-│   └── schema.sql                      # SQL database schema and sample seed data
+├── config/                             # مجلد إعدادات الاتصال وقاعدة البيانات
+│   ├── db.php                          # ملف الاتصال بقاعدة البيانات عبر تقنية PDO
+│   └── schema.sql                      # هيكل قاعدة البيانات وبيانات الاختبار الأولية
 │
-├── assets/
+├── assets/                             # مجلد الملفات الثابتة والتصميم
 │   ├── css/
-│   │   └── theme.css                   # Design system tokens, custom scrollbars, RTL styling
+│   │   └── theme.css                   # ملف التنسيقات المخصصة، الألوان، واتجاه RTL
 │   └── js/
-│       └── main.js                     # Global client-side interactivity & UI handlers
+│       └── main.js                     # ملف تفاعلات جافاسكريبت وتنبيهات الواجهة
 │
-├── includes/
-│   ├── auth.php                        # Session management & Role-Based Access Control (RBAC)
-│   ├── translations.php                # Bilingual translation dictionary (Arabic / English)
-│   ├── notifications.php               # System notification helper functions
-│   ├── footer.php                      # Legacy footer compatibility wrapper
+├── includes/                           # المجلد البرمجي المشترك والأساسي للنظام
+│   ├── auth.php                        # نظام المصادقة وإدارة الجلسات والصلاحيات (RBAC)
+│   ├── translations.php                # قاموس الترجمة ثنائي اللغة (العربية / الإنجليزية)
+│   ├── notifications.php               # نظام التنبيهات والإشعارات
+│   ├── footer.php                      # تذييل الصفحة المتوافق
 │   │
-│   ├── helpers/
-│   │   └── ui_helpers.php              # UI rendering helpers (badges, stars, alerts, icons)
+│   ├── helpers/                        # مجلد الدوال المساعدة للواجهات (UI Helpers)
+│   │   └── ui_helpers.php              # دوال رسم التنبيهات، النجوم، الشارات، والأيقونات
 │   │
-│   ├── components/
-│   │   ├── head.php                    # Centralized HTML <head>, Tailwind & MD3 design tokens
-│   │   ├── navbar_public.php           # Unified top navigation bar for public & customer views
-│   │   ├── footer_public.php           # Unified rich footer for public & customer views
-│   │   ├── header_dashboard.php        # Unified top navigation header for Admin & Provider
-│   │   └── sidebar.php                 # Responsive navigation sidebar for Admin & Provider
+│   ├── components/                     # مكونات الواجهة المشتركة والقابلة لإعادة الاستخدام
+│   │   ├── head.php                    # رأس صفحة HTML الموحد، الخطوط، وأكواد Tailwind
+│   │   ├── navbar_public.php           # شريط التنقل العلوي للزوار والزبائن
+│   │   ├── footer_public.php           # الفوتر الموحد لصفحات الزبائن والواجهة العامة
+│   │   ├── header_dashboard.php        # الهيدر العلوي الموحد للوحات الإدارة والمزود
+│   │   └── sidebar.php                 # القائمة الجانبية الموحدة للوحات الإدارة والمزود
 │   │
-│   └── db/
-│       ├── users_db.php                # Database queries for user accounts & profiles
-│       ├── categories_db.php           # Database queries for service categories
-│       ├── services_db.php             # Database queries for service listings
-│       ├── bookings_db.php             # Database queries for bookings & status workflows
-│       └── reviews_db.php              # Database queries for customer ratings & reviews
+│   └── db/                             # طبقة استعلامات قاعدة البيانات (Data Access Layer)
+│       ├── users_db.php                # استعلامات إدارة المستخدمين والحسابات
+│       ├── categories_db.php           # استعلامات إدارة التصنيفات
+│       ├── services_db.php             # استعلامات إدارة الخدمات والبحث
+│       ├── bookings_db.php             # استعلامات إدارة الحجوزات وحساب الأرباح
+│       └── reviews_db.php              # استعلامات إدارة التقييمات والمراجعات
 │
-├── admin/
-│   ├── dashboard.php                   # Admin analytics overview, statistics & KPI cards
-│   ├── categories.php                  # Category management (Create, Read, Delete, FA Icons)
-│   ├── services.php                    # Service listing management and moderation
-│   ├── bookings.php                    # Global booking records and status management
-│   ├── reviews.php                     # Review moderation and customer feedback oversight
-│   └── users.php                       # User account management (activate, suspend, delete)
+├── admin/                              # لوحة تحكم إدارة المنصة (Admin Portal)
+│   ├── dashboard.php                   # لوحة الإحصائيات العامة ومؤشرات الأداء (KPIs)
+│   ├── categories.php                  # إدارة التصنيفات وإضافة أيقوناتها
+│   ├── services.php                    # استعراض ومراقبة جميع الخدمات في المنصة
+│   ├── bookings.php                    # متابعة كافة طلبات الحجز العامة
+│   ├── reviews.php                     # مراقبة التقييمات وإدارتها
+│   └── users.php                       # إدارة المستخدمين وحالات الحسابات
 │
-├── provider/
-│   ├── dashboard.php                   # Provider KPI overview (earnings, bookings, rating)
-│   ├── my-services.php                 # Provider's service catalog & price listings
-│   ├── add-service.php                 # New service creation form with price in LYD (د.ل)
-│   ├── edit-service.php                # Service update form
-│   ├── bookings.php                    # Provider booking requests list
-│   ├── booking-detail.php              # Detailed booking view, customer contact & status update
-│   ├── reviews.php                     # Customer reviews and feedback received by provider
-│   ├── profile.php                     # Provider profile, phone (+218), and service location
-│   ├── header.php                      # Provider header layout wrapper
-│   └── sidebar.php                     # Provider sidebar layout wrapper
+├── provider/                           # بوابة ومكتب مزود الخدمة (Provider Portal)
+│   ├── dashboard.php                   # لوحة التحكم الخاصة بالمزود (الأرباح، الحجوزات، التقييم)
+│   ├── my-services.php                 # استعراض قائمة خدمات المزود وتعديلها
+│   ├── add-service.php                 # نموذج إضافة خدمة جديدة بالدينار الليبي
+│   ├── edit-service.php                # نموذج تعديل بيانات خدمة سابقة
+│   ├── bookings.php                    # جدول طلبات الحجز المستلمة وفلترتها
+│   ├── booking-detail.php              # تفاصيل الحجز، بيانات الزبون، وتغيير الحالة
+│   ├── reviews.php                     # سجل آراء وتقييمات العملاء للمزود
+│   ├── profile.php                     # تعديل الملف الشخصي، الهاتف (+218)، والموقع
+│   ├── header.php                      # هيدر لوحة المزود
+│   └── sidebar.php                     # قائمة لوحة المزود الجانبية
 │
-├── public/
-│   ├── login.php                       # Authentication portal with legacy password upgrade
-│   ├── register.php                    # Interactive registration with role switcher & validation
-│   ├── register-admin.php              # Administrator account registration portal
-│   ├── logout.php                      # Secure session termination & logout script
-│   ├── browse-services.php             # Service catalog, search, category filter & recommendation
-│   ├── service-detail.php              # Service page with dynamic category icon & booking form
-│   ├── book-service.php                # Booking processing controller
-│   ├── booking-confirmation.php        # Booking confirmation receipt
-│   ├── my-bookings.php                 # Customer portal (All, Upcoming, and Past bookings)
-│   └── add-review.php                  # Interactive star rating & review submission form
+├── public/                             # الصفحات العامة وصفحات الزبائن (Customer & Public)
+│   ├── login.php                       # صفحة تسجيل الدخول والترقية الآمنة لكلمات المرور
+│   ├── register.php                    # صفحة إنشاء الحساب باختيار نوع الحساب والتحقق
+│   ├── register-admin.php              # صفحة تسجيل حساب مدير جديد
+│   ├── logout.php                      # ملف تسجيل الخروج وإنهاء الجلسة بأمان
+│   ├── browse-services.php             # معرض الخدمات وخوارزمية البحث والتوصية
+│   ├── service-detail.php              # تفاصيل الخدمة والأيقونة الديناميكية ونموذج الحجز
+│   ├── book-service.php                # معالج حفظ الحجز في قاعدة البيانات
+│   ├── booking-confirmation.php        # صفحة إيصال وتأكيد نجاح الحجز
+│   ├── my-bookings.php                 # بوابة حجوزاتي للزبون مع فلترة الحالات
+│   └── add-review.php                  # نموذج تقييم الخدمة بالنجوم والتعليق
 │
-├── index.php                           # Homepage (Hero, Categories, Value Proposition)
-├── REFACTORING_PLAN.md                 # Architecture refactoring plan
-├── PROJECT_STRUCTURE.md                # General project structure documentation
-└── TECHNICAL_GUIDE.md                  # In-depth technical guide & code explanation
+├── index.php                           # الصفحة الرئيسية للمنصة (الواجهة الترويجية)
+├── REFACTORING_PLAN.md                 # خطة إعادة الهيكلة البرمجية
+├── PROJECT_STRUCTURE.md                # دليل هيكلية المشروع (هذا الملف)
+└── TECHNICAL_GUIDE.md                  # الدليل التقني والبرمجي المفصل
 ```
 
 ---
 
-## 3. Detailed File-by-File Functional Breakdown
+## 3. الشرح التفصيلي لملفات النظام ووظائفها
 
-### 3.1 Configuration Layer (`config/`)
-- **`config/db.php`**: Establishes the centralized database connection using PHP Data Objects (`PDO`). Connects to MySQL on port `3307` (or default `3306`), sets the UTF-8 character encoding (`utf8mb4`), and configures PDO error mode to throw exceptions (`PDO::ERRMODE_EXCEPTION`) for robust error handling.
-- **`config/schema.sql`**: Contains the Data Definition Language (DDL) scripts to create all database tables (`users`, `categories`, `services`, `bookings`, `reviews`, `notifications`), primary keys, foreign key constraints, and seed data.
-
----
-
-### 3.2 Core Includes & Business Logic (`includes/`)
-- **`includes/auth.php`**: The security kernel of the application. Handles session initialization (`session_start()`), authentication verification (`isLoggedIn()`), identity extraction (`getUserId()`, `getUserRole()`, `getUserName()`), and route guarding (`requireLogin()`, `requireRole($role)`).
-- **`includes/translations.php`**: Centralized localization dictionary. Implements the `__($key)` helper function to support dynamic bilingual switching between Arabic and English.
-- **`includes/notifications.php`**: Contains helper functions for triggering, storing, and fetching in-app notifications.
-- **`includes/footer.php`**: Backward-compatible footer file redirecting to modern components.
+### 3.1 طبقة الإعداد وقاعدة البيانات (`config/`)
+- **`config/db.php`**: يقوم بتهيئة الاتصال الآمن بين لغة PHP وخادم قاعدة البيانات MySQL باستخدام مكتبة `PDO`. يدعم الاتصال على المنفذ `3307` أو `3306`، ويحدد ترميز الحروف العالمي `utf8mb4` لدعم اللغة العربية بشكل مثالي، ويضبط خاصية إطلاق الاستثناءات `PDO::ERRMODE_EXCEPTION` للتعامل مع أي خطأ برمجياً دون توقف الموقع.
+- **`config/schema.sql`**: ملف يحتوي على أوامر لغة SQL لبناء الجداول الستة الأساسية في قاعدة البيانات، وتعريف المفاتيح الأساسية (Primary Keys) والمفاتيح الأجنبية (Foreign Keys) وبيانات البداية التجريبية (Seed Data).
 
 ---
 
-### 3.3 Reusable Layout Components (`includes/components/`)
-- **`includes/components/head.php`**: Renders the complete HTML `<head>` tag. Loads Google Fonts (`Tajawal`), FontAwesome 6, Google Material Symbols, Tailwind CSS CDN with Material Design 3 design tokens (Terracotta theme `#95442b`, `#fff8f6`), and custom RTL select positioning.
-- **`includes/components/navbar_public.php`**: Renders the top navigation header for public visitors and customer users. Displays dynamic branding, navigation links ("الرئيسية", "تصفح الخدمات", "التصنيفات"), and dynamic authentication buttons (Login / Register / User profile badge / My Bookings / Logout).
-- **`includes/components/footer_public.php`**: Renders a rich 4-column footer containing platform branding, quick navigation links, provider onboarding links, trust & security badges, and copyright notices.
-- **`includes/components/header_dashboard.php`**: Centralized top navbar for the Admin and Provider dashboards. Shows active role badge, user greeting, and logout button.
-- **`includes/components/sidebar.php`**: Responsive sidebar navigation for both Admin and Provider panels. Dynamically highlights the active menu item based on current URL parameters.
+### 3.2 طبقة الأمان والمصادقة والترجمة (`includes/`)
+- **`includes/auth.php`**: نواة الأمان في الموقع. يتحكم في بدء الجلسات `session_start()`، والتحقق مما إذا كان المستخدم مسجلاً للدخول `isLoggedIn()`، ومعرفة نوع حسابه `getUserRole()` واسمه `getUserName()` ومعرفه `getUserId()`، بالإضافة إلى حماية الصفحات الحساسة عبر دالة `requireRole('provider')` ودالة `requireRole('admin')`.
+- **`includes/translations.php`**: محرك الترجمة والتعريب. يحتوي على قاموس ثنائي اللغة ودالة `__($key)` التي تعرض النصوص باللغة العربية أو الإنجليزية حسب الحاجة.
+- **`includes/notifications.php`**: ملف مخصص للتعامل مع إرسال وجلب الإشعارات الخاصة بالمستخدمين.
 
 ---
 
-### 3.4 Data Access Layer (`includes/db/`)
-*Separates SQL queries completely from presentation templates to adhere to DRY and clean architecture:*
-- **`includes/db/users_db.php`**: Manages all user queries (`getUserById`, `getUserByEmail`, `createUser`, `updateUserProfile`, `updateUserPassword`, `updateUserStatus`, `deleteUser`). Implements automatic bcrypt password hashing.
-- **`includes/db/categories_db.php`**: Manages category data (`getAllCategories`, `getCategoryById`, `createCategory`, `deleteCategory`, `getCategoryCount`).
-- **`includes/db/services_db.php`**: Manages service catalog queries (`getAllServices`, `getServiceById`, `getServicesByProvider`, `getServicesByCategory`, `createService`, `updateService`, `deleteService`).
-- **`includes/db/bookings_db.php`**: Manages booking records (`getCustomerBookings`, `getProviderBookings`, `getAllBookings`, `createBooking`, `updateBookingStatus`, `getTotalEarnings`).
-- **`includes/db/reviews_db.php`**: Manages reviews and rating aggregations (`getReviewsByService`, `getReviewsByProvider`, `getReviewByBookingId`, `createReview`, `getAverageRating`).
+### 3.3 طبقة استعلامات قاعدة البيانات (`includes/db/`)
+*تم فصل استعلامات SQL تماماً عن صفحات العرض لتحقيق مبدأ النظافة البرمجية (Clean Architecture):*
+- **`includes/db/users_db.php`**: يحتوي على دوال إدارة المستخدمين: إنشاء الحساب `createUser`، تشفير كلمة المرور بـ `Bcrypt`، التحقق من البريد `getUserByEmail`، وتعديل الملف الشخصي وكلمة المرور والحالة.
+- **`includes/db/categories_db.php`**: دوال جلب التصنيفات `getAllCategories`، وإضافة تصنيف جديد `createCategory`، وحذف تصنيف.
+- **`includes/db/services_db.php`**: دوال جلب الخدمات `getAllServices`، والبحث `searchServices`، وإضافة وتعديل وحذف الخدمات الخاصة بكل مزود.
+- **`includes/db/bookings_db.php`**: دوال إدارة الحجوزات `createBooking`، وتحديث حالة الحجز `updateBookingStatus`، وحساب إجمالي الأرباح `getTotalEarnings` لمزود الخدمة بالدينار الليبي.
+- **`includes/db/reviews_db.php`**: دوال إضافة التقييم `createReview`، واستخراج متوسط التقييم بالنجوم `getAverageRating` لكل خدمة.
 
 ---
 
-### 3.5 UI Helpers (`includes/helpers/`)
-- **`includes/helpers/ui_helpers.php`**: Shared UI rendering functions:
-  - `renderAlert($msg, $type)`: Renders dismissible alert banners.
-  - `renderStatusBadge($status)`: Renders status pills (pending, confirmed, completed, cancelled) with dedicated colors.
-  - `renderStarRating($rating, $max)`: Generates star rating visuals.
-  - `renderEmptyState($icon, $title)`: Displays friendly empty-state illustrations when no data exists.
-  - `getCategoryFAIcon($cat_name, $icon)`: Maps category names to FontAwesome icon classes.
+### 3.4 طبقة الواجهات والمكونات المشتركة (`includes/components/` & `includes/helpers/`)
+- **`includes/helpers/ui_helpers.php`**: دوال مساعدة لرسم عناصر الواجهة:
+  - `renderAlert()`: عرض صناديق التنبيه (رسائل النجاح باللون الأخضر ورسائل الخطأ بالأحمر).
+  - `renderStatusBadge()`: رسم شارات ملونة لحالات الحجز (معلق: أصفر، مؤكد: أزرق، مكتمل: أخضر، ملغي: أحمر).
+  - `renderStarRating()`: رسم النجوم الذهبية لتقييمات العملاء.
+  - `getCategoryFAIcon()`: تحديد أيقونة `FontAwesome` المطابقة لكل تصنيف حسب ما حدده المدير في قاعدة البيانات.
+- **`includes/components/head.php`**: رأس الصفحة الموحد الذي يستدعي خط "تجوال" العربي، مكتبة Tailwind CSS، أيقونات FontAwesome 6، وأكواد التصميم الموحد.
+- **`includes/components/navbar_public.php`**: شريط التنقل العلوي للزوار والزبائن مع أزرار الدخول، التسجيل، وروابط الحجوزات.
+- **`includes/components/footer_public.php`**: تذييل الصفحة للواجهة العامة يحتوي على روابط سريعة ومعلومات المنصة.
+- **`includes/components/header_dashboard.php` & `sidebar.php`**: الهيدر والقائمة الجانبية الموحدة للوحات التحكم الإدارية مع إبراز الصفحة النشطة حالياً.
 
 ---
 
-### 3.6 Public & Customer Interface (`public/` & root `index.php`)
-- **`index.php`**: Landing page featuring a hero section, value proposition badges, interactive category cards, "How It Works" workflow steps, and customer testimonials.
-- **`public/browse-services.php`**: Marketplace catalog. Features live search, category filter dropdown, geolocation distance calculation, recommendation scoring (rating weight + distance proximity), and responsive service cards.
-- **`public/service-detail.php`**: In-depth service listing page. Displays dynamic category icon configured by admin, provider contact info, price in Libyan Dinar (`د.ل`), customer reviews, and the booking form.
-- **`public/book-service.php`**: Backend booking processor validating input parameters and persisting new booking entries.
-- **`public/booking-confirmation.php`**: Digital booking receipt displaying service summary, provider details, booking date/time, and price in `د.ل`.
-- **`public/my-bookings.php`**: Customer personal portal. Features status filter tabs ("All", "Upcoming", "Past"), status badges, total price, and triggers for review submission on completed jobs.
-- **`public/add-review.php`**: Review and star-rating submission form for completed services.
-- **`public/login.php`**: Authentication portal with role validation, pre-filled email on registration redirect, and automatic legacy plaintext password upgrading.
-- **`public/register.php`**: User registration portal with interactive card-based role selection ("عميل" / "مزود خدمة"), real-time 6-character password validation, Libyan phone format (`+218`), and direct login redirection.
-- **`public/register-admin.php`**: Secure administrative user registration page.
-- **`public/logout.php`**: Terminates sessions safely and redirects to homepage.
+### 3.5 صفحات الزبائن والواجهة العامة (`public/` & `index.php`)
+- **`index.php`**: الصفحة الرئيسية الترويجية للمنصة؛ تشرح فكرة الموقع، خطوات العمل "كيف يعمل دبرها"، وأبرز التصنيفات مع إمكانية الوصول المباشر.
+- **`public/browse-services.php`**: صفحة تصفح الخدمات؛ تدعم البحث الفوري، تصفية التصنيفات، وترتيب الخدمات بناءً على خوارزمية ذكية تجمع بين أعلى تقييم وأقرب مسافة جغرافية.
+- **`public/service-detail.php`**: صفحة تفاصيل الخدمة؛ تعرض أيقونة التصنيف المختارة ديناميكياً، السعر بالدينار الليبي (`د.ل`)، بيانات المزود، آراء الزبائن السابقين، ونموذج حجز موعد الخدمة.
+- **`public/book-service.php`**: معالج استقبال طلب الحجز، والتأكد من تسجيل دخول الزبون، وإدراج الطلب في قاعدة البيانات.
+- **`public/booking-confirmation.php`**: إيصال الحجز الذي يعرض ملخص الطلب والوقت والسعر الإجمالي.
+- **`public/my-bookings.php`**: بوابة الزبون الخاصة؛ تمكنه من متابعة حجوزاته الحالية والسابقة، ورؤية حالة الطلب، وزر كتابة تقييم عند اكتمال الخدمة.
+- **`public/add-review.php`**: صفحة كتابة التقييم بالنجوم وإضافة تعليق على أداء مزود الخدمة.
+- **`public/register.php`**: صفحة التسجيل التفاعلية؛ توفر بطاقات اختيار واضحة بين "عميل" أو "مزود خدمة"، مع تحقق لحظي من كلمة المرور (6 خانات على الأقل)، وصيغة الهاتف الليبي `+218`.
+- **`public/login.php`**: صفحة تسجيل الدخول؛ تقوم بتعبئة البريد تلقائياً بعد التسجيل، والترقية التلقائية للحسابات القديمة لتشفير `Bcrypt`.
+- **`public/logout.php`**: إنهاء الجلسة وتسجيل الخروج بأمان.
 
 ---
 
-### 3.7 Service Provider Portal (`provider/`)
-- **`provider/dashboard.php`**: Provider management dashboard displaying 4 KPI summary cards (Total Bookings, Pending Bookings, Total Earnings in `د.ل`, Average Star Rating), pending booking request table, and recent customer reviews.
-- **`provider/my-services.php`**: Lists all services published by the logged-in provider with edit/delete controls and pricing.
-- **`provider/add-service.php`**: Allows providers to add a new service specifying category, title, description, price in `د.ل`, and price type (fixed / hourly).
-- **`provider/edit-service.php`**: Form to edit existing service listings.
-- **`provider/bookings.php`**: Table of all booking orders assigned to this provider with customer details and status filters.
-- **`provider/booking-detail.php`**: Detailed view of a specific booking order with customer phone, address, notes, and status update form with RTL select.
-- **`provider/reviews.php`**: List of all customer ratings and feedback received by the provider.
-- **`provider/profile.php`**: Personal and business profile management (Full Name, Phone with `+218`, City/Location).
+### 3.6 بوابة مزود الخدمة (`provider/`)
+- **`provider/dashboard.php`**: لوحة تحكم المزود؛ تعرض 4 بطاقات إحصائية رئيسية (إجمالي الحجوزات، الطلبات المعلقة، إجمالي الأرباح بـ `د.ل`، متوسط التقييم)، بالإضافة لجدول الطلبات الجديدة وآخر التقييمات.
+- **`provider/my-services.php`**: قائمة بجميع الخدمات التي يقدمها المزود وأسعارها بالدينار الليبي مع أزرار التعديل والحذف.
+- **`provider/add-service.php`**: نموذج إضافة خدمة جديدة للمزود (تحديد التصنيف، العنوان، الشرح، السعر بالدينار، ونوع السعر).
+- **`provider/edit-service.php`**: تعديل بيانات خدمة حالية.
+- **`provider/bookings.php`**: جدول لكافة الحجوزات الواردة للمزود مع إمكانية الفلترة حسب الحالة.
+- **`provider/booking-detail.php`**: صفحة تفاصيل حجز معين؛ تمكن المزود من رؤية هاتف الزبون وعنوانه وملاحظاته، وتحديث حالة الحجز مع سهم منسدل مضبوط في اليسار لوضع RTL.
+- **`provider/reviews.php`**: استعراض سجل التقييمات والآراء الواردة من الزبائن.
+- **`provider/profile.php`**: إدارة الملف الشخصي لمزود الخدمة وتعديل رقم الهاتف وموقع المدينة (طرابلس، بنغازي، مصراتة، إلخ).
 
 ---
 
-### 3.8 Administrator Control Panel (`admin/`)
-- **`admin/dashboard.php`**: System oversight dashboard displaying high-level statistics (Total Users, Total Providers, Active Services, Total Bookings, Platform Revenue).
-- **`admin/categories.php`**: Category manager allowing admins to create, view, and delete categories, assigning custom FontAwesome icons.
-- **`admin/services.php`**: Global service directory to monitor and delete inappropriate listings.
-- **`admin/bookings.php`**: Global booking ledger with inline status update controls and deletion tools.
-- **`admin/reviews.php`**: Review moderation page to remove abusive or spam ratings.
-- **`admin/users.php`**: User management table to view registered accounts, toggle account statuses (active / suspended), and delete users.
+### 3.7 لوحة إدارة النظام للمدير (`admin/`)
+- **`admin/dashboard.php`**: لوحة المدير العامة لمراقبة أداء المنصة (إجمالي المستخدمين، عدد المزودين، عدد الخدمات، إجمالي الحجوزات، والإيرادات).
+- **`admin/categories.php`**: إضافة وتعديل وحذف تصنيفات الخدمات واختيار أيقونة `FontAwesome` لكل تصنيف.
+- **`admin/services.php`**: دليل الخدمات العام للمراقبة وحذف أي خدمة مخالفة.
+- **`admin/bookings.php`**: سجل الحجوزات الكامل على مستوى النظام لمتابعة العمليات.
+- **`admin/reviews.php`**: لوحة مراجعة التقييمات لحذف أي تعليق مسيء.
+- **`admin/users.php`**: إدارة المستخدمين وتفعيل أو إيقاف أو حذف الحسابات.
 
 ---
 
-## 4. User Interaction & Workflow Maps
+## 4. مخططات تدفق المستخدم (User Flows)
 
-### 4.1 Customer Lifecycle: From Registration to Review
+### 4.1 رحلة الزبون: من التسجيل إلى إتمام الحجز والتقييم
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Customer
-    participant Reg as register.php
-    participant Log as login.php
-    participant Browse as browse-services.php
-    participant Detail as service-detail.php
-    participant Book as book-service.php
-    participant MyBook as my-bookings.php
-    participant Review as add-review.php
-
-    Customer->>Reg: Select Role "Customer", Enter Name, Email, Phone (+218), Password (>=6 chars)
-    Reg->>Log: Redirect with ?registered=1&email=...
-    Customer->>Log: Enter Password & Log In
-    Log->>Browse: Redirect to Marketplace
-    Customer->>Browse: Filter by Category / Location Proximity
-    Customer->>Detail: Click "عرض التفاصيل" (View Service)
-    Customer->>Detail: Fill Booking Form (Date, Time, Notes) & Click "احجز الآن"
-    Detail->>Book: Submit Booking Request
-    Book->>MyBook: Redirect to "حجوزاتي" with Status = "Pending"
-    Note over Customer,MyBook: Provider Confirms & Completes Service
-    Customer->>MyBook: View Completed Service
-    Customer->>Review: Click "إضافة تقييم" (Add Review)
-    Review->>Detail: Rating & Feedback Updates Service Average
+```
+[ الزبون ] 
+    │
+    ├─► 1. التسجيل (register.php) ──► اختيار "عميل" + كلمة سر (>=6) + هاتف (+218)
+    │
+    ├─► 2. تسجيل الدخول (login.php) ──► توجيه تلقائي مع تعبئة البريد
+    │
+    ├─► 3. تصفح الخدمات (browse-services.php) ──► تصفية حسب التصنيف والأقرب لموقعه
+    │
+    ├─► 4. صفحة الخدمة (service-detail.php) ──► قراءة السعر (د.ل) وتعبئة التاريخ والملاحظات
+    │
+    ├─► 5. تأكيد الحجز (book-service.php) ──► إنشاء الحجز بحالة "معلق" (Pending)
+    │
+    ├─► 6. متابعة الطلب (my-bookings.php) ──► انتظار قبول المزود وإتمام الخدمة
+    │
+    └─► 7. التقييم (add-review.php) ──► وضع النجوم والتعليق بعد اكتمال الخدمة (Completed)
 ```
 
 ---
 
-### 4.2 Provider Lifecycle: Listing Services to Fulfilling Bookings
+### 4.2 رحلة مزود الخدمة: من إضافة الخدمة حتى استلام الأرباح
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Provider
-    participant Dashboard as provider/dashboard.php
-    participant Services as provider/add-service.php
-    participant Bookings as provider/bookings.php
-    participant Detail as provider/booking-detail.php
-
-    Provider->>Services: Create New Service Listing (Category, Price in د.ل, Type)
-    Services->>Dashboard: Service Published Live to Marketplace
-    Note over Provider,Dashboard: Customer Places Booking
-    Provider->>Dashboard: Receives Pending Booking Alert
-    Provider->>Bookings: Opens Bookings Ledger
-    Provider->>Detail: Reviews Customer Details & Notes
-    Provider->>Detail: Updates Status: Pending -> Confirmed -> Completed
-    Detail->>Dashboard: Earnings Updated in Libyan Dinar (د.ل)
+```
+[ مزود الخدمة ] 
+    │
+    ├─► 1. إضافة خدمة جديدة (add-service.php) ──► تحديد التصنيف والسعر (د.ل)
+    │
+    ├─► 2. نشر الخدمة ──► تظهر مباشرة في السوق للزبائن
+    │
+    ├─► 3. استلام طلب حجز ──► ظهور إشعار في لوحة التحكم (dashboard.php)
+    │
+    ├─► 4. مراجعة تفاصيل الحجز (booking-detail.php) ──► الاتصال بالزبون ومعرفة العنوان
+    │
+    ├─► 5. تحديث الحالة ──► تحويل الحالة: معلق ◄ مؤكد ◄ مكتمل (Completed)
+    │
+    └─► 6. تسجيل الأرباح ──► زيادة عداد الأرباح بالدينار الليبي وتلقي تقييم الزبون
 ```
 
 ---
 
-## 5. User Roles and Permission Matrix
+## 5. مصفوفة الصلاحيات والأدوار (Role & Permission Matrix)
 
-| Feature / Page | Public / Guest | Customer | Service Provider | Administrator |
+| الصفحة / الميزة | الزائر العام (Guest) | الزبون (Customer) | مزود الخدمة (Provider) | مدير النظام (Admin) |
 | :--- | :---: | :---: | :---: | :---: |
-| Browse Homepage (`index.php`) | ✅ | ✅ | ✅ | ✅ |
-| Browse Marketplace (`browse-services.php`) | ✅ | ✅ | ✅ | ✅ |
-| View Service Details (`service-detail.php`) | ✅ | ✅ | ✅ | ✅ |
-| Book a Service (`service-detail.php`) | ❌ (Redirects to Login) | ✅ | ❌ | ❌ |
-| Customer Bookings (`my-bookings.php`) | ❌ | ✅ | ❌ | ❌ |
-| Leave Service Review (`add-review.php`) | ❌ | ✅ | ❌ | ❌ |
-| Provider Dashboard (`provider/dashboard.php`) | ❌ | ❌ | ✅ | ❌ |
-| Manage Provider Services (`provider/my-services.php`)| ❌ | ❌ | ✅ | ❌ |
-| Manage Booking Orders (`provider/bookings.php`) | ❌ | ❌ | ✅ | ❌ |
-| Admin Dashboard (`admin/dashboard.php`) | ❌ | ❌ | ❌ | ✅ |
-| Manage Categories & Icons (`admin/categories.php`)| ❌ | ❌ | ❌ | ✅ |
-| Moderate Services & Users (`admin/users.php`) | ❌ | ❌ | ❌ | ✅ |
+| الصفحة الرئيسية (`index.php`) | ✅ مسموح | ✅ مسموح | ✅ مسموح | ✅ مسموح |
+| معرض الخدمات (`browse-services.php`) | ✅ مسموح | ✅ مسموح | ✅ مسموح | ✅ مسموح |
+| تفاصيل الخدمة (`service-detail.php`) | ✅ مسموح | ✅ مسموح | ✅ مسموح | ✅ مسموح |
+| حجز الخدمة (`book-service.php`) | ❌ يتطلب تسجيل دخول | ✅ مسموح | ❌ غير مخصص | ❌ غير مخصص |
+| بوابة حجوزاتي (`my-bookings.php`) | ❌ ممنوع | ✅ مسموح | ❌ غير مخصص | ❌ غير مخصص |
+| إضافة تقييم (`add-review.php`) | ❌ ممنوع | ✅ مسموح | ❌ غير مخصص | ❌ غير مخصص |
+| لوحة المزود (`provider/dashboard.php`) | ❌ ممنوع | ❌ ممنوع | ✅ مسموح | ❌ ممنوع |
+| إضافة وتعديل الخدمات (`provider/add-service.php`)| ❌ ممنوع | ❌ ممنوع | ✅ مسموح | ❌ ممنوع |
+| إدارة طلبات الحجز (`provider/bookings.php`) | ❌ ممنوع | ❌ ممنوع | ✅ مسموح | ❌ ممنوع |
+| لوحة الإدارة العامة (`admin/dashboard.php`) | ❌ ممنوع | ❌ ممنوع | ❌ ممنوع | ✅ مسموح |
+| إدارة التصنيفات والأيقونات (`admin/categories.php`)| ❌ ممنوع | ❌ ممنوع | ❌ ممنوع | ✅ مسموح |
+| مراقبة الخدمات والمستخدمين (`admin/users.php`) | ❌ ممنوع | ❌ ممنوع | ❌ ممنوع | ✅ مسموح |
 
 ---
 
-## 6. How to Run and Deploy the Project Locally
+## 6. طريقة تشغيل المشروع محلياً (How to Run the Project)
 
-### Prerequisites
-1. **PHP**: Version 8.0 or higher with `pdo_mysql` extension enabled.
-2. **Web Server**: Apache (via XAMPP, WampServer, or Laragon).
-3. **Database**: MySQL 5.7+ or MariaDB 10.4+.
-
-### Installation Steps
-1. **Copy Files**: Place the project folder in your web server root:
-   - XAMPP: `C:\xampp\htdocs\local-services-platform`
-   - Custom: `D:\ps\htdocs\local-services-platform`
-2. **Start Services**: Open XAMPP Control Panel and start **Apache** and **MySQL**.
-3. **Import Database**:
-   - Open PHPMyAdmin (`http://localhost/phpmyadmin` or `http://localhost:3307/phpmyadmin`).
-   - Create a database named `local_services_db` with collation `utf8mb4_unicode_ci`.
-   - Import the `config/schema.sql` file.
-4. **Configure Database Connection**:
-   - Open `config/db.php`.
-   - Verify `$host = '127.0.0.1'`, `$port = '3307'` (or `'3306'`), `$user = 'root'`, and `$pass = ''`.
-5. **Access the Application**:
-   - Open your browser and navigate to:
+1. **المتطلبات الأساسية**:
+   - تثبيت برنامج السيرفر المحلي **XAMPP** أو **WampServer**.
+   - وجود لغة **PHP 8.0** فما فوق مع تفعيل إضافة `pdo_mysql`.
+   - وجود قاعدة بيانات **MySQL / MariaDB**.
+2. **خطوات التثبيت والتشغيل**:
+   - ضع مجلد المشروع داخل مسار خادم الويب: `htdocs/local-services-platform`.
+   - افتح برنامج **XAMPP Control Panel** واضغط على زر **Start** بجانب كل من **Apache** و **MySQL** (تأكد من إضاءتهما باللون الأخضر).
+   - افتح المتصفح وادخل على `http://localhost/phpmyadmin`.
+   - أنشئ قاعدة بيانات جديدة باسم: `local_services_db` بترميز `utf8mb4_unicode_ci`.
+   - اضغط على زر **Import (استيراد)** واختر ملف `config/schema.sql` من داخل المشروع.
+   - افتح المتصفح وتوجه إلى الرابط التالي لتشغيل المنصة:
      ```
      http://localhost/local-services-platform/index.php
      ```
-   - **Default Admin Account**: `admin@localhost.com` / Password: `password` (or register via `register-admin.php`).
-   - **Default Provider Account**: `saharma221@gmail.com` / Password: `password`.
-   - **Default Customer Account**: `saharma20021@gmail.com` / Password: `password`.
+3. **بيانات تسجيل الدخول الافتراضية للاختبار**:
+   - **حساب المدير (Admin)**: `admin@localhost.com` | كلمة المرور: `password`
+   - **حساب مزود الخدمة (Provider)**: `saharma221@gmail.com` | كلمة المرور: `password`
+   - **حساب الزبون (Customer)**: `saharma20021@gmail.com` | كلمة المرور: `password`

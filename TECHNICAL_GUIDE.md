@@ -1,144 +1,111 @@
-# 💻 Technical Architecture & Code Implementation Guide
-## Local Service Connector System (Dabberha - دبرها)
-### Academic Technical Report & Implementation Manual
+# 💻 الدليل التقني والبرمجي المفصل لمشروع التخرج
+## نظام منصة الخدمات المحلية (دبرها - Dabberha)
+### التقرير البرمجي والتحليلي للجنة المناقشة والتقييم
 
 ---
 
-## 1. Technology Stack & Integration Architecture
+## 1. جدول التقنيات المستخدمة وأدوارها (Technologies Used)
 
-The **Local Service Connector System** is engineered using a robust, multi-layered web architecture designed for security, scalability, and high responsiveness:
+تم بناء وتطوير منصة **دبرها** باستخدام حزمة من أحدث التقنيات البرمجية مفتوحة المصدر، مقسمة إلى الطبقات التالية:
 
-| Technology Layer | Tool / Library | Version / Source | Architectural Role |
-| :--- | :--- | :--- | :--- |
-| **Backend Language** | PHP | 8.0+ | Server-side runtime, business logic, session handling, authentication |
-| **Database Engine** | MySQL / MariaDB | 5.7+ / 10.4+ | Relational data persistence, foreign key integrity, indexation |
-| **Data Access Layer** | PHP Data Objects (PDO) | Core PHP | Parameterized queries, prepared statements, SQL injection defense |
-| **Styling Framework** | Tailwind CSS (v3 CDN) | CDN | Responsive utility classes, modern CSS grid, flexbox layout |
-| **Design System Tokens** | Material Design 3 (MD3) | Custom Config | Warm Terracotta palette (`#95442b`, `#fff8f6`), typography scale |
-| **Icons & Visuals** | FontAwesome 6 + Google Material | CDN | Category icons, status pills, action buttons, rating stars |
-| **Typography** | Google Fonts (`Tajawal`) | CDN | High-legibility Arabic & Latin typography |
-| **Client-side Scripting** | Vanilla JavaScript (ES6+) | Native Browser | Real-time form validation, interactive role cards, DOM manipulation |
+| الطبقة التقنية (Layer) | الأداة / المكتبة | الدور البرمجي والوظيفي |
+| :--- | :--- | :--- |
+| **لغة البرمجة الخلفية (Backend)** | **PHP 8.0+** | تنفيذ منطق العمل (Business Logic)، إدارة الجلسات، التحقق من الصلاحيات، ومعالجة الطلبات. |
+| **محرك قاعدة البيانات (Database)** | **MySQL / MariaDB** | تخزين البيانات العلائقية (Relational Data) وربط الجداول بالمفاتيح الأساسية والأجنبية. |
+| **واجهة الاتصال بالبيانات (Data Access)** | **PHP Data Objects (PDO)** | الربط الآمن بقاعدة البيانات واستخدام الاستعلامات المجهزة (Prepared Statements) لمنع الاختراق. |
+| **إطار التصميم والواجهات (CSS Framework)** | **Tailwind CSS (v3)** | بناء واجهات عصرية متجاوبة وسريعة عبر فئات التنسيق المباشرة (Utility Classes) ونظام Grid و Flexbox. |
+| **نظام التصميم والألوان (Design System)** | **Material Design 3 (MD3)** | تطبيق سمة الألوان الطينية الدافئة (Terracotta Palette: `#95442b`, `#fff8f6`) وتنسيق المسافات. |
+| **الأيقونات والرموز (Icons)** | **FontAwesome 6 + Google Material** | عرض أيقونات الخدمات الديناميكية، النجوم الذهبية للتقييم، وشارات الحالات. |
+| **الخطوط والطباعة (Typography)** | **Google Fonts (خط تجوال Tajawal)** | خط عربي حديث ومقروء بوضوح في جميع الشاشات والأجهزة. |
+| **لغة التفاعل الأمامية (Frontend JS)** | **Vanilla JavaScript (ES6+)** | التحقق التفاعلي الفوري من كلمة المرور (6 خانات)، تبديل بطاقات الحسابات، وتحسين تفاعل النماذج. |
 
 ---
 
-## 2. Database Schema & Relational Integrity
+## 2. هيكل قاعدة البيانات والعلاقات بين الجداول (Database Schema & Foreign Keys)
 
-The relational database `local_services_db` is normalized into **6 primary tables**. Foreign keys guarantee referential integrity across all entities:
+تحتوي قاعدة البيانات `local_services_db` على **6 جداول رئيسية مترابطة علائقياً**:
 
-```mermaid
-erDiagram
-    USERS ||--o{ SERVICES : "publishes (provider_id)"
-    USERS ||--o{ BOOKINGS : "places (customer_id)"
-    USERS ||--o{ REVIEWS : "authors (customer_id)"
-    USERS ||--o{ NOTIFICATIONS : "receives (user_id)"
-    CATEGORIES ||--o{ SERVICES : "classifies (category_id)"
-    SERVICES ||--o{ BOOKINGS : "is booked in (service_id)"
-    BOOKINGS ||--o| REVIEWS : "is reviewed in (booking_id)"
-
-    USERS {
-        int id PK
-        string name
-        string email UK
-        string password
-        enum role "admin, provider, customer"
-        string phone
-        string address
-        enum status "active, suspended"
-        datetime created_at
-    }
-
-    CATEGORIES {
-        int id PK
-        string name
-        string description
-        string icon "FontAwesome class"
-        datetime created_at
-    }
-
-    SERVICES {
-        int id PK
-        int provider_id FK
-        int category_id FK
-        string title
-        text description
-        decimal price
-        enum price_type "fixed, hourly"
-        string location
-        decimal latitude
-        decimal longitude
-        enum status "active, inactive"
-        datetime created_at
-    }
-
-    BOOKINGS {
-        int id PK
-        int customer_id FK
-        int service_id FK
-        datetime booking_date
-        enum status "pending, confirmed, completed, cancelled"
-        text notes
-        decimal total_price
-        datetime created_at
-    }
-
-    REVIEWS {
-        int id PK
-        int booking_id FK
-        int customer_id FK
-        int service_id FK
-        int rating "1 to 5"
-        text comment
-        datetime created_at
-    }
-
-    NOTIFICATIONS {
-        int id PK
-        int user_id FK
-        string title
-        text message
-        boolean is_read
-        datetime created_at
-    }
+```
+                       ┌────────────────┐
+                       │     users      │ (المستخدمين)
+                       └───┬────────┬───┘
+          ┌────────────────┘        └────────────────┐
+          │ (1 : N)                                  │ (1 : N)
+          ▼                                          ▼
+   ┌──────────────┐                           ┌──────────────┐
+   │   services   │ (الخدمات)                 │   bookings   │ (الحجوزات)
+   └───┬──────────┘                           └───┬──────────┘
+       │                                          │
+       │ (N : 1)                                  │ (1 : 1)
+       ▼                                          ▼
+┌──────────────┐                              ┌──────────────┐
+│  categories  │ (التصنيفات)                  │   reviews    │ (التقييمات)
+└──────────────┘                              └──────────────┘
 ```
 
-### Table Definitions & Foreign Key Constraints
+---
 
-1. **`users` Table**:
-   - `id`: Primary key (Auto Increment).
-   - `email`: Unique identifier used for authentication.
-   - `password`: Securely hashed password string (Bcrypt hash `$2y$...`).
-   - `role`: Enum (`customer`, `provider`, `admin`) driving system-wide RBAC.
-   - `phone`: Contact phone number formatted to Libyan standard (`+218`).
-   - `status`: Enum (`active`, `suspended`) allows admins to ban malicious accounts.
+### شرح تفصيلي لحقول الجداول والمفاتيح الأجنبية (Foreign Keys):
 
-2. **`categories` Table**:
-   - `id`: Primary key.
-   - `name`: Category name in Arabic/English (e.g., "تنظيف منازل", "ميكانيكا سيارات").
-   - `icon`: FontAwesome class string chosen by admin (e.g., `fa-solid fa-broom`, `fa-solid fa-car-side`, `fa-solid fa-faucet-drip`).
+#### 1. جدول المستخدمين (`users`):
+* `id` (**Primary Key**): المعرف الرقمي الفريد لكل مستخدم (تزايد تلقائي Auto Increment).
+* `name`: اسم المستخدم الكامل.
+* `email` (**Unique Key**): البريد الإلكتروني الفريد لمنع تكرار الحسابات.
+* `password`: كلمة المرور المشفرة بتشفير `Bcrypt` الآمن (سلسلة نصية تبدأ بـ `$2y$...`).
+* `role`: نوع الحساب كقيمة محددة (`enum: 'admin', 'provider', 'customer'`).
+* `phone`: رقم الهاتف بصيغة ليبيا الدولية (`+218 91 000 0000`).
+* `address`: العنوان والمدينة (طرابلس، بنغازي، مصراتة، إلخ).
+* `status`: حالة الحساب (`'active'`, `'suspended'`).
+* `created_at`: تاريخ ووقت التسجيل.
 
-3. **`services` Table**:
-   - `provider_id`: Foreign key referencing `users(id)` ON DELETE CASCADE.
-   - `category_id`: Foreign key referencing `categories(id)` ON DELETE SET NULL.
-   - `price`: Price in Libyan Dinar (`د.ل`) stored as `DECIMAL(10,2)`.
-   - `price_type`: Enum (`fixed`, `hourly`).
-   - `latitude` / `longitude`: Coordinates used in the Haversine distance proximity algorithm.
+#### 2. جدول التصنيفات (`categories`):
+* `id` (**Primary Key**): المعرف الفريد للتصنيف.
+* `name`: اسم التصنيف (مثل: تنظيف منازل، سباكة، ميكانيكا سيارات).
+* `description`: وصف موجز لطبيعة التصنيف.
+* `icon`: كلاس أيقونة `FontAwesome` المختار من الإدارة (مثل: `fa-solid fa-broom`).
 
-4. **`bookings` Table**:
-   - `customer_id`: Foreign key referencing `users(id)` ON DELETE CASCADE.
-   - `service_id`: Foreign key referencing `services(id)` ON DELETE CASCADE.
-   - `status`: Enum (`pending`, `confirmed`, `completed`, `cancelled`).
-   - `total_price`: Historical price snapshot in `د.ل` at the moment of booking.
+#### 3. جدول الخدمات (`services`):
+* `id` (**Primary Key**): المعرف الفريد للخدمة.
+* `provider_id` (**Foreign Key** ➔ يربط مع `users.id`): معرف مزود الخدمة الذي يملك هذا العرض.
+* `category_id` (**Foreign Key** ➔ يربط مع `categories.id`): معرف التصنيف التابعة له الخدمة.
+* `title`: عنوان الخدمة (مثال: صيانة كهرباء المنازل).
+* `description`: شرح تفصيلي للخدمة والمعدات.
+* `price`: السعر بالدينار الليبي (`DECIMAL(10,2)`).
+* `price_type`: نوع التسعير (`'fixed'` سعر ثابت، أو `'hourly'` بالساعة).
+* `latitude` / `longitude`: الإحداثيات الجغرافية لموقع تقديم الخدمة لحساب المسافات.
+* `status`: حالة الخدمة (`'active'`, `'inactive'`).
 
-5. **`reviews` Table**:
-   - `booking_id`: Foreign key referencing `bookings(id)` ON DELETE CASCADE.
-   - `rating`: Integer constraint between `1` and `5`.
-   - `comment`: Customer feedback text.
+#### 4. جدول الحجوزات (`bookings`):
+* `id` (**Primary Key**): المعرف الفريد لطلب الحجز.
+* `customer_id` (**Foreign Key** ➔ يربط مع `users.id`): معرف الزبون صاحب الطلب.
+* `service_id` (**Foreign Key** ➔ يربط مع `services.id`): معرف الخدمة المطلوبة.
+* `booking_date`: تاريخ وتوقيت الحجز المطلوب.
+* `status`: حالة الحجز (`'pending'` معلق، `'confirmed'` مؤكد، `'completed'` مكتمل، `'cancelled'` ملغي).
+* `notes`: ملاحظات الزبون الإضافية والعنوان التفصيلي.
+* `total_price`: السعر الإجمالي المسجل بالدينار الليبي وقت الحجز.
+
+#### 5. جدول التقييمات والمراجعات (`reviews`):
+* `id` (**Primary Key**): المعرف الفريد للتقييم.
+* `booking_id` (**Foreign Key** ➔ يربط مع `bookings.id`): لضمان أن التقييم صادر من زبون حقيقي أتم الحجز.
+* `customer_id` (**Foreign Key** ➔ يربط مع `users.id`): معرف الزبون كاتب التقييم.
+* `service_id` (**Foreign Key** ➔ يربط مع `services.id`): معرف الخدمة المقيمة.
+* `rating`: عدد النجوم كقيمة رقمية من 1 إلى 5.
+* `comment`: نص رأي وملاحظات الزبون.
+
+#### 6. جدول التنبيهات (`notifications`):
+* `id` (**Primary Key**): معرف الإشعار.
+* `user_id` (**Foreign Key** ➔ يربط مع `users.id`): معرف المستخدم المستلم.
+* `title`: عنوان التنبيه.
+* `message`: نص الإشعار.
+* `is_read`: حالة القراءة (0 غير مقروء، 1 مقروء).
 
 ---
 
-## 3. Core PHP Architecture & Critical Functions
+## 3. شرح الأكواد والآليات البرمجية الأساسية (Technical Code Logic)
 
-### 3.1 Parameterized PDO Database Connection (`config/db.php`)
+### 3.1 الاتصال الآمن بقاعدة البيانات عبر PDO (`config/db.php`)
+تستخدم المنصة مكتبة `PDO` بدلاً من `mysqli` القديمة لتوفير مرونة وأمان عاليين:
+
 ```php
 <?php
 $host = '127.0.0.1';
@@ -148,89 +115,56 @@ $user = 'root';
 $pass = '';
 
 try {
+    // إنشاء كائن الاتصال وضبط الترميز لـ utf8mb4
     $pdo = new PDO("mysql:host=$host;port=$port;dbname=$db;charset=utf8mb4", $user, $pass);
-    // Throw exceptions on error to prevent silent data failure
+    
+    // تفعيل وضع إطلاق الاستثناءات عند حدوث أي خطأ في الاستعلامات
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Database Connection Error: " . $e->getMessage());
+} catch(PDOException $e) {
+    die("فشل الاتصال بقاعدة البيانات: " . $e->getMessage());
 }
 ?>
 ```
 
 ---
 
-### 3.2 Authentication & Role-Based Access Control (`includes/auth.php`)
-The system secures pages using strict server-side session checks:
+### 3.2 نظام الاستعلامات المجهزة وحماية SQL Injection (Prepared Statements)
+يتم تنفيذ جميع عمليات الإدراج والتعديل والبحث عبر الاستعلامات المجهزة (`prepare` و `execute`)، مما يفصل كود الـ SQL تماماً عن مدخلات المستخدم ويجعل حقن الـ SQL مستحيلاً:
 
 ```php
-<?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-function isLoggedIn(): bool {
-    return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
-}
-
-function getUserRole(): string {
-    return $_SESSION['user_role'] ?? '';
-}
-
-function requireLogin(): void {
-    if (!isLoggedIn()) {
-        header('Location: /local-services-platform/public/login.php');
-        exit;
-    }
-}
-
-function requireRole(string $required_role): void {
-    requireLogin();
-    if (getUserRole() !== $required_role) {
-        // Unauthorized access -> redirect to appropriate home
-        header('Location: /local-services-platform/index.php');
-        exit;
-    }
-}
-?>
-```
-
----
-
-### 3.3 Secure Password Hashing & Legacy Auto-Upgrade (`includes/db/users_db.php` & `public/login.php`)
-
-To prevent storing plaintext credentials, password creation uses PHP's native `password_hash()` with the Bcrypt algorithm:
-
-```php
-// In includes/db/users_db.php:
+// مثال من includes/db/users_db.php لإدراج مستخدم جديد بأمان تام:
 function createUser(array $data): int {
     global $pdo;
-    $raw_password = (string)($data['password'] ?? '');
     
-    // Automatically hash using Bcrypt if raw password provided
-    $password_info = password_get_info($raw_password);
-    $hashed_password = ($password_info['algo'] === 0) 
-        ? password_hash($raw_password, PASSWORD_DEFAULT) 
-        : $raw_password;
-
+    // تجهيز الاستعلام بعلامات الاستفهام كمعاملات وسيطة (?)
     $stmt = $pdo->prepare("
         INSERT INTO users (name, email, password, role, phone, address, status)
         VALUES (?, ?, ?, ?, ?, ?, ?)
     ");
+    
+    // تمرير البيانات بشكل منفصل ومحمي
     $stmt->execute([
         trim($data['name']),
         trim($data['email']),
-        $hashed_password,
+        $data['password'],
         $data['role'] ?? 'customer',
         trim($data['phone'] ?? ''),
         trim($data['address'] ?? ''),
         $data['status'] ?? 'active'
     ]);
+    
     return (int)$pdo->lastInsertId();
 }
 ```
 
-#### Dual Verification & Auto-Upgrade Logic in `public/login.php`:
+---
+
+### 3.3 تشفير كلمات المرور والترقية التلقائية (Password Hashing & Auto-Upgrade)
+* يتم تشفير كلمات المرور باستخدام دالة `password_hash($raw, PASSWORD_DEFAULT)` التي تعتمد خوارزمية `Bcrypt` المقاومة للهجمات.
+* في صفحة تسجيل الدخول [`public/login.php`](file:///d:/ps/htdocs/local-services-platform/public/login.php)، يدعم النظام فحص كلمات المرور المشفرة عبر `password_verify`، كما يدعم الترقية التلقائية الفورية لأي حسابات قديمة:
+
 ```php
+// التحقق من صحة كلمة المرور والترقية التلقائية:
 $user = getUserByEmail($email);
 $is_password_valid = false;
 
@@ -238,7 +172,7 @@ if ($user && $user['status'] === 'active') {
     if (password_verify($password, $user['password'])) {
         $is_password_valid = true;
     } elseif ($password === $user['password']) {
-        // Legacy plaintext password detected -> Verify and immediately upgrade to Bcrypt
+        // إذا كان الحساب مسجلاً قديماً بكلمة مرور عادية، يتم قبوله وترقيته للتشفير تلقائياً
         $is_password_valid = true;
         updateUserPassword((int)$user['id'], $password);
     }
@@ -247,78 +181,70 @@ if ($user && $user['status'] === 'active') {
 
 ---
 
-### 3.4 Smart Recommendation & Search Algorithm (`public/browse-services.php`)
-
-The platform implements a multi-criteria scoring algorithm that ranks service providers based on **Customer Ratings** and **Geographical Proximity (Haversine Formula)**:
-
-$$\text{Distance (km)} = 2 R \cdot \arcsin\left(\sqrt{\sin^2\left(\frac{\Delta\text{lat}}{2}\right) + \cos(\text{lat}_1)\cos(\text{lat}_2)\sin^2\left(\frac{\Delta\text{lon}}{2}\right)}\right)$$
+### 3.4 إدارة الجلسات والتحقق من الصلاحيات (Sessions & RBAC)
+تعتمد حماية الصفحات في [`includes/auth.php`](file:///d:/ps/htdocs/local-services-platform/includes/auth.php) على جلسات الخادم `$_SESSION`:
 
 ```php
-// Proximity Calculation Function:
-function calculateDistance($lat1, $lon1, $lat2, $lon2) {
-    $earthRadius = 6371; // Earth radius in Kilometers
-    $dLat = deg2rad($lat2 - $lat1);
-    $dLon = deg2rad($lon2 - $lon1);
-    $a = sin($dLat / 2) * sin($dLat / 2) +
-         cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-         sin($dLon / 2) * sin($dLon / 2);
-    $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-    return $earthRadius * $c;
+function requireRole(string $required_role): void {
+    requireLogin(); // التحقق أولاً من تسجيل الدخول
+    if (getUserRole() !== $required_role) {
+        // إذا كان الزبون يحاول دخول لوحة المزود أو الإدارة، يتم طرده للصفحة الرئيسية
+        header('Location: /local-services-platform/index.php');
+        exit;
+    }
 }
-
-// Composite Recommendation Score:
-// 60% Rating Weight + 40% Proximity Weight
-$rating_score = ($avg_rating / 5.0) * 0.6;
-$distance_score = max(0, (1 - ($distance_km / 50.0))) * 0.4;
-$recommendation_score = $rating_score + $distance_score;
 ```
 
 ---
 
-### 3.5 Booking Lifecycle State Machine (`includes/db/bookings_db.php`)
+### 3.5 خوارزمية التوصية الذكية وفرز الخدمات (Recommendation & Proximity Algorithm)
+في صفحة [`public/browse-services.php`](file:///d:/ps/htdocs/local-services-platform/public/browse-services.php)، يتم ترتيب الخدمات المعروضة للزبون بناءً على **معيار مركب (Composite Score)**:
+1. **وزن التقييم (60%)**: يعتمد على متوسط نجوم الخدمة من 5.
+2. **وزن القرب الجغرافي (40%)**: يعتمد على حساب المسافة بين الزبون ومزود الخدمة عبر **معادلة هافرسين (Haversine Formula)**:
 
-Each booking transitions through discrete, authorized states:
+$$\text{Distance} = 2 R \cdot \arcsin\left(\sqrt{\sin^2\left(\frac{\Delta\text{lat}}{2}\right) + \cos(\text{lat}_1)\cos(\text{lat}_2)\sin^2\left(\frac{\Delta\text{lon}}{2}\right)}\right)$$
 
-```mermaid
-stateDiagram-v2
-    [*] --> Pending : Customer Books Service
-    Pending --> Confirmed : Provider Accepts
-    Pending --> Cancelled : Customer or Provider Cancels
-    Confirmed --> Completed : Provider Finishes Job
-    Confirmed --> Cancelled : Emergency Cancellation
-    Completed --> Reviewed : Customer Leaves Rating
-    Completed --> [*]
-    Cancelled --> [*]
+```php
+// كود حساب التوصية المركبة:
+$rating_score = ($avg_rating / 5.0) * 0.6;          // 60% لتقييم النجوم
+$distance_score = max(0, (1 - ($dist / 50.0))) * 0.4; // 40% للقرب ضمن نطاق 50 كم
+$total_recommendation = $rating_score + $distance_score;
 ```
 
 ---
 
-## 4. Security Architecture & Threat Mitigation
+### 3.6 دورة حياة الحجز وحالات الطلب (Booking State Machine)
 
-| Security Domain | Potential Threat | Mitigation Implemented in Codebase |
-| :--- | :--- | :--- |
-| **Database Security** | SQL Injection (SQLi) | **Prepared Statements with PDO**: Zero string interpolation in SQL queries. All parameters bound via `$stmt->execute([...])`. |
-| **Output Encoding** | Cross-Site Scripting (XSS) | **Contextual Escaping**: All user inputs rendered in HTML are sanitized through `htmlspecialchars($str, ENT_QUOTES, 'UTF-8')`. |
-| **Credential Storage** | Password Data Leaks | **Bcrypt Hashing**: Passwords stored using `password_hash()` with standard work factor. |
-| **Access Control** | Broken Object Level Auth (BOLA) | **RBAC Middleware**: `requireRole('provider')` and `requireRole('admin')` enforce strict role verification on every route. |
-| **Data Integrity** | Invalid Account States | **Database Constraints**: Foreign keys with `CASCADE` or `SET NULL` maintain referential integrity. |
+```
+  [ حجز جديد ] ──► حالة معلقة (Pending)
+                         │
+         ┌───────────────┴───────────────┐
+         ▼                               ▼
+   [ قبول المزود ]                 [ إلغاء الحجز ]
+         │                               │
+         ▼                               ▼
+   حالة مؤكدة (Confirmed)           حالة ملغية (Cancelled)
+         │
+         ▼
+   [ إتمام الخدمة ]
+         │
+         ▼
+   حالة مكتملة (Completed) ──► يتاح للزبون وضع التقييم بالنجوم ⭐
+```
 
 ---
 
-## 5. UI/UX & Responsive Design System
+## 4. تدابير الحماية والأمان المطبقة في النظام (Security Measures)
 
-1. **RTL Directional Precision**:
-   - The entire platform defaults to Arabic Right-To-Left (`dir="rtl"`).
-   - Global dropdown select arrow positioning is inverted to the left using CSS overrides in `assets/css/theme.css`:
-     ```css
-     [dir="rtl"] select, html[dir="rtl"] select, select {
-         background-position: left 0.75rem center !important;
-         padding-left: 2.5rem !important;
-         padding-right: 1rem !important;
-         text-align: right;
-     }
-     ```
-2. **Standardized Currency Formatting**:
-   - Currency is consistently rendered in Libyan Dinar: `<?php echo number_format($price, 2); ?> د.ل`.
-3. **Dynamic Category Icons**:
-   - Replaced hardcoded static symbols with dynamic FontAwesome classes chosen by the administrator from the database (`categories.icon`).
+1. **الحماية من حقن قواعد البيانات (SQL Injection)**:
+   - استخدام استعلامات الـ PDO المجهزة (`PDO Prepared Statements`) في كافة ملفات `includes/db/` بنسبة 100%.
+2. **الحماية من هجمات حقن النصوص البرمجية (XSS - Cross-Site Scripting)**:
+   - تنظيف وتمرير أي نص يتم إدخاله من المستخدم عبر دالة `htmlspecialchars($str, ENT_QUOTES, 'UTF-8')` قبل طباعته في الـ HTML.
+3. **التحقق المزدوج من كلمات المرور (Frontend & Backend Validation)**:
+   - في الواجهة الأمامية: التحقق الفوري بأن كلمة المرور 6 خانات على الأقل قبل الإرسال.
+   - في الواجهة الخلفية: فحص طول السلسلة النصية `strlen($password) < 6` قبل الإدراج في قاعدة البيانات.
+4. **حماية التوجيه والأذونات (Role-Based Access Control)**:
+   - فحص دور المستخدم في الجلسة ومنع وصول أي مستخدم لصفحات لا يملك تصريحاً لها.
+5. **توحيد العملة بالدينار الليبي (`د.ل`) وتوافق الاتجاه العربي (RTL)**:
+   - استبدال رمز الدولار بالدينار الليبي في كافة الشاشات والتقارير.
+   - تعديل اتجاه أسهم القوائم المنسدلة لتكون في جهة اليسار تلقائياً في وضع RTL دون تغطية النصوص.
