@@ -129,7 +129,7 @@ renderHead(['title' => __('Create Account') . ' - ' . __('Dabberha')]);
 
                     <div>
                         <label for="phone" class="block text-xs font-bold text-on-background mb-1"><?php echo __('Phone Number'); ?></label>
-                        <input id="phone" name="phone" type="tel" value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>" placeholder="+966 50 000 0000"
+                        <input id="phone" name="phone" type="tel" value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>" placeholder="+218 91 000 0000"
                                class="w-full px-4 py-2.5 rounded-xl border border-outline-variant bg-surface-container-lowest text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary">
                     </div>
 

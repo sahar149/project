@@ -89,14 +89,14 @@ renderHead(['title' => __('Edit Profile - Provider')]);
                             <label class="block text-sm font-bold text-brand-text mb-2" for="phone">
                                 <?php echo __('Phone Number'); ?>
                             </label>
-                            <input type="tel" name="phone" id="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" class="w-full px-4 py-2.5 rounded-xl border border-brand-border bg-brand-surface text-sm font-medium focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary" placeholder="+966 50 000 0000">
+                            <input type="tel" name="phone" id="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" class="w-full px-4 py-2.5 rounded-xl border border-brand-border bg-brand-surface text-sm font-medium focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary" placeholder="+218 91 000 0000">
                         </div>
 
                         <div>
                             <label class="block text-sm font-bold text-brand-text mb-2" for="address">
                                 <?php echo __('Location / City'); ?>
                             </label>
-                            <input type="text" name="address" id="address" value="<?php echo htmlspecialchars($user['address'] ?? ''); ?>" class="w-full px-4 py-2.5 rounded-xl border border-brand-border bg-brand-surface text-sm font-medium focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary" placeholder="<?php echo __('e.g., Riyadh, Olaya'); ?>">
+                            <input type="text" name="address" id="address" value="<?php echo htmlspecialchars($user['address'] ?? ''); ?>" class="w-full px-4 py-2.5 rounded-xl border border-brand-border bg-brand-surface text-sm font-medium focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary" placeholder="<?php echo __('e.g., Tripoli, Benghazi, Misrata'); ?>">
                         </div>
                     </div>
 
