@@ -97,20 +97,30 @@ renderHead(['title' => __('Create Account') . ' - ' . __('Dabberha')]);
                 <form method="POST" class="space-y-4">
                     <!-- Role Selection Radio Cards -->
                     <div>
-                        <label class="block text-xs font-bold text-on-background mb-2"><?php echo __('I want to'); ?> <span class="text-error">*</span></label>
-                        <div class="grid grid-cols-2 gap-3">
-                            <label class="border border-outline-variant rounded-xl p-3.5 flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-all text-center has-checked:border-primary has-checked:bg-primary-fixed/30 has-checked:text-primary">
-                                <input type="radio" name="role" value="customer" class="sr-only" <?php echo (!isset($_POST['role']) || $_POST['role'] === 'customer') ? 'checked' : ''; ?>>
-                                <i class="fa-regular fa-user text-xl mb-1.5"></i>
-                                <span class="text-xs font-bold"><?php echo __('Find Services'); ?></span>
-                                <span class="text-[10px] text-on-surface-variant"><?php echo __('Customer'); ?></span>
+                        <label class="block text-xs font-bold text-on-background mb-2"><?php echo __('Account Type'); ?> <span class="text-error">*</span></label>
+                        <div class="grid grid-cols-2 gap-3" id="roleContainer">
+                            <label id="label-customer" class="relative border-2 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition-all text-center select-none <?php echo (!isset($_POST['role']) || $_POST['role'] === 'customer') ? 'border-primary bg-[#fff1ec] text-primary shadow-xs' : 'border-outline-variant/60 bg-surface-container-lowest text-on-surface-variant hover:border-outline-variant'; ?>">
+                                <input type="radio" name="role" value="customer" id="role-customer" class="sr-only" <?php echo (!isset($_POST['role']) || $_POST['role'] === 'customer') ? 'checked' : ''; ?>>
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center mb-2 <?php echo (!isset($_POST['role']) || $_POST['role'] === 'customer') ? 'bg-primary text-white' : 'bg-surface-container text-on-surface-variant'; ?>" id="icon-customer">
+                                    <i class="fa-regular fa-user text-base"></i>
+                                </div>
+                                <span class="text-xs font-bold text-on-background"><?php echo __('Customer'); ?></span>
+                                <span class="text-[11px] text-on-surface-variant mt-0.5"><?php echo __('Find Services'); ?></span>
+                                <span class="absolute top-2 left-2 text-primary <?php echo (!isset($_POST['role']) || $_POST['role'] === 'customer') ? '' : 'hidden'; ?>" id="check-customer">
+                                    <i class="fa-solid fa-circle-check text-sm"></i>
+                                </span>
                             </label>
 
-                            <label class="border border-outline-variant rounded-xl p-3.5 flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-all text-center has-checked:border-primary has-checked:bg-primary-fixed/30 has-checked:text-primary">
-                                <input type="radio" name="role" value="provider" class="sr-only" <?php echo (isset($_POST['role']) && $_POST['role'] === 'provider') ? 'checked' : ''; ?>>
-                                <i class="fa-solid fa-briefcase text-xl mb-1.5"></i>
-                                <span class="text-xs font-bold"><?php echo __('Offer Services'); ?></span>
-                                <span class="text-[10px] text-on-surface-variant"><?php echo __('Service Provider'); ?></span>
+                            <label id="label-provider" class="relative border-2 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition-all text-center select-none <?php echo (isset($_POST['role']) && $_POST['role'] === 'provider') ? 'border-primary bg-[#fff1ec] text-primary shadow-xs' : 'border-outline-variant/60 bg-surface-container-lowest text-on-surface-variant hover:border-outline-variant'; ?>">
+                                <input type="radio" name="role" value="provider" id="role-provider" class="sr-only" <?php echo (isset($_POST['role']) && $_POST['role'] === 'provider') ? 'checked' : ''; ?>>
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center mb-2 <?php echo (isset($_POST['role']) && $_POST['role'] === 'provider') ? 'bg-primary text-white' : 'bg-surface-container text-on-surface-variant'; ?>" id="icon-provider">
+                                    <i class="fa-solid fa-briefcase text-base"></i>
+                                </div>
+                                <span class="text-xs font-bold text-on-background"><?php echo __('Service Provider'); ?></span>
+                                <span class="text-[11px] text-on-surface-variant mt-0.5"><?php echo __('Offer Services'); ?></span>
+                                <span class="absolute top-2 left-2 text-primary <?php echo (isset($_POST['role']) && $_POST['role'] === 'provider') ? '' : 'hidden'; ?>" id="check-provider">
+                                    <i class="fa-solid fa-circle-check text-sm"></i>
+                                </span>
                             </label>
                         </div>
                     </div>
@@ -163,6 +173,48 @@ renderHead(['title' => __('Create Account') . ' - ' . __('Dabberha')]);
 
                 <script>
                 document.addEventListener('DOMContentLoaded', function() {
+                    // Role Selection Interactive Logic
+                    const roleCustomer = document.getElementById('role-customer');
+                    const roleProvider = document.getElementById('role-provider');
+                    const labelCustomer = document.getElementById('label-customer');
+                    const labelProvider = document.getElementById('label-provider');
+                    const iconCustomer = document.getElementById('icon-customer');
+                    const iconProvider = document.getElementById('icon-provider');
+                    const checkCustomer = document.getElementById('check-customer');
+                    const checkProvider = document.getElementById('check-provider');
+
+                    function updateRoleUI() {
+                        if (roleCustomer && roleCustomer.checked) {
+                            labelCustomer.className = 'relative border-2 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition-all text-center select-none border-primary bg-[#fff1ec] text-primary shadow-xs';
+                            iconCustomer.className = 'w-10 h-10 rounded-full flex items-center justify-center mb-2 bg-primary text-white';
+                            checkCustomer.classList.remove('hidden');
+
+                            labelProvider.className = 'relative border-2 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition-all text-center select-none border-outline-variant/60 bg-surface-container-lowest text-on-surface-variant hover:border-outline-variant';
+                            iconProvider.className = 'w-10 h-10 rounded-full flex items-center justify-center mb-2 bg-surface-container text-on-surface-variant';
+                            checkProvider.classList.add('hidden');
+                        } else if (roleProvider && roleProvider.checked) {
+                            labelProvider.className = 'relative border-2 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition-all text-center select-none border-primary bg-[#fff1ec] text-primary shadow-xs';
+                            iconProvider.className = 'w-10 h-10 rounded-full flex items-center justify-center mb-2 bg-primary text-white';
+                            checkProvider.classList.remove('hidden');
+
+                            labelCustomer.className = 'relative border-2 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition-all text-center select-none border-outline-variant/60 bg-surface-container-lowest text-on-surface-variant hover:border-outline-variant';
+                            iconCustomer.className = 'w-10 h-10 rounded-full flex items-center justify-center mb-2 bg-surface-container text-on-surface-variant';
+                            checkCustomer.classList.add('hidden');
+                        }
+                    }
+
+                    if (labelCustomer && labelProvider) {
+                        labelCustomer.addEventListener('click', function() {
+                            roleCustomer.checked = true;
+                            updateRoleUI();
+                        });
+                        labelProvider.addEventListener('click', function() {
+                            roleProvider.checked = true;
+                            updateRoleUI();
+                        });
+                    }
+
+                    // Password Validation Logic
                     const pass = document.getElementById('password');
                     const confirmPass = document.getElementById('confirm_password');
                     const passHint = document.getElementById('pass-hint');

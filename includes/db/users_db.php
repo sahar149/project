@@ -49,6 +49,12 @@ function getAllUsers(?string $role = null, ?int $limit = null, int $offset = 0):
 
 function createUser(array $data): int {
     global $pdo;
+    $raw_password = (string)($data['password'] ?? '');
+    $password_info = password_get_info($raw_password);
+    $hashed_password = ($password_info['algo'] === 0) 
+        ? password_hash($raw_password, PASSWORD_DEFAULT) 
+        : $raw_password;
+
     $stmt = $pdo->prepare("
         INSERT INTO users (name, email, password, role, phone, address, status)
         VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -56,7 +62,7 @@ function createUser(array $data): int {
     $stmt->execute([
         trim($data['name']),
         trim($data['email']),
-        $data['password'],
+        $hashed_password,
         $data['role'] ?? 'customer',
         trim($data['phone'] ?? ''),
         trim($data['address'] ?? ''),
