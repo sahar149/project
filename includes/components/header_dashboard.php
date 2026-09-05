@@ -44,15 +44,14 @@ function renderDashboardHeader(array $params = []): void {
                 <div class="flex items-center gap-4">
                     <?php if ($role === 'provider'): ?>
                         <a href="<?php echo htmlspecialchars($notif_url, ENT_QUOTES, 'UTF-8'); ?>" 
+                           id="header-notif-btn"
                            class="w-10 h-10 rounded-xl bg-brand-surface hover:bg-brand-surfaceAlt border border-brand-border flex items-center justify-center text-brand-textMuted hover:text-brand-primary relative transition-all" 
                            aria-label="<?php echo __('View notifications'); ?>"
                            title="<?php echo __('View notifications'); ?>">
                             <i class="fa-regular fa-bell text-lg"></i>
-                            <?php if ($unread_count > 0): ?>
-                                <span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-danger text-[9px] font-bold text-white ring-2 ring-white">
-                                    <?php echo $unread_count > 9 ? '9+' : $unread_count; ?>
-                                </span>
-                            <?php endif; ?>
+                            <span id="header-notif-badge" class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-danger text-[9px] font-bold text-white ring-2 ring-white <?php echo $unread_count > 0 ? '' : 'hidden'; ?>">
+                                <?php echo $unread_count > 9 ? '9+' : $unread_count; ?>
+                            </span>
                         </a>
                     <?php endif; ?>
 

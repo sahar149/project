@@ -26,11 +26,13 @@ function getProviderReviews(int $provider_id): array {
     global $pdo;
     $stmt = $pdo->prepare("
         SELECT r.*, 
-               u.name AS customer_name, 
-               s.title AS service_title 
+               COALESCE(u.name, 'عميل') AS customer_name, 
+               COALESCE(s.title, sb.title, 'خدمة منجزة') AS service_title 
         FROM reviews r 
-        JOIN users u ON r.customer_id = u.id 
-        JOIN services s ON r.service_id = s.id 
+        LEFT JOIN users u ON r.customer_id = u.id 
+        LEFT JOIN services s ON r.service_id = s.id 
+        LEFT JOIN bookings b ON r.booking_id = b.id
+        LEFT JOIN services sb ON b.service_id = sb.id
         WHERE r.provider_id = ? 
         ORDER BY r.created_at DESC
     ");
@@ -42,13 +44,15 @@ function getAllReviews(): array {
     global $pdo;
     $stmt = $pdo->query("
         SELECT r.*, 
-               u.name AS customer_name, 
-               s.title AS service_title, 
-               p.name AS provider_name
+               COALESCE(u.name, 'عميل') AS customer_name, 
+               COALESCE(s.title, sb.title, 'خدمة منجزة') AS service_title, 
+               COALESCE(p.name, 'مزود خدمة') AS provider_name
         FROM reviews r
-        JOIN users u ON r.customer_id = u.id
-        JOIN services s ON r.service_id = s.id
-        JOIN users p ON r.provider_id = p.id
+        LEFT JOIN users u ON r.customer_id = u.id
+        LEFT JOIN services s ON r.service_id = s.id
+        LEFT JOIN bookings b ON r.booking_id = b.id
+        LEFT JOIN services sb ON b.service_id = sb.id
+        LEFT JOIN users p ON r.provider_id = p.id
         ORDER BY r.created_at DESC
     ");
     return $stmt->fetchAll(PDO::FETCH_ASSOC);

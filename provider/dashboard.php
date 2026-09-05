@@ -20,8 +20,37 @@ requireRole('provider');
 $provider_id = getUserId();
 $provider_name = getUserName();
 
+// Handle Notification Actions (AJAX & Standard POST)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    $action = $_POST['action'];
+    $is_ajax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || isset($_POST['ajax']);
+
+    if ($action === 'mark_notif_read') {
+        $notif_id = (int)($_POST['notification_id'] ?? 0);
+        if ($notif_id > 0) {
+            markAsRead($notif_id, $provider_id);
+        }
+    } elseif ($action === 'mark_all_read') {
+        markAllAsRead($provider_id);
+    }
+
+    $unread_count = getUnreadCount($provider_id);
+
+    if ($is_ajax) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => true,
+            'unread_count' => $unread_count
+        ]);
+        exit;
+    }
+
+    header('Location: dashboard.php#notifications');
+    exit;
+}
+
 $unread_count = getUnreadCount($provider_id);
-$notifications = getNotifications($provider_id, 5);
+$notifications = getNotifications($provider_id, 15);
 
 // Provider Statistics
 $total_services = getServicesCount($provider_id);
@@ -191,24 +220,43 @@ renderHead(['title' => __('Provider Dashboard - Dabberha')]);
                 <!-- Right Col: Notifications Center -->
                 <div class="space-y-6" id="notifications">
                     <div class="bg-white rounded-2xl shadow-soft border border-brand-border overflow-hidden flex flex-col">
-                        <div class="p-5 border-b border-brand-border flex items-center justify-between bg-brand-surface/60">
-                            <h3 class="font-bold text-sm text-brand-900 flex items-center gap-2">
-                                <i class="fa-regular fa-bell text-brand-primary"></i>
-                                <span><?php echo __('Notifications'); ?></span>
-                            </h3>
-                            <?php if ($unread_count > 0): ?>
-                                <span class="bg-brand-dangerLight text-brand-danger text-[10px] font-black px-2 py-0.5 rounded-full">
-                                    <?php echo $unread_count; ?> <?php echo __('new'); ?>
+                        <div class="p-4 sm:p-5 border-b border-brand-border flex items-center justify-between bg-brand-surface/60">
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-bold text-sm text-brand-900 flex items-center gap-2">
+                                    <i class="fa-regular fa-bell text-brand-primary"></i>
+                                    <span><?php echo __('Notifications'); ?></span>
+                                </h3>
+                                <span id="notif-badge-count" class="bg-brand-dangerLight text-brand-danger text-[10px] font-black px-2 py-0.5 rounded-full transition-all <?php echo $unread_count > 0 ? '' : 'hidden'; ?>">
+                                    <span id="notif-unread-num"><?php echo $unread_count; ?></span> <?php echo __('new'); ?>
                                 </span>
-                            <?php endif; ?>
+                            </div>
+                            
+                            <button type="button" id="mark-all-read-btn" class="text-xs font-bold text-brand-primary hover:text-brand-primaryHover flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-brand-primaryLight/50 transition-all <?php echo $unread_count > 0 ? '' : 'hidden'; ?>">
+                                <i class="fa-solid fa-check-double text-[11px]"></i>
+                                <span><?php echo __('Mark all as read'); ?></span>
+                            </button>
                         </div>
 
-                        <div class="p-4 space-y-3 max-h-[450px] overflow-y-auto">
+                        <div class="p-4 space-y-3 max-h-[450px] overflow-y-auto" id="notif-list-container">
                             <?php if (count($notifications) > 0): ?>
                                 <?php foreach ($notifications as $notif): ?>
-                                    <div class="p-3.5 rounded-xl border text-xs leading-relaxed <?php echo $notif['is_read'] ? 'bg-brand-surface/30 border-brand-border text-brand-textMuted' : 'bg-brand-primaryLight/50 border-brand-primary/30 text-brand-900 font-medium'; ?>">
-                                        <p class="mb-1"><?php echo htmlspecialchars($notif['message']); ?></p>
-                                        <span class="text-[10px] text-brand-textLight"><?php echo date('Y-m-d H:i', strtotime($notif['created_at'])); ?></span>
+                                    <div class="notif-item p-3.5 rounded-xl border text-xs leading-relaxed transition-all duration-200 <?php echo $notif['is_read'] ? 'is-read bg-brand-surface/30 border-brand-border text-brand-textMuted opacity-70 cursor-default' : 'is-unread bg-brand-primaryLight/40 border-brand-primary/40 text-brand-900 font-semibold shadow-xs hover:bg-brand-primaryLight/70 cursor-pointer'; ?>"
+                                         data-notif-id="<?php echo $notif['id']; ?>"
+                                         data-is-read="<?php echo $notif['is_read'] ? '1' : '0'; ?>"
+                                         title="<?php echo $notif['is_read'] ? '' : __('Click to mark as read'); ?>">
+                                        <div class="flex items-start justify-between gap-2">
+                                            <div class="flex items-start gap-2 flex-1">
+                                                <span class="notif-dot mt-1 w-2 h-2 rounded-full bg-brand-primary flex-shrink-0 <?php echo $notif['is_read'] ? 'hidden' : ''; ?>"></span>
+                                                <p class="notif-text mb-1 flex-1 leading-snug"><?php echo htmlspecialchars(formatNotificationMessage($notif['message']), ENT_QUOTES, 'UTF-8'); ?></p>
+                                            </div>
+                                            <span class="notif-status-icon text-green-600 text-xs flex-shrink-0 <?php echo $notif['is_read'] ? '' : 'hidden'; ?>">
+                                                <i class="fa-solid fa-check"></i>
+                                            </span>
+                                        </div>
+                                        <div class="flex items-center justify-between text-[10px] text-brand-textLight mt-1 pr-4">
+                                            <span><?php echo date('Y-m-d H:i', strtotime($notif['created_at'])); ?></span>
+                                            <span class="notif-hint text-brand-primary text-[10px] font-medium <?php echo $notif['is_read'] ? 'hidden' : ''; ?>"><?php echo __('Click to mark as read'); ?></span>
+                                        </div>
                                     </div>
                                 <?php endforeach; ?>
                             <?php else: ?>
@@ -223,5 +271,106 @@ renderHead(['title' => __('Provider Dashboard - Dabberha')]);
         </main>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const markAllBtn = document.getElementById('mark-all-read-btn');
+    const notifBadgeCount = document.getElementById('notif-badge-count');
+    const notifUnreadNum = document.getElementById('notif-unread-num');
+    const headerNotifBadge = document.getElementById('header-notif-badge');
+    const notifItems = document.querySelectorAll('.notif-item');
+
+    function updateBadgeCounts(count) {
+        if (count > 0) {
+            if (notifUnreadNum) notifUnreadNum.textContent = count;
+            if (notifBadgeCount) notifBadgeCount.classList.remove('hidden');
+            if (markAllBtn) markAllBtn.classList.remove('hidden');
+            if (headerNotifBadge) {
+                headerNotifBadge.textContent = count > 9 ? '9+' : count;
+                headerNotifBadge.classList.remove('hidden');
+            }
+        } else {
+            if (notifBadgeCount) notifBadgeCount.classList.add('hidden');
+            if (markAllBtn) markAllBtn.classList.add('hidden');
+            if (headerNotifBadge) headerNotifBadge.classList.add('hidden');
+        }
+    }
+
+    function setItemAsRead(item) {
+        if (!item || item.dataset.isRead === '1') return;
+        item.dataset.isRead = '1';
+        item.className = 'notif-item p-3.5 rounded-xl border text-xs leading-relaxed transition-all duration-200 is-read bg-brand-surface/30 border-brand-border text-brand-textMuted opacity-70 cursor-default';
+        item.title = '';
+        
+        const dot = item.querySelector('.notif-dot');
+        if (dot) dot.classList.add('hidden');
+
+        const hint = item.querySelector('.notif-hint');
+        if (hint) hint.classList.add('hidden');
+
+        const statusIcon = item.querySelector('.notif-status-icon');
+        if (statusIcon) statusIcon.classList.remove('hidden');
+    }
+
+    // Individual click to mark as read
+    notifItems.forEach(function(item) {
+        item.addEventListener('click', function() {
+            if (this.dataset.isRead === '1') return;
+            const notifId = this.dataset.notifId;
+            if (!notifId) return;
+
+            setItemAsRead(this);
+
+            // Calculate optimistic count
+            const currentUnread = document.querySelectorAll('.notif-item[data-is-read="0"]').length;
+            updateBadgeCounts(currentUnread);
+
+            const formData = new FormData();
+            formData.append('action', 'mark_notif_read');
+            formData.append('notification_id', notifId);
+            formData.append('ajax', '1');
+
+            fetch('dashboard.php', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data && typeof data.unread_count !== 'undefined') {
+                    updateBadgeCounts(data.unread_count);
+                }
+            })
+            .catch(err => console.error('Error marking notification as read:', err));
+        });
+    });
+
+    // Mark all as read button
+    if (markAllBtn) {
+        markAllBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            notifItems.forEach(setItemAsRead);
+            updateBadgeCounts(0);
+
+            const formData = new FormData();
+            formData.append('action', 'mark_all_read');
+            formData.append('ajax', '1');
+
+            fetch('dashboard.php', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data && typeof data.unread_count !== 'undefined') {
+                    updateBadgeCounts(data.unread_count);
+                }
+            })
+            .catch(err => console.error('Error marking all notifications as read:', err));
+        });
+    }
+});
+</script>
 </body>
 </html>
