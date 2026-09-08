@@ -26,16 +26,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $address = trim($_POST['address'] ?? '');
 
     if (empty($name)) {
-        $error = 'Name is required';
+        $error = __('Name is required');
     } else {
         if (updateUserProfile($provider_id, ['name' => $name, 'phone' => $phone, 'address' => $address])) {
-            $success = 'Profile updated successfully!';
+            $success = __('Profile updated successfully!');
             $_SESSION['user_name'] = $name;
             $user['name'] = $name;
             $user['phone'] = $phone;
             $user['address'] = $address;
         } else {
-            $error = 'Failed to update profile.';
+            $error = __('Failed to update profile.');
         }
     }
 }

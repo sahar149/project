@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $price_type = $_POST['price_type'] ?? 'fixed';
 
     if (empty($title) || empty($description) || $price <= 0 || $category_id <= 0) {
-        $error = 'Please fill all fields correctly';
+        $error = __('Please fill all fields correctly');
     } else {
         $updated = updateService($service_id, $provider_id, [
             'category_id' => $category_id,
@@ -53,14 +53,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         if ($updated) {
-            $success = 'Service updated successfully!';
+            $success = __('Service updated successfully!');
             $service['category_id'] = $category_id;
             $service['title'] = $title;
             $service['description'] = $description;
             $service['price'] = $price;
             $service['price_type'] = $price_type;
         } else {
-            $error = 'Failed to update service. Please try again.';
+            $error = __('Failed to update service. Please try again.');
         }
     }
 }

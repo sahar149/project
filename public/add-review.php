@@ -45,9 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $comment = trim($_POST['comment'] ?? '');
 
     if ($rating < 1 || $rating > 5) {
-        $error = 'Please select a rating between 1 and 5 stars.';
+        $error = __('Please select a rating between 1 and 5 stars.');
     } elseif (empty($comment)) {
-        $error = 'Please write a comment.';
+        $error = __('Please write a comment.');
     } else {
         $review_id = createReview([
             'booking_id' => $booking_id,
@@ -59,9 +59,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         if ($review_id > 0) {
-            $success = 'Thank you for your review!';
+            $success = __('Thank you for your review!');
         } else {
-            $error = 'Failed to save review. Please try again.';
+            $error = __('Failed to save review. Please try again.');
         }
     }
 }

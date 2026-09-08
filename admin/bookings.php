@@ -27,7 +27,7 @@ if (isset($_POST['update_status']) && isset($_POST['booking_id']) && isset($_POS
     
     if (in_array($status, $allowed, true)) {
         if (updateBookingStatus($booking_id, $status)) {
-            $message = 'Booking status updated!';
+            $message = __('Booking status updated!');
             $message_type = 'success';
         }
     }
@@ -37,7 +37,7 @@ if (isset($_POST['update_status']) && isset($_POST['booking_id']) && isset($_POS
 if (isset($_GET['delete']) && isset($_GET['id'])) {
     $booking_id = (int)$_GET['id'];
     if (deleteBooking($booking_id)) {
-        $message = 'Booking deleted!';
+        $message = __('Booking deleted!');
         $message_type = 'success';
     }
 }
@@ -77,7 +77,7 @@ renderHead(['title' => __('Manage Bookings') . ' - ' . __('Admin Panel')]);
                     <table class="w-full text-right border-collapse whitespace-nowrap">
                         <thead>
                             <tr class="border-b border-brand-border bg-brand-surface/60 text-brand-text font-bold text-xs">
-                                <th class="py-4 px-6">ID</th>
+                                <th class="py-4 px-6"><?php echo __('ID'); ?></th>
                                 <th class="py-4 px-6"><?php echo __('Customer'); ?></th>
                                 <th class="py-4 px-6"><?php echo __('Service'); ?></th>
                                 <th class="py-4 px-6"><?php echo __('Provider'); ?></th>

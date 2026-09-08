@@ -23,7 +23,7 @@ $message_type = '';
 if (isset($_GET['delete']) && isset($_GET['id'])) {
     $service_id = (int)$_GET['id'];
     if (deleteService($service_id)) {
-        $message = 'Service deleted successfully!';
+        $message = __('Service deleted successfully!');
         $message_type = 'success';
     }
 }
@@ -63,7 +63,7 @@ renderHead(['title' => __('Manage Services') . ' - ' . __('Admin Panel')]);
                     <table class="w-full text-right border-collapse whitespace-nowrap">
                         <thead>
                             <tr class="border-b border-brand-border bg-brand-surface/60 text-brand-text font-bold text-xs">
-                                <th class="py-4 px-6">ID</th>
+                                <th class="py-4 px-6"><?php echo __('ID'); ?></th>
                                 <th class="py-4 px-6"><?php echo __('Title'); ?></th>
                                 <th class="py-4 px-6"><?php echo __('Category'); ?></th>
                                 <th class="py-4 px-6"><?php echo __('Provider'); ?></th>

@@ -23,7 +23,7 @@ $message_type = '';
 if (isset($_GET['delete']) && isset($_GET['id'])) {
     $review_id = (int)$_GET['id'];
     if (deleteReview($review_id)) {
-        $message = 'Review deleted successfully!';
+        $message = __('Review deleted successfully!');
         $message_type = 'success';
     }
 }
@@ -92,7 +92,7 @@ renderHead(['title' => __('Manage Reviews') . ' - ' . __('Admin Panel')]);
                     <table class="w-full text-right border-collapse whitespace-nowrap">
                         <thead>
                             <tr class="border-b border-brand-border bg-brand-surface/60 text-brand-text font-bold text-xs">
-                                <th class="py-4 px-6">ID</th>
+                                <th class="py-4 px-6"><?php echo __('ID'); ?></th>
                                 <th class="py-4 px-6"><?php echo __('Customer'); ?></th>
                                 <th class="py-4 px-6"><?php echo __('Provider'); ?></th>
                                 <th class="py-4 px-6"><?php echo __('Service'); ?></th>

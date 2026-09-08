@@ -27,7 +27,7 @@ if (isset($_GET['toggle_status']) && isset($_GET['id'])) {
     if ($user) {
         $new_status = ($user['status'] === 'active') ? 'inactive' : 'active';
         if (updateUserStatus($user_id, $new_status)) {
-            $message = 'User status updated successfully!';
+            $message = __('User status updated successfully!');
             $message_type = 'success';
         }
     }
@@ -39,7 +39,7 @@ if (isset($_GET['delete']) && isset($_GET['id'])) {
     $user = getUserById($user_id);
     if ($user && $user['role'] !== 'admin') {
         if (deleteUser($user_id)) {
-            $message = 'User deleted successfully!';
+            $message = __('User deleted successfully!');
             $message_type = 'success';
         }
     }
@@ -80,7 +80,7 @@ renderHead(['title' => __('Manage Users') . ' - ' . __('Admin Panel')]);
                     <table class="w-full text-right border-collapse whitespace-nowrap">
                         <thead>
                             <tr class="border-b border-brand-border bg-brand-surface/60 text-brand-text font-bold text-xs">
-                                <th class="py-4 px-6">ID</th>
+                                <th class="py-4 px-6"><?php echo __('ID'); ?></th>
                                 <th class="py-4 px-6"><?php echo __('Name'); ?></th>
                                 <th class="py-4 px-6"><?php echo __('Email'); ?></th>
                                 <th class="py-4 px-6"><?php echo __('Role'); ?></th>

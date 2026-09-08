@@ -248,12 +248,13 @@ renderHead(['title' => __('Create Account') . ' - ' . __('Dabberha')]);
 
             <div class="mt-6 pt-6 border-t border-surface-variant text-center space-y-3">
                 <p class="text-xs text-on-surface-variant">
-                    <?php echo __('Already have an account?'); ?>
+                    <span><?php echo __('Already have an account?'); ?></span>
                     <a href="login.php" class="font-bold text-primary hover:underline"><?php echo __('Sign in'); ?></a>
                 </p>
                 <div>
-                    <a href="/local-services-platform/index.php" class="text-xs text-on-surface-variant hover:text-primary transition-colors">
-                        ← <?php echo __('Back to Home'); ?>
+                    <a href="/local-services-platform/index.php" class="text-xs text-on-surface-variant hover:text-primary transition-colors inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        <span><?php echo __('Back to Home'); ?></span>
                     </a>
                 </div>
             </div>

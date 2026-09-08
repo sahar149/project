@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status'])) {
 
     if (in_array($new_status, $allowed, true)) {
         if (updateBookingStatus($booking_id, $new_status, $provider_id)) {
-            $message = 'Booking status updated successfully!';
+            $message = __('Booking status updated successfully!');
             $message_type = 'success';
             $booking['status'] = $new_status;
 

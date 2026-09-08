@@ -59,7 +59,7 @@ function renderPublicFooter(array $params = []): void {
         </div>
 
         <div class="max-w-7xl mx-auto px-6 mt-12 pt-8 border-t border-brand-800 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-brand-400">
-            <p>&copy; <?php echo date('Y'); ?> <?php echo __('Dabberha. All rights reserved.'); ?></p>
+            <p>&copy; 2026 - 2027 <?php echo __('Dabberha. All rights reserved.'); ?></p>
             <div class="flex items-center gap-6">
                 <span><?php echo __('Made with excellence for our local community'); ?></span>
             </div>

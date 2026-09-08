@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $price_type = $_POST['price_type'] ?? 'fixed';
 
     if (empty($title) || empty($description) || $price <= 0 || $category_id <= 0) {
-        $error = 'Please fill all fields correctly';
+        $error = __('Please fill all fields correctly');
     } else {
         $created_id = createService([
             'provider_id' => $provider_id,
@@ -41,9 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         if ($created_id > 0) {
-            $success = 'Service added successfully!';
+            $success = __('Service added successfully!');
         } else {
-            $error = 'Failed to add service. Please try again.';
+            $error = __('Failed to add service. Please try again.');
         }
     }
 }

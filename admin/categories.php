@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_category'])) {
     
     if (!empty($name)) {
         if (createCategory($name, $icon)) {
-            $message = 'Category added successfully!';
+            $message = __('Category added successfully!');
             $message_type = 'success';
         }
     }
@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_category'])) {
 if (isset($_GET['delete']) && isset($_GET['id'])) {
     $category_id = (int)$_GET['id'];
     if (deleteCategory($category_id)) {
-        $message = 'Category deleted successfully!';
+        $message = __('Category deleted successfully!');
         $message_type = 'success';
     }
 }

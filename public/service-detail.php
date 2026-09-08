@@ -57,7 +57,7 @@ $reviews = $stmt->fetchAll();
 $review_word = ($service['review_count'] == 1) ? __('Review') : __('Reviews');
 $service_icon = getCategoryFAIcon($service['category_name'], $service['category_icon'] ?? '');
 
-renderHead(['title' => $service['title'] . ' - Dabberha']);
+renderHead(['title' => $service['title'] . ' - ' . __('Dabberha')]);
 renderPublicNavbar(['active_page' => 'services']);
 ?>
 
