@@ -16,7 +16,7 @@ $translations = [
     
     // ===== القائمة (Navbar) =====
     'Find Services' => 'البحث عن خدمات',
-    'How it Works' => 'كيف يعمل',
+    'How it Works' => 'كيف تعمل المنصة',
     'Categories' => 'التصنيفات',
     'About' => 'حول',
     'Contact Us' => 'اتصل بنا',
@@ -62,8 +62,8 @@ $translations = [
     'Moving' => 'نقل',
     'Painting' => 'دهان',
     
-    // ===== كيف يعمل (How it Works) =====
-    'How Dabberha Works' => 'كيف يعمل دبرها',
+    // ===== كيف تعمل المنصة (How it Works) =====
+    'How Dabberha Works' => 'كيف تعمل دبرها',
     'Getting the help you need is simple.' => 'الحصول على المساعدة التي تحتاجها سهل.',
     'STEP 01' => 'الخطوة 01',
     'Find a Service' => 'ابحث عن خدمة',
@@ -253,14 +253,14 @@ $translations = [
 'My Bookings' => 'حجوزاتي',
 'Dabberha' => 'دبرها',
 'About' => 'حول',
-'How it Works' => 'كيف يعمل',
+'How it Works' => 'كيف تعمل المنصة',
 'Find Services' => 'البحث عن خدمات',
 'Contact Us' => 'اتصل بنا',
 'Privacy Policy' => 'سياسة الخصوصية',
 'Terms of Service' => 'شروط الخدمة',
 'Find Services' => 'تصفح الخدمات',
 'My Bookings' => 'حجوزاتي',
-'How it Works' => 'كيف يعمل الموقع',
+'How it Works' => 'كيف تعمل المنصة',
 'Become a Provider' => 'كن مقدم خدمة',
 'Logout' => 'تسجيل الخروج',
 'Sign In' => 'تسجيل الدخول',
@@ -356,7 +356,7 @@ $translations = [
 'Ready to get things done? Explore our local services to find the help you need.' => 'مستعد لإنجاز المهام؟ استكشف خدماتنا المحلية لتجد المساعدة التي تحتاجها.',
 'Browse Services' => 'تصفح الخدمات',
 'Find Services' => 'تصفح الخدمات',
-'How it Works' => 'كيف يعمل الموقع',
+'How it Works' => 'كيف تعمل المنصة',
 'Logout' => 'تسجيل الخروج',
 'All rights reserved.' => 'جميع الحقوق محفوظة.',
 'Privacy Policy' => 'سياسة الخصوصية',
