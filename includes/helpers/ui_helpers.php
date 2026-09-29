@@ -260,3 +260,67 @@ function getCategoryFAIcon(string $category_name = '', string $category_icon = '
 
     return 'fa-solid fa-wrench';
 }
+
+/**
+ * Return list of standard Libyan cities with default GPS coordinates.
+ *
+ * @return array<string, array{name: string, lat: float, lng: float}>
+ */
+function getLibyanCities(): array {
+    return [
+        'طرابلس' => ['name' => 'طرابلس', 'lat' => 32.8872, 'lng' => 13.1913],
+        'بنغازي' => ['name' => 'بنغازي', 'lat' => 32.1167, 'lng' => 20.0667],
+        'مصراتة' => ['name' => 'مصراتة', 'lat' => 32.3754, 'lng' => 15.0925],
+        'الزاوية' => ['name' => 'الزاوية', 'lat' => 32.7522, 'lng' => 12.7278],
+        'زليتن' => ['name' => 'زليتن', 'lat' => 32.4674, 'lng' => 14.5687],
+        'البيضاء' => ['name' => 'البيضاء', 'lat' => 32.7628, 'lng' => 21.7551],
+        'طبرق' => ['name' => 'طبرق', 'lat' => 32.0836, 'lng' => 23.9764],
+        'سبها' => ['name' => 'سبها', 'lat' => 27.0377, 'lng' => 14.4283],
+        'الخمس' => ['name' => 'الخمس', 'lat' => 32.6486, 'lng' => 14.2619],
+        'صبراتة' => ['name' => 'صبراتة', 'lat' => 32.7933, 'lng' => 12.4886],
+        'سرت' => ['name' => 'سرت', 'lat' => 31.2089, 'lng' => 16.5887],
+        'غريان' => ['name' => 'غريان', 'lat' => 32.1722, 'lng' => 13.0203],
+        'درنة' => ['name' => 'درنة', 'lat' => 32.7670, 'lng' => 22.6367],
+        'ترهونة' => ['name' => 'ترهونة', 'lat' => 32.4350, 'lng' => 13.6332],
+        'تاجوراء' => ['name' => 'تاجوراء', 'lat' => 32.8817, 'lng' => 13.3442],
+        'جنزور' => ['name' => 'جنزور', 'lat' => 32.8175, 'lng' => 13.0125],
+    ];
+}
+
+/**
+ * Format distance in kilometers nicely for display.
+ *
+ * @param float|null $km
+ * @return string
+ */
+function formatDistance(?float $km): string {
+    if ($km === null || $km < 0) {
+        return '';
+    }
+    if ($km < 1.0) {
+        $meters = round($km * 1000);
+        return $meters . ' ' . __('meters away');
+    }
+    return number_format($km, 1) . ' ' . __('km away');
+}
+
+/**
+ * Pure PHP calculation of Haversine distance between two coordinates in KM.
+ *
+ * @param float $lat1
+ * @param float $lng1
+ * @param float $lat2
+ * @param float $lng2
+ * @return float Distance in KM
+ */
+function calculateHaversineDistance(float $lat1, float $lng1, float $lat2, float $lng2): float {
+    $earth_radius = 6371; // km
+    $dLat = deg2rad($lat2 - $lat1);
+    $dLng = deg2rad($lng2 - $lng1);
+    $a = sin($dLat / 2) * sin($dLat / 2) +
+         cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+         sin($dLng / 2) * sin($dLng / 2);
+    $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+    return $earth_radius * $c;
+}
+

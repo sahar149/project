@@ -55,9 +55,13 @@ function createUser(array $data): int {
         ? password_hash($raw_password, PASSWORD_DEFAULT) 
         : $raw_password;
 
+    $lat = (isset($data['latitude']) && $data['latitude'] !== '' && $data['latitude'] !== null) ? (float)$data['latitude'] : null;
+    $lng = (isset($data['longitude']) && $data['longitude'] !== '' && $data['longitude'] !== null) ? (float)$data['longitude'] : null;
+    $city = trim($data['city'] ?? '');
+
     $stmt = $pdo->prepare("
-        INSERT INTO users (name, email, password, role, phone, address, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO users (name, email, password, role, phone, address, city, latitude, longitude, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     $stmt->execute([
         trim($data['name']),
@@ -66,6 +70,9 @@ function createUser(array $data): int {
         $data['role'] ?? 'customer',
         trim($data['phone'] ?? ''),
         trim($data['address'] ?? ''),
+        $city,
+        $lat,
+        $lng,
         $data['status'] ?? 'active'
     ]);
     return (int)$pdo->lastInsertId();
@@ -97,6 +104,18 @@ function updateUserProfile(int $id, array $data): bool {
     if (isset($data['address'])) {
         $fields[] = "address = ?";
         $params[] = trim($data['address']);
+    }
+    if (isset($data['city'])) {
+        $fields[] = "city = ?";
+        $params[] = trim($data['city']);
+    }
+    if (array_key_exists('latitude', $data)) {
+        $fields[] = "latitude = ?";
+        $params[] = ($data['latitude'] !== '' && $data['latitude'] !== null) ? (float)$data['latitude'] : null;
+    }
+    if (array_key_exists('longitude', $data)) {
+        $fields[] = "longitude = ?";
+        $params[] = ($data['longitude'] !== '' && $data['longitude'] !== null) ? (float)$data['longitude'] : null;
     }
     if (!empty($data['password'])) {
         $fields[] = "password = ?";
