@@ -99,28 +99,28 @@ renderHead(['title' => __('Provider Dashboard - Dabberha')]);
                 </div>
 
                 <!-- Total Bookings -->
-                <div class="bg-white rounded-2xl shadow-soft border border-brand-border p-6 flex flex-col justify-between hover:border-brand-primary/40 transition-all">
+                <a href="bookings.php" class="bg-white rounded-2xl shadow-soft border border-brand-border p-6 flex flex-col justify-between hover:border-brand-primary/40 hover:shadow-md transition-all group">
                     <div class="flex items-center justify-between mb-4">
-                        <span class="text-sm font-semibold text-brand-textMuted"><?php echo __('Bookings'); ?></span>
+                        <span class="text-sm font-semibold text-brand-textMuted group-hover:text-brand-primary transition-colors"><?php echo __('Bookings'); ?></span>
                         <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
                             <i class="fa-regular fa-calendar-check"></i>
                         </div>
                     </div>
                     <div class="text-3xl font-black text-brand-900 mb-1"><?php echo $total_bookings; ?></div>
                     <p class="text-xs text-amber-600 font-bold"><?php echo $pending_bookings; ?> <?php echo __('pending confirmation'); ?></p>
-                </div>
+                </a>
 
                 <!-- Earnings -->
-                <div class="bg-white rounded-2xl shadow-soft border border-brand-border p-6 flex flex-col justify-between hover:border-brand-primary/40 transition-all">
+                <a href="earnings.php" class="bg-white rounded-2xl shadow-soft border border-brand-border p-6 flex flex-col justify-between hover:border-brand-primary/40 hover:shadow-md transition-all group">
                     <div class="flex items-center justify-between mb-4">
-                        <span class="text-sm font-semibold text-brand-textMuted"><?php echo __('Earnings'); ?></span>
+                        <span class="text-sm font-semibold text-brand-textMuted group-hover:text-brand-primary transition-colors"><?php echo __('Earnings'); ?></span>
                         <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
                             <i class="fa-solid fa-wallet"></i>
                         </div>
                     </div>
                     <div class="text-3xl font-black text-brand-primary mb-1" dir="rtl"><?php echo number_format($total_earnings, 2); ?> <span class="text-lg">د.ل</span></div>
                     <p class="text-xs text-brand-textMuted"><?php echo __('From completed jobs'); ?></p>
-                </div>
+                </a>
 
                 <!-- Rating -->
                 <div class="bg-white rounded-2xl shadow-soft border border-brand-border p-6 flex flex-col justify-between hover:border-brand-primary/40 transition-all">

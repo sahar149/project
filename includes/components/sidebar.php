@@ -81,7 +81,14 @@ function renderSidebar(string $role = 'provider', string $active_page = ''): voi
                 'label' => __('Bookings'),
                 'url' => 'bookings.php',
                 'icon' => 'fa-regular fa-calendar-check',
-                'is_active' => ($active_page === 'bookings.php' || $active_page === 'booking-detail.php') && $current_status !== 'completed'
+                'is_active' => ($active_page === 'bookings.php' || $active_page === 'booking-detail.php')
+            ],
+            [
+                'id' => 'earnings.php',
+                'label' => __('Earnings'),
+                'url' => 'earnings.php',
+                'icon' => 'fa-solid fa-wallet',
+                'is_active' => ($active_page === 'earnings.php')
             ],
             [
                 'id' => 'reviews.php',
@@ -89,13 +96,6 @@ function renderSidebar(string $role = 'provider', string $active_page = ''): voi
                 'url' => 'reviews.php',
                 'icon' => 'fa-regular fa-star',
                 'is_active' => ($active_page === 'reviews.php')
-            ],
-            [
-                'id' => 'earnings',
-                'label' => __('Earnings'),
-                'url' => 'bookings.php?status=completed',
-                'icon' => 'fa-solid fa-wallet',
-                'is_active' => ($active_page === 'bookings.php' && $current_status === 'completed')
             ],
             [
                 'id' => 'profile.php',

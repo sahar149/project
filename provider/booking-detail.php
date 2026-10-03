@@ -44,8 +44,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status'])) {
             $message_type = 'success';
             $booking['status'] = $new_status;
 
-            // Send notification to customer
-            addNotification((int)$booking['customer_id'], sprintf(__('Your booking for %s has been marked as %s.'), $booking['service_title'], __($new_status)));
+            // إرسال إشعار فوري ومخصص للعميل حسب الحالة
+            $provider_title = !empty($booking['provider_name']) ? $booking['provider_name'] : 'مزود الخدمة';
+            $service_title = $booking['service_title'];
+
+            if ($new_status === 'confirmed') {
+                $notif_msg = "تمت الموافقة على طلبك للخدمة ($service_title) وتأكيد الحجز من قبل ($provider_title).";
+            } elseif ($new_status === 'completed') {
+                $notif_msg = "اكتملت خدمتك ($service_title) بنجاح! نرجو منك تقييم الخدمة لمساعدتنا في تحسين الجودة.";
+            } elseif ($new_status === 'cancelled') {
+                $notif_msg = "نعتذر منك، تعذر قبول طلبك للخدمة ($service_title). يمكنك تصفح واختيار مزود فني آخر.";
+            } else {
+                $notif_msg = "تم تحديث حالة طلبك للخدمة ($service_title) إلى: " . __($new_status);
+            }
+
+            addNotification((int)$booking['customer_id'], $notif_msg);
         }
     }
 }

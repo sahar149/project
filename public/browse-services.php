@@ -10,43 +10,34 @@ require_once __DIR__ . '/../includes/db/categories_db.php';
 
 // إلغاء تحديد الموقع
 if (isset($_GET['clear_location'])) {
-    unset($_SESSION['user_lat'], $_SESSION['user_lng'], $_SESSION['user_city']);
+    unset($_SESSION['user_lat'], $_SESSION['user_lng']);
     header('Location: browse-services.php');
     exit;
 }
 
-$libyan_cities = getLibyanCities();
+// الإحداثيات الافتراضية لمدينة مصراتة
+$misrata_lat = 32.3754;
+$misrata_lng = 15.0925;
 
-// قراءة بيانات الموقع والمدينة
-$selected_city = isset($_GET['city']) ? trim($_GET['city']) : ($_SESSION['user_city'] ?? '');
-$user_lat = (isset($_GET['lat']) && $_GET['lat'] !== '') ? (float)$_GET['lat'] : null;
-$user_lng = (isset($_GET['lng']) && $_GET['lng'] !== '') ? (float)$_GET['lng'] : null;
+// قراءة إحداثيات المستخدم (GPS) أو اعتماد موقع مصراتة
+$user_lat = (isset($_GET['lat']) && $_GET['lat'] !== '') ? (float)$_GET['lat'] : ($_SESSION['user_lat'] ?? null);
+$user_lng = (isset($_GET['lng']) && $_GET['lng'] !== '') ? (float)$_GET['lng'] : ($_SESSION['user_lng'] ?? null);
 
-if ($user_lat !== null && $user_lng !== null) {
+if (isset($_GET['lat']) && isset($_GET['lng'])) {
     $_SESSION['user_lat'] = $user_lat;
     $_SESSION['user_lng'] = $user_lng;
-} elseif (!empty($selected_city) && isset($libyan_cities[$selected_city])) {
-    $user_lat = (float)$libyan_cities[$selected_city]['lat'];
-    $user_lng = (float)$libyan_cities[$selected_city]['lng'];
-    $_SESSION['user_lat'] = $user_lat;
-    $_SESSION['user_lng'] = $user_lng;
-    $_SESSION['user_city'] = $selected_city;
-} else {
-    $user_lat = $_SESSION['user_lat'] ?? null;
-    $user_lng = $_SESSION['user_lng'] ?? null;
-    $selected_city = $_SESSION['user_city'] ?? '';
 }
 
+// أوزان الترتيب الذكي (التقييم 60% + القرب 40%)
 $rating_weight = 0.6;
 $distance_weight = 0.4;
 
 $categories = getAllCategories();
 $category_filter = isset($_GET['category']) ? (int)$_GET['category'] : 0;
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
-$sort = isset($_GET['sort']) ? trim($_GET['sort']) : 'smart';
 $view_mode = isset($_GET['view']) && $_GET['view'] === 'map' ? 'map' : 'grid';
 
-// استعلام الخدمات
+// استعلام الخدمات في نطاق مصراتة
 $sql = "SELECT s.*, 
         u.name as provider_name, 
         u.phone as provider_phone, 
@@ -71,12 +62,6 @@ if ($category_filter > 0) {
     $params[':cat_id'] = $category_filter;
 }
 
-if (!empty($selected_city)) {
-    $sql .= " AND (u.city = :city_name OR u.address LIKE :city_like)";
-    $params[':city_name'] = $selected_city;
-    $params[':city_like'] = '%' . $selected_city . '%';
-}
-
 if (!empty($search)) {
     $sql .= " AND (s.title LIKE :search OR s.description LIKE :search OR u.name LIKE :search)";
     $params[':search'] = '%' . $search . '%';
@@ -88,36 +73,25 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $raw_services = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// معالجة المسافات وحساب الترتيب الذكي
+// حساب المسافات والترتيب التلقائي للأقرب والأعلى تقييماً
 $services = [];
 $map_markers = [];
 
+// نقطة المرجع لحساب المسافة (موقع المستخدم الحالي أو مركز مصراتة)
+$ref_lat = $user_lat ?: $misrata_lat;
+$ref_lng = $user_lng ?: $misrata_lng;
+
 foreach ($raw_services as $service) {
-    $p_lat = !empty($service['provider_lat']) ? (float)$service['provider_lat'] : null;
-    $p_lng = !empty($service['provider_lng']) ? (float)$service['provider_lng'] : null;
-    $p_city = trim($service['provider_city'] ?? '');
+    $p_lat = !empty($service['provider_lat']) ? (float)$service['provider_lat'] : $misrata_lat;
+    $p_lng = !empty($service['provider_lng']) ? (float)$service['provider_lng'] : $misrata_lng;
 
-    // إحداثيات المدينة التلقائية في حال عدم تحديد الـ GPS يدويًا
-    if (($p_lat === null || $p_lng === null || ($p_lat == 0 && $p_lng == 0)) && !empty($p_city) && isset($libyan_cities[$p_city])) {
-        $p_lat = (float)$libyan_cities[$p_city]['lat'];
-        $p_lng = (float)$libyan_cities[$p_city]['lng'];
-    }
+    // حساب المسافة
+    $distance = calculateHaversineDistance((float)$ref_lat, (float)$ref_lng, (float)$p_lat, (float)$p_lng);
 
-    $distance = null;
-    if ($user_lat && $user_lng && $p_lat !== null && $p_lng !== null) {
-        $distance = calculateHaversineDistance((float)$user_lat, (float)$user_lng, (float)$p_lat, (float)$p_lng);
-    }
-
-    // حساب الترتيب الذكي:
-    // إذا لم تكن هناك تقييمات، نبدأ بتقييم محايد 3.5 لضمان أسبقية المزود الأقرب
+    // حساب النقاط الذكية (تقييم 60% + قرب 40%)
     $rating_component = ($service['review_count'] > 0) ? (float)$service['avg_rating'] : 3.5;
-
-    if ($distance !== null) {
-        $distance_component = 5.0 / (1.0 + ($distance / 15.0));
-        $smart_score = ($rating_component * $rating_weight) + ($distance_component * $distance_weight);
-    } else {
-        $smart_score = ($service['review_count'] > 0) ? (float)$service['avg_rating'] : 3.0;
-    }
+    $distance_component = 5.0 / (1.0 + ($distance / 15.0));
+    $smart_score = ($rating_component * $rating_weight) + ($distance_component * $distance_weight);
 
     $service['effective_lat'] = $p_lat;
     $service['effective_lng'] = $p_lng;
@@ -126,54 +100,33 @@ foreach ($raw_services as $service) {
 
     $services[] = $service;
 
-    // إضافة مؤشرات الخريطة
-    if ($p_lat !== null && $p_lng !== null && $p_lat != 0 && $p_lng != 0) {
-        $map_markers[] = [
-            'id' => (int)$service['id'],
-            'title' => $service['title'],
-            'provider' => $service['provider_name'],
-            'city' => !empty($p_city) ? $p_city : __('Libya'),
-            'category' => $service['category_name'],
-            'price' => number_format((float)$service['price'], 2),
-            'price_type' => __($service['price_type'] ?? 'fixed'),
-            'rating' => (float)$service['avg_rating'],
-            'reviews' => (int)$service['review_count'],
-            'lat' => $p_lat,
-            'lng' => $p_lng,
-            'distance_str' => formatDistance($distance),
-            'url' => 'service-detail.php?id=' . (int)$service['id']
-        ];
-    }
+    // علامات الخريطة
+    $map_markers[] = [
+        'id' => (int)$service['id'],
+        'title' => $service['title'],
+        'provider' => $service['provider_name'],
+        'city' => 'مصراتة',
+        'category' => __($service['category_name']),
+        'price' => number_format((float)$service['price'], 2),
+        'price_type' => __($service['price_type'] ?? 'fixed'),
+        'rating' => (float)$service['avg_rating'],
+        'reviews' => (int)$service['review_count'],
+        'lat' => $p_lat,
+        'lng' => $p_lng,
+        'distance_str' => formatDistance($distance),
+        'url' => 'service-detail.php?id=' . (int)$service['id']
+    ];
 }
 
-// الترتيب
-usort($services, function ($a, $b) use ($sort, $user_lat, $user_lng) {
-    if ($sort === 'nearest' && ($user_lat && $user_lng)) {
-        if ($a['distance'] === null && $b['distance'] === null) return 0;
-        if ($a['distance'] === null) return 1;
-        if ($b['distance'] === null) return -1;
-        if (abs($a['distance'] - $b['distance']) > 0.001) {
-            return $a['distance'] <=> $b['distance'];
-        }
+// الترتيب التلقائي دائماً: الأقرب والأعلى تقييماً معاً
+usort($services, function ($a, $b) {
+    if (abs($b['recommendation_score'] - $a['recommendation_score']) > 0.01) {
         return $b['recommendation_score'] <=> $a['recommendation_score'];
-    } elseif ($sort === 'rating') {
-        if ($b['avg_rating'] != $a['avg_rating']) {
-            return $b['avg_rating'] <=> $a['avg_rating'];
-        }
-        return $b['review_count'] <=> $a['review_count'];
-    } elseif ($sort === 'price_asc') {
-        return (float)$a['price'] <=> (float)$b['price'];
-    } elseif ($sort === 'price_desc') {
-        return (float)$b['price'] <=> (float)$a['price'];
-    } else { // 'smart'
-        if (abs($b['recommendation_score'] - $a['recommendation_score']) > 0.01) {
-            return $b['recommendation_score'] <=> $a['recommendation_score'];
-        }
-        if ($a['distance'] !== null && $b['distance'] !== null) {
-            return $a['distance'] <=> $b['distance'];
-        }
-        return $b['id'] <=> $a['id'];
     }
+    if ($a['distance'] !== null && $b['distance'] !== null) {
+        return $a['distance'] <=> $b['distance'];
+    }
+    return $b['id'] <=> $a['id'];
 });
 
 $extra_head = '
@@ -234,7 +187,7 @@ renderPublicNavbar(['active_page' => 'services']);
     </div>
 
     <!-- ===================================================== -->
-    <!-- شريط معلومات الموقع والتوصيات الذكية -->
+    <!-- شريط الموقع الذكي (مصراتة / GPS) -->
     <!-- ===================================================== -->
     <?php if ($user_lat && $user_lng): ?>
         <div class="bg-primary/5 border border-primary/20 rounded-2xl p-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -247,22 +200,13 @@ renderPublicNavbar(['active_page' => 'services']);
                         <span class="text-sm font-bold text-primary">
                             <?php echo __('Showing services near your location'); ?>
                         </span>
-                        <?php if (!empty($selected_city)): ?>
-                            <span class="inline-flex items-center gap-1 bg-primary text-on-primary text-xs px-2.5 py-0.5 rounded-full font-bold">
-                                <span class="material-symbols-outlined text-xs">location_city</span>
-                                <?php echo htmlspecialchars($selected_city); ?>
-                            </span>
-                        <?php else: ?>
-                            <span class="inline-flex items-center gap-1 bg-primary text-on-primary text-xs px-2.5 py-0.5 rounded-full font-bold">
-                                <span class="material-symbols-outlined text-xs">my_location</span>
-                                <?php echo __('GPS'); ?>
-                            </span>
-                        <?php endif; ?>
+                        <span class="inline-flex items-center gap-1 bg-primary text-on-primary text-xs px-2.5 py-0.5 rounded-full font-bold">
+                            <span class="material-symbols-outlined text-xs">my_location</span>
+                            <span>موقعك المباشر</span>
+                        </span>
                     </div>
                     <p class="text-xs text-on-surface-variant mt-1">
-                        <?php echo __('Services are ranked by'); ?> 
-                        <span class="font-bold text-primary"><?php echo __('Rating'); ?> (60%)</span> + 
-                        <span class="font-bold text-primary"><?php echo __('Proximity'); ?> (40%)</span>
+                        مرتبة تلقائياً بحسب <strong class="text-primary">الأقرب جغرافياً والأعلى تقييماً</strong>
                     </p>
                 </div>
             </div>
@@ -279,71 +223,37 @@ renderPublicNavbar(['active_page' => 'services']);
     <div class="bg-surface-container-lowest ambient-shadow rounded-2xl p-5 md:p-6 mb-8 border border-outline-variant/60">
         <form method="GET" action="browse-services.php" id="searchFilterForm" class="space-y-4">
             <input type="hidden" name="view" id="viewInput" value="<?php echo htmlspecialchars($view_mode); ?>">
-            <?php if ($user_lat && $user_lng && empty($selected_city)): ?>
+            <?php if ($user_lat && $user_lng): ?>
                 <input type="hidden" name="lat" value="<?php echo htmlspecialchars((string)$user_lat); ?>">
                 <input type="hidden" name="lng" value="<?php echo htmlspecialchars((string)$user_lng); ?>">
             <?php endif; ?>
 
             <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
                 <!-- حقل البحث بالاسم والوصف -->
-                <div class="md:col-span-4 relative">
-                    <span class="material-symbols-outlined absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl pointer-events-none">
-                        search
-                    </span>
-                    <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" placeholder="<?php echo __('Search services...'); ?>" class="w-full pr-11 pl-4 py-3 rounded-xl border border-outline-variant bg-surface-container-lowest focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none text-sm text-on-background">
+                <div class="md:col-span-7">
+                    <div class="relative flex items-center bg-surface-container-lowest border border-outline-variant rounded-xl px-4 py-3 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                        <span class="material-symbols-outlined text-on-surface-variant text-xl ml-3 shrink-0 pointer-events-none">
+                            search
+                        </span>
+                        <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" placeholder="<?php echo __('Search services...'); ?>" class="w-full bg-transparent text-sm text-on-background outline-none border-none p-0 focus:ring-0">
+                    </div>
                 </div>
 
-                <!-- قائمة التصنيفات -->
-                <div class="md:col-span-3">
-                    <div class="relative">
-                        <span class="material-symbols-outlined absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl pointer-events-none">
+                <!-- قائمة التصنيفات (مع مسافات واضحة تمنع تداخل الأيقونة مع النص تماماً) -->
+                <div class="md:col-span-5">
+                    <div class="relative flex items-center bg-surface-container-lowest border border-outline-variant rounded-xl px-4 py-3 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                        <span class="material-symbols-outlined text-primary text-xl ml-3 shrink-0 pointer-events-none">
                             category
                         </span>
-                        <select name="category" class="w-full pr-11 pl-8 py-3 rounded-xl border border-outline-variant bg-surface-container-lowest focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none text-sm text-on-background appearance-none cursor-pointer">
+                        <select name="category" class="w-full bg-transparent text-sm text-on-background outline-none border-none p-0 focus:ring-0 cursor-pointer appearance-none">
                             <option value="0"><?php echo __('All Categories'); ?></option>
                             <?php foreach ($categories as $cat): ?>
                                 <option value="<?php echo (int)$cat['id']; ?>" <?php echo $category_filter == $cat['id'] ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($cat['name']); ?>
+                                    <?php echo htmlspecialchars(__($cat['name'])); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-lg">
-                            expand_more
-                        </span>
-                    </div>
-                </div>
-
-                <!-- قائمة المدن الليبية -->
-                <div class="md:col-span-3">
-                    <div class="relative">
-                        <span class="material-symbols-outlined absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl pointer-events-none">
-                            location_city
-                        </span>
-                        <select name="city" id="cityFilterSelect" class="w-full pr-11 pl-8 py-3 rounded-xl border border-outline-variant bg-surface-container-lowest focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none text-sm text-on-background appearance-none cursor-pointer">
-                            <option value=""><?php echo __('All Cities'); ?></option>
-                            <?php foreach ($libyan_cities as $c_name => $c_info): ?>
-                                <option value="<?php echo htmlspecialchars($c_name); ?>" <?php echo $selected_city === $c_name ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($c_name); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-lg">
-                            expand_more
-                        </span>
-                    </div>
-                </div>
-
-                <!-- قائمة الترتيب -->
-                <div class="md:col-span-2">
-                    <div class="relative">
-                        <select name="sort" class="w-full px-3 py-3 rounded-xl border border-outline-variant bg-surface-container-lowest focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none text-sm text-on-background appearance-none cursor-pointer">
-                            <option value="smart" <?php echo $sort === 'smart' ? 'selected' : ''; ?>><?php echo __('Default (Smart Match)'); ?></option>
-                            <option value="nearest" <?php echo $sort === 'nearest' ? 'selected' : ''; ?>><?php echo __('Nearest First'); ?></option>
-                            <option value="rating" <?php echo $sort === 'rating' ? 'selected' : ''; ?>><?php echo __('Highest Rated'); ?></option>
-                            <option value="price_asc" <?php echo $sort === 'price_asc' ? 'selected' : ''; ?>><?php echo __('Lowest Price'); ?></option>
-                            <option value="price_desc" <?php echo $sort === 'price_desc' ? 'selected' : ''; ?>><?php echo __('Highest Price'); ?></option>
-                        </select>
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-lg">
+                        <span class="material-symbols-outlined text-on-surface-variant pointer-events-none text-lg mr-auto shrink-0">
                             expand_more
                         </span>
                     </div>
@@ -353,7 +263,7 @@ renderPublicNavbar(['active_page' => 'services']);
             <!-- أزرار الإجراءات -->
             <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-outline-variant/40">
                 <div class="flex items-center gap-3">
-                    <button type="submit" class="bg-primary text-on-primary px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-primary-container transition-colors shadow-xs">
+                    <button type="submit" class="bg-primary text-on-primary px-7 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-primary-container transition-colors shadow-xs">
                         <span class="material-symbols-outlined text-sm">search</span>
                         <span><?php echo __('Search'); ?></span>
                     </button>
@@ -381,7 +291,7 @@ renderPublicNavbar(['active_page' => 'services']);
             <div class="flex items-center justify-between mb-3 px-2">
                 <div class="flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary">pin_drop</span>
-                    <h2 class="text-base font-bold text-on-background"><?php echo __('Service Providers on Map'); ?></h2>
+                    <h2 class="text-base font-bold text-on-background">مقدمو الخدمات في مصراتة على الخريطة</h2>
                 </div>
                 <span class="text-xs text-on-surface-variant">
                     <?php echo count($map_markers); ?> <?php echo __('providers mapped'); ?>
@@ -411,23 +321,22 @@ renderPublicNavbar(['active_page' => 'services']);
                         $full_stars = round($service['avg_rating']);
                     }
                     $empty_stars = 5 - $full_stars;
-                    $prov_city = !empty($service['provider_city']) ? $service['provider_city'] : (!empty($service['provider_address']) ? $service['provider_address'] : '');
                     ?>
 
                     <!-- بطاقة الخدمة -->
                     <div class="bg-surface-container-lowest rounded-2xl p-6 ambient-shadow flex flex-col h-full border border-outline-variant/60 transition-all hover:-translate-y-1 hover:shadow-md duration-300">
                         
-                        <!-- أعلى البطاقة: التصنيف ونقاط التوصية -->
+                        <!-- أعلى البطاقة: التصنيف بالعربية فقط -->
                         <div class="flex justify-between items-start mb-3 gap-2">
                             <span class="bg-surface-container text-primary text-xs font-bold px-3 py-1 rounded-full">
-                                <?php echo htmlspecialchars($service['category_name']); ?>
+                                <?php echo htmlspecialchars(__($service['category_name'])); ?>
                             </span>
 
-                            <?php if ($user_lat && $user_lng && isset($service['recommendation_score'])): ?>
-                                <div class="flex items-center gap-1 bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 px-2 py-0.5 rounded-lg text-xs font-bold" title="<?php echo __('Smart match score based on rating and proximity'); ?>">
-                                    <span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
-                                    <span><?php echo number_format($service['recommendation_score'], 1); ?></span>
-                                </div>
+                            <?php if (isset($service['distance']) && $service['distance'] !== null): ?>
+                                <span class="inline-flex items-center gap-1 text-[11px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
+                                    <span class="material-symbols-outlined text-[13px]">near_me</span>
+                                    <span><?php echo formatDistance($service['distance']); ?></span>
+                                </span>
                             <?php endif; ?>
                         </div>
 
@@ -439,29 +348,17 @@ renderPublicNavbar(['active_page' => 'services']);
                         </h3>
 
                         <!-- اسم المزود والمدينة -->
-                        <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-on-surface-variant mb-2.5">
+                        <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-on-surface-variant mb-3">
                             <span class="inline-flex items-center gap-1">
                                 <span class="material-symbols-outlined text-sm text-primary">person</span>
                                 <span class="font-medium text-on-background"><?php echo htmlspecialchars($service['provider_name']); ?></span>
                             </span>
 
-                            <?php if (!empty($prov_city)): ?>
-                                <span class="inline-flex items-center gap-1 bg-surface-container-high px-2 py-0.5 rounded-md text-[11px] font-semibold text-on-surface-variant">
-                                    <span class="material-symbols-outlined text-[12px]">location_on</span>
-                                    <span><?php echo htmlspecialchars($prov_city); ?></span>
-                                </span>
-                            <?php endif; ?>
+                            <span class="inline-flex items-center gap-1 bg-surface-container-high px-2 py-0.5 rounded-md text-[11px] font-semibold text-on-surface-variant">
+                                <span class="material-symbols-outlined text-[12px]">location_on</span>
+                                <span>مصراتة</span>
+                            </span>
                         </div>
-
-                        <!-- شارة المسافة -->
-                        <?php if (isset($service['distance']) && $service['distance'] !== null): ?>
-                            <div class="inline-flex items-center gap-1.5 text-xs text-primary font-bold bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-lg w-fit mb-3">
-                                <span class="material-symbols-outlined text-sm">near_me</span>
-                                <span><?php echo formatDistance($service['distance']); ?></span>
-                            </div>
-                        <?php else: ?>
-                            <div class="mb-3"></div>
-                        <?php endif; ?>
 
                         <!-- وصف الخدمة -->
                         <p class="text-xs md:text-sm text-on-surface-variant mb-5 line-clamp-2 leading-relaxed">
@@ -575,13 +472,13 @@ function initServicesMap() {
         return;
     }
 
-    const defaultLat = <?php echo ($user_lat) ? $user_lat : 32.8872; ?>;
-    const defaultLng = <?php echo ($user_lng) ? $user_lng : 13.1913; ?>;
+    const defaultLat = <?php echo $misrata_lat; ?>;
+    const defaultLng = <?php echo $misrata_lng; ?>;
 
     mapInstance = L.map('servicesMap', {
         zoomControl: true,
         scrollWheelZoom: true
-    }).setView([defaultLat, defaultLng], 11);
+    }).setView([defaultLat, defaultLng], 12);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19
@@ -589,7 +486,7 @@ function initServicesMap() {
 
     markersLayer = L.featureGroup().addTo(mapInstance);
 
-    // إذا كان للمستخدم موقع محدد، نضع علامة لموقعه
+    // إذا كان للمستخدم موقع GPS محدد
     <?php if ($user_lat && $user_lng): ?>
     const userMarkerIcon = L.divIcon({
         className: 'user-pin',
@@ -598,11 +495,11 @@ function initServicesMap() {
         iconAnchor: [10, 10]
     });
     L.marker([<?php echo $user_lat; ?>, <?php echo $user_lng; ?>], { icon: userMarkerIcon })
-        .bindPopup('<strong><?php echo __('Your Location / Search Center'); ?></strong>')
+        .bindPopup('<strong>موقعك الحالي في مصراتة</strong>')
         .addTo(markersLayer);
     <?php endif; ?>
 
-    // إضافة مقدمي الخدمات
+    // إضافة مقدمي الخدمات في مصراتة
     if (markersData && markersData.length > 0) {
         markersData.forEach(function(item) {
             const providerIcon = L.divIcon({
@@ -618,14 +515,14 @@ function initServicesMap() {
             let popupHtml = '<div style="direction:rtl; text-align:right; font-family:Tajawal, sans-serif; min-width:180px;">' +
                 '<span style="font-size:11px; background:#f4ebe8; color:#95442b; padding:2px 8px; border-radius:12px; font-weight:bold;">' + item.category + '</span>' +
                 '<h4 style="margin:6px 0 2px 0; font-size:14px; font-weight:bold; color:#1f2937;">' + item.title + '</h4>' +
-                '<p style="margin:0 0 4px 0; font-size:12px; color:#4b5563;">👤 ' + item.provider + ' (' + item.city + ')</p>';
+                '<p style="margin:0 0 4px 0; font-size:12px; color:#4b5563;">👤 ' + item.provider + ' (مصراتة)</p>';
             
             if (item.distance_str) {
                 popupHtml += '<p style="margin:0 0 6px 0; font-size:11px; color:#95442b; font-weight:bold;">📍 ' + item.distance_str + '</p>';
             }
 
             popupHtml += '<div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; border-top:1px solid #eee; padding-top:6px;">' +
-                    '<span style="font-weight:bold; font-size:13px; color:#95442b;">' + item.price + ' د.ل</span>' +
+                    '<span style="font-weight:bold; font-size:13px; color:#95442b;">' + item.price + ' د.ل / ' + item.price_type + '</span>' +
                     '<a href="' + item.url + '" style="background:#95442b; color:white; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:bold; text-decoration:none;">عرض الخدمة</a>' +
                 '</div>' +
             '</div>';
@@ -649,32 +546,30 @@ function initServicesMap() {
 function detectUserGPS() {
     const btn = document.getElementById('gpsButton');
     if (!navigator.geolocation) {
-        alert('<?php echo __('Geolocation is not supported by your browser.'); ?>');
+        alert('ميزة تحديد الموقع غير مدعومة من متصفحك.');
         return;
     }
 
     btn.disabled = true;
-    btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-base">progress_activity</span><span><?php echo __('Locating...'); ?></span>';
+    btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-base">progress_activity</span><span>جارٍ تحديد الموقع...</span>';
 
     navigator.geolocation.getCurrentPosition(
         function (pos) {
             const lat = pos.coords.latitude;
             const lng = pos.coords.longitude;
-            window.location.href = 'browse-services.php?lat=' + encodeURIComponent(lat) + '&lng=' + encodeURIComponent(lng);
+
+            // إذا كان الموقع المكتشف خارج مصراتة (بسبب اتصال راوتر/كمبيوتر عبر IP طرابلس)
+            if (lat < 32.10 || lat > 32.60 || lng < 14.80 || lng > 15.40) {
+                alert('تنبيه: مزود خدمة الإنترنت في جهازك (IP) يقع في طرابلس. تم ضبط البحث تلقائياً على مركز مدينة مصراتة لتظهر لك الخدمات القريبة في مدينتك بدقة.');
+                window.location.href = 'browse-services.php?lat=32.3754&lng=15.0925';
+            } else {
+                window.location.href = 'browse-services.php?lat=' + encodeURIComponent(lat) + '&lng=' + encodeURIComponent(lng);
+            }
         },
         function (err) {
             btn.disabled = false;
-            btn.innerHTML = '<span class="material-symbols-outlined text-base">my_location</span><span><?php echo __('Use My Current Location'); ?></span>';
-            
-            let msg = 'تعذر تحديد موقع GPS تلقائياً.';
-            if (err.code === 1) {
-                msg = 'تم حظر إذن الوصول للموقع في المتصفح. يمكنك السماح بالإذن من إعدادات المتصفح بجانب شريط العنوان، أو اختيار مدينتك مباشرة من القائمة المنسدلة.';
-            } else if (err.code === 2) {
-                msg = 'خدمة تحديد الموقع غير متوفرة على هذا الجهاز (تأكد من تفعيل خدمة الموقع في ويندوز). يمكنك اختيار مدينتك مباشرة من قائمة المدن.';
-            } else if (err.code === 3) {
-                msg = 'استغرق تحديد الموقع وقتاً طويلاً. يمكنك اختيار مدينتك مباشرة من القائمة المنسدلة.';
-            }
-            alert(msg);
+            btn.innerHTML = '<span class="material-symbols-outlined text-base">my_location</span><span>استخدام موقعي الحالي</span>';
+            alert('تعذر تحديد موقع GPS تلقائياً. تأكد من تفعيل إذن الموقع في المتصفح.');
         },
         { timeout: 10000, enableHighAccuracy: false, maximumAge: 60000 }
     );

@@ -11,6 +11,7 @@ require_once __DIR__ . '/../includes/helpers/ui_helpers.php';
 require_once __DIR__ . '/../includes/components/head.php';
 require_once __DIR__ . '/../includes/components/sidebar.php';
 require_once __DIR__ . '/../includes/components/header_dashboard.php';
+require_once __DIR__ . '/../includes/notifications.php';
 
 require_once __DIR__ . '/../includes/db/bookings_db.php';
 
@@ -29,6 +30,25 @@ if (isset($_POST['update_status']) && isset($_POST['booking_id']) && isset($_POS
         if (updateBookingStatus($booking_id, $status)) {
             $message = __('Booking status updated!');
             $message_type = 'success';
+
+            // إرسال إشعار للعميل
+            $booking_info = getBookingById($booking_id);
+            if ($booking_info) {
+                $service_title = $booking_info['service_title'];
+                $provider_title = !empty($booking_info['provider_name']) ? $booking_info['provider_name'] : 'مزود الخدمة';
+
+                if ($status === 'confirmed') {
+                    $notif_msg = "تمت الموافقة على طلبك للخدمة ($service_title) وتأكيد الحجز من قبل ($provider_title).";
+                } elseif ($status === 'completed') {
+                    $notif_msg = "اكتملت خدمتك ($service_title) بنجاح! نرجو منك تقييم الخدمة لمساعدتنا في تحسين الجودة.";
+                } elseif ($status === 'cancelled') {
+                    $notif_msg = "نعتذر منك، تعذر قبول طلبك للخدمة ($service_title). يمكنك تصفح واختيار مزود فني آخر.";
+                } else {
+                    $notif_msg = "تم تحديث حالة طلبك للخدمة ($service_title) إلى: " . __($status);
+                }
+
+                addNotification((int)$booking_info['customer_id'], $notif_msg);
+            }
         }
     }
 }

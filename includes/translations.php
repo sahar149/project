@@ -61,6 +61,11 @@ $translations = [
     'Gardening' => 'بستنة',
     'Moving' => 'نقل',
     'Painting' => 'دهان',
+    'Car Mechanic' => 'ميكانيكا سيارات',
+    'Carpentry' => 'نجارة',
+    'AC Repair' => 'تكييف وتبريد',
+    'Tutoring' => 'تدريس وتعليم',
+    'Home Services' => 'خدمات منزلية',
     
     // ===== كيف تعمل المنصة (How it Works) =====
     'How Dabberha Works' => 'كيف تعمل دبرها',
@@ -786,6 +791,19 @@ $translations = [
     'Help Center' => 'مركز المساعدة',
     'Dabberha. All rights reserved.' => 'دبرها. جميع الحقوق محفوظة.',
     'Made with excellence for our local community' => 'صُنع بكل إتقان لخدمة مجتمعنا المحلي',
+    'Earnings & Financials' => 'الأرباح والتقارير المالية',
+    'Track your revenue, completed orders, and financial summary' => 'متابعة إجمالي الدخل، والطلبات المكتملة، وتقارير المعاملات المالية',
+    'Total Revenue' => 'إجمالي الإيرادات',
+    'Completed Paid Orders' => 'الطلبات المكتملة',
+    'Average Order Value' => 'متوسط قيمة الطلب',
+    'This Month\'s Earnings' => 'أرباح الشهر الحالي',
+    'Completed Transactions' => 'سجل المعاملات المكتملة',
+    'Paid Amount' => 'المبلغ المستلم',
+    'No Earnings Recorded Yet' => 'لا توجد أرباح مسجلة بعد',
+    'When you complete customer booking requests, your earnings and revenue reports will appear here.' => 'عند إكمال طلبات حجز العملاء بنجاح، ستظهر عوائدك وأرباحك المالية هنا.',
+    'Successfully delivered' => 'تم إنجازها بنجاح',
+    'Per completed service' => 'لكل خدمة مكتملة',
+    'orders' => 'معاملة',
 ];
 
 // دالة للترجمة

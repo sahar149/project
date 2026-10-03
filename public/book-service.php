@@ -48,11 +48,14 @@ $booking_id = createBooking([
 ]);
 
 if ($booking_id > 0) {
-    // Notification for provider
-    addNotification($provider_id, sprintf(__('New booking request from %s for %s'), getUserName(), date('Y-m-d', strtotime($booking_date))));
+    // إشعار لمزود الخدمة
+    $cust_name = getUserName();
+    $serv_title = $service['title'];
+    $b_date = date('Y-m-d', strtotime($booking_date));
+    addNotification($provider_id, "لديك طلب حجز جديد لخدمة ($serv_title) من العميل ($cust_name) لتاريخ $b_date.");
 
-    // Notification for customer
-    addNotification($customer_id, __('Your booking has been submitted successfully. Waiting for provider confirmation.'));
+    // إشعار للعميل
+    addNotification($customer_id, "تم إرسال طلب حجزك لخدمة ($serv_title) بنجاح، وهو الآن في انتظار موافقة مزود الخدمة.");
 
     header("Location: booking-confirmation.php?id=$booking_id");
     exit;

@@ -33,10 +33,10 @@ renderHead(['title' => __('My Bookings - Provider Dashboard')]);
                 <div>
                     <h1 class="text-2xl md:text-3xl font-bold text-brand-900 flex items-center gap-3">
                         <i class="fa-regular fa-calendar-check text-brand-primary"></i>
-                        <span><?php echo $status_filter === 'completed' ? __('Earnings & Completed Jobs') : __('Bookings Management'); ?></span>
+                        <span><?php echo __('My Bookings'); ?></span>
                     </h1>
                     <p class="text-brand-textMuted mt-1">
-                        <?php echo $status_filter === 'completed' ? __('Track completed orders and revenue') : __('Manage incoming bookings and schedule'); ?>
+                        <?php echo __('All booking requests for your services'); ?>
                     </p>
                 </div>
 
@@ -54,6 +54,9 @@ renderHead(['title' => __('My Bookings - Provider Dashboard')]);
                     <a href="bookings.php?status=completed" class="px-3.5 py-2 rounded-xl transition-all <?php echo $status_filter === 'completed' ? 'bg-white text-brand-primary shadow-2xs' : 'text-brand-textMuted hover:text-brand-primary'; ?>">
                         <?php echo __('Completed'); ?>
                     </a>
+                    <a href="bookings.php?status=cancelled" class="px-3.5 py-2 rounded-xl transition-all <?php echo $status_filter === 'cancelled' ? 'bg-white text-brand-primary shadow-2xs' : 'text-brand-textMuted hover:text-brand-primary'; ?>">
+                        <?php echo __('Cancelled'); ?>
+                    </a>
                 </div>
             </div>
 
@@ -63,13 +66,13 @@ renderHead(['title' => __('My Bookings - Provider Dashboard')]);
                     <table class="w-full text-right border-collapse whitespace-nowrap">
                         <thead>
                             <tr class="border-b border-brand-border bg-brand-surface/60 text-brand-text font-bold text-xs">
-                                <th class="py-4 px-6">ID</th>
+                                <th class="py-4 px-6"><?php echo __('ID'); ?></th>
                                 <th class="py-4 px-6"><?php echo __('Service'); ?></th>
                                 <th class="py-4 px-6"><?php echo __('Customer'); ?></th>
                                 <th class="py-4 px-6"><?php echo __('Date & Time'); ?></th>
                                 <th class="py-4 px-6"><?php echo __('Price'); ?></th>
                                 <th class="py-4 px-6"><?php echo __('Status'); ?></th>
-                                <th class="py-4 px-6 text-center"><?php echo __('Details'); ?></th>
+                                <th class="py-4 px-6 text-center"><?php echo __('Action'); ?></th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-brand-border text-sm">
@@ -92,7 +95,7 @@ renderHead(['title' => __('My Bookings - Provider Dashboard')]);
                                         <td class="py-4 px-6"><?php echo renderStatusBadge($booking['status']); ?></td>
                                         <td class="py-4 px-6 text-center">
                                             <a href="booking-detail.php?id=<?php echo (int)$booking['id']; ?>" class="inline-flex items-center gap-1 bg-brand-surface hover:bg-brand-surfaceAlt text-brand-text border border-brand-border px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-2xs">
-                                                <span><?php echo __('View'); ?></span>
+                                                <span><?php echo __('View Details'); ?></span>
                                                 <i class="fa-solid fa-chevron-left text-[10px]"></i>
                                             </a>
                                         </td>
@@ -101,7 +104,7 @@ renderHead(['title' => __('My Bookings - Provider Dashboard')]);
                             <?php else: ?>
                                 <tr>
                                     <td colspan="7" class="py-12 px-6 text-center">
-                                        <?php echo renderEmptyState('fa-regular fa-calendar-xmark', 'No bookings found'); ?>
+                                        <?php echo renderEmptyState('fa-regular fa-calendar-xmark', __('No Bookings Yet'), __('You don\'t have any booking requests. When customers book your services, they will appear here.')); ?>
                                     </td>
                                 </tr>
                             <?php endif; ?>
