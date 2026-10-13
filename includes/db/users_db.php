@@ -141,8 +141,38 @@ function updateUserPassword(int $id, string $raw_password): bool {
 
 function deleteUser(int $id): bool {
     global $pdo;
-    $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
-    return $stmt->execute([$id]);
+    try {
+        $pdo->beginTransaction();
+
+        // 1. حذف إشعارات المستخدم
+        $stmt = $pdo->prepare("DELETE FROM notifications WHERE user_id = ?");
+        $stmt->execute([$id]);
+
+        // 2. حذف التقييمات المتعلقة بالمستخدم
+        $stmt = $pdo->prepare("DELETE FROM reviews WHERE customer_id = ? OR provider_id = ?");
+        $stmt->execute([$id, $id]);
+
+        // 3. حذف الحجوزات كعميل أو كمزود
+        $stmt = $pdo->prepare("DELETE FROM bookings WHERE customer_id = ? OR provider_id = ?");
+        $stmt->execute([$id, $id]);
+
+        // 4. حذف الخدمات المقدمة من المزود
+        $stmt = $pdo->prepare("DELETE FROM services WHERE provider_id = ?");
+        $stmt->execute([$id]);
+
+        // 5. حذف سجل المستخدم
+        $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
+        $stmt->execute([$id]);
+
+        $pdo->commit();
+        return true;
+    } catch (Exception $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        error_log("Failed to delete user $id: " . $e->getMessage());
+        return false;
+    }
 }
 
 function getUsersCount(?string $role = null, ?string $status = null): int {

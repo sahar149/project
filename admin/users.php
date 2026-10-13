@@ -41,7 +41,13 @@ if (isset($_GET['delete']) && isset($_GET['id'])) {
         if (deleteUser($user_id)) {
             $message = __('User deleted successfully!');
             $message_type = 'success';
+        } else {
+            $message = __('Failed to delete user.');
+            $message_type = 'danger';
         }
+    } elseif ($user && $user['role'] === 'admin') {
+        $message = __('Cannot delete admin account.');
+        $message_type = 'danger';
     }
 }
 

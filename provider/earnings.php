@@ -33,6 +33,13 @@ foreach ($completed_bookings as $b) {
     }
 }
 
+$arabic_months = [
+    1 => 'يناير', 2 => 'فبراير', 3 => 'مارس', 4 => 'أبريل',
+    5 => 'مايو', 6 => 'يونيو', 7 => 'يوليو', 8 => 'أغسطس',
+    9 => 'سبتمبر', 10 => 'أكتوبر', 11 => 'نوفمبر', 12 => 'ديسمبر'
+];
+$current_month_name = ($arabic_months[(int)date('n')] ?? date('F')) . ' ' . date('Y');
+
 renderHead(['title' => __('Earnings & Financials') . ' - ' . __('Dabberha')]);
 ?>
 
@@ -83,7 +90,7 @@ renderHead(['title' => __('Earnings & Financials') . ' - ' . __('Dabberha')]);
                     <div class="text-3xl font-black text-brand-900 mb-1" dir="rtl">
                         <?php echo number_format($this_month_earnings, 2); ?> <span class="text-lg">د.ل</span>
                     </div>
-                    <p class="text-xs text-brand-textMuted"><?php echo date('F Y'); ?></p>
+                    <p class="text-xs text-brand-textMuted"><?php echo htmlspecialchars($current_month_name); ?></p>
                 </div>
 
                 <!-- الطلبات المكتملة -->
